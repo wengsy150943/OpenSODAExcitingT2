@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -42,7 +41,6 @@ func Get_On_certain_repo(repo string, metric string) ([]byte, []byte) {
 		metric:      string(body),
 	}
 	bytes, _ := json.Marshal(repo_info)
-	fmt.Println(string(bytes))
 
 	return bytes, body
 }
@@ -69,7 +67,6 @@ func Get_On_certain_month(repo string, metric string, month string) []byte {
 		}
 	}
 	bytes, _ := json.Marshal(repo_info)
-	fmt.Println(string(bytes))
 	return bytes
 
 }
