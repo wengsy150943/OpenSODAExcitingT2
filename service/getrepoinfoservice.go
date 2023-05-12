@@ -21,7 +21,7 @@ type RepoInfo struct {
 *
 Get_On_certain_repo
 */
-func Get_On_certain_repo(repo string, metric string) ([]byte, []byte) {
+func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
 
 	Base_url := "https://oss.x-lab.info/open_digger/github/"
 	url := Base_url + repo + "/" + strings.ToLower(metric) + ".json"
@@ -45,7 +45,7 @@ func Get_On_certain_repo(repo string, metric string) ([]byte, []byte) {
 	return bytes, body
 }
 
-func Get_On_certain_month(repo string, metric string, month string) []byte {
+func GetCertainMonth(repo string, metric string, month string) []byte {
 
 	jsonData, body := Get_On_certain_repo(repo, metric)
 	var v1 interface{}
