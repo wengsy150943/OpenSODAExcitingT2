@@ -47,7 +47,7 @@ func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
 
 func GetCertainMonth(repo string, metric string, month string) []byte {
 
-	jsonData, body := Get_On_certain_repo(repo, metric)
+	jsonData, body := GetCertainRepo(repo, metric)
 	var v1 interface{}
 	var v2 interface{}
 
