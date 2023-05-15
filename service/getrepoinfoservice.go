@@ -9,12 +9,12 @@ import (
 )
 
 type RepoInfo struct {
-	Name            string `json:"repo.name"`
-	Url             string `json:"repo.url"`
-	month           string
-	openrank        string `json:"repo.index.xlab.openrank"`
-	activity        string `json:"repo.index.xlab.activity"`
-	dates_and_times string `json:"repo.metric.chaoss.active dates and times"`
+	name          string `json:"repo.name"`
+	URL           string `json:"repo.url"`
+	month         string
+	openRank      string `json:"repo.index.xlab.openrank"`
+	activity      string `json:"repo.index.xlab.activity"`
+	datesAndTimes string `json:"repo.metric.chaoss.active dates and times"`
 }
 
 /*
