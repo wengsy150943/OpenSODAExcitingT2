@@ -62,6 +62,5 @@ func GetCertainMonth(repo string, metric string, month string) map[string]string
 			}
 		}
 	}
-	//bytes, _ := json.Marshal(repoInfo)
 	return repoInfo
 }
