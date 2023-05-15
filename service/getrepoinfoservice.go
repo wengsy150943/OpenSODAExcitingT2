@@ -23,8 +23,8 @@ Get_On_certain_repo
 */
 func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
 
-	Base_url := "https://oss.x-lab.info/open_digger/github/"
-	url := Base_url + repo + "/" + strings.ToLower(metric) + ".json"
+	BaseURL := "https://oss.x-lab.info/open_digger/github/"
+	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -33,14 +33,14 @@ func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
 	defer response.Body.Close()
 
 	body, _ := ioutil.ReadAll(response.Body)
-	repo_name := strings.Split(repo, "/")[1]
-	repo_url := "https://github.com/" + repo
-	repo_info := map[string]string{
-		"repo.name": repo_name,
-		"repo.url":  repo_url,
+	repoName := strings.Split(repo, "/")[1]
+	repoURL := "https://github.com/" + repo
+	repoInfo := map[string]string{
+		"repo.name": repoName,
+		"repo.url":  repoURL,
 		metric:      string(body),
 	}
-	bytes, _ := json.Marshal(repo_info)
+	bytes, _ := json.Marshal(repoInfo)
 
 	return bytes, body
 }
@@ -55,10 +55,10 @@ func GetCertainMonth(repo string, metric string, month string) []byte {
 	json.Unmarshal(body, &v2)
 	data1 := v1.(map[string]interface{})
 	data2 := v2.(map[string]interface{})
-	repo_info := map[string]string{}
+	repoInfo := map[string]string{}
 	for k, v := range data2 {
 		if k == month {
-			repo_info = map[string]string{
+			repoInfo = map[string]string{
 				"repo.name": data1["repo.name"].(string),
 				"repo.url":  data1["repo.url"].(string),
 				"month":     month,
@@ -66,7 +66,6 @@ func GetCertainMonth(repo string, metric string, month string) []byte {
 			}
 		}
 	}
-	bytes, _ := json.Marshal(repo_info)
+	bytes, _ := json.Marshal(repoInfo)
 	return bytes
-
 }
