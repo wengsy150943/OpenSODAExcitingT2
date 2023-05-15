@@ -8,20 +8,20 @@ import (
 	"strings"
 )
 
-type RepoInfo struct {
-	name          string `json:"repo.name"`
-	URL           string `json:"repo.url"`
-	month         string
-	openRank      string `json:"repo.index.xlab.openrank"`
-	activity      string `json:"repo.index.xlab.activity"`
-	datesAndTimes string `json:"repo.metric.chaoss.active dates and times"`
-}
+//type RepoInfo struct {
+//	name          string `json:"repo.name"`
+//	URL           string `json:"repo.url"`
+//	month         string
+//	openRank      string `json:"repo.index.xlab.openrank"`
+//	activity      string `json:"repo.index.xlab.activity"`
+//	datesAndTimes string `json:"repo.metric.chaoss.active dates and times"`
+//}
 
 /*
 *
 Get_On_certain_repo
 */
-func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
+func GetCertainRepo(repo string, metric string) (map[string]string, []byte, string) {
 
 	BaseURL := "https://oss.x-lab.info/open_digger/github/"
 	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
@@ -40,32 +40,28 @@ func GetCertainRepo(repo string, metric string) ([]byte, []byte) {
 		"repo.url":  repoURL,
 		metric:      string(body),
 	}
-	bytes, _ := json.Marshal(repoInfo)
 
-	return bytes, body
+	return repoInfo, body, metric
 }
 
-func GetCertainMonth(repo string, metric string, month string) []byte {
+func GetCertainMonth(repo string, metric string, month string) map[string]string {
 
-	jsonData, body := GetCertainRepo(repo, metric)
-	var v1 interface{}
+	hashData, body, _ := GetCertainRepo(repo, metric)
 	var v2 interface{}
 
-	json.Unmarshal(jsonData, &v1)
 	json.Unmarshal(body, &v2)
-	data1 := v1.(map[string]interface{})
-	data2 := v2.(map[string]interface{})
+	data := v2.(map[string]interface{})
 	repoInfo := map[string]string{}
-	for k, v := range data2 {
+	for k, v := range data {
 		if k == month {
 			repoInfo = map[string]string{
-				"repo.name": data1["repo.name"].(string),
-				"repo.url":  data1["repo.url"].(string),
+				"repo.name": hashData["repo.name"],
+				"repo.url":  hashData["repo.url"],
 				"month":     month,
 				metric:      strconv.FormatFloat(v.(float64), 'f', 2, 32),
 			}
 		}
 	}
-	bytes, _ := json.Marshal(repoInfo)
-	return bytes
+	//bytes, _ := json.Marshal(repoInfo)
+	return repoInfo
 }
