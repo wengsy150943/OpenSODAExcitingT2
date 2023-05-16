@@ -17,8 +17,10 @@ var showCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("show called")
 		// 获取结果
-		source := getResult(queryPara)
-
+		source = getResult(queryPara)
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("show print")
 		// TODO 输出结果，格式尚未整理
 		fmt.Print(source)
 	},

@@ -10,6 +10,7 @@ type Query struct {
 	repo,month,metric string
 }
 var queryPara Query
+var source map[string]string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

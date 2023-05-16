@@ -4,7 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"exciting-opendigger/service"
+	// "exciting-opendigger/service"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -19,15 +19,18 @@ var downloadCmd = &cobra.Command{
 	Long:  `download data from api and generate pdf`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("download called")
-		var downloadService service.DownloadService
-		downloadService = &service.DownloadAsPdf{"", ""}
-
 		// 获取结果
-		source := getResult(queryPara)
+		source = getResult(queryPara)
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("download print")
+		// var downloadService service.DownloadService
+		// downloadService = &service.DownloadAsPdf{"", ""}
 
 		// 打印结果
-		downloadService.SetData(source)
-		downloadService.Download(position)
+		fmt.Print(source)
+		// downloadService.SetData(source)
+		// downloadService.Download(position)
 	},
 }
 
