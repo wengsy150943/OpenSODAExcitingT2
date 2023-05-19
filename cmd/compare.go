@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 var repoArr []string
@@ -19,12 +18,43 @@ var compareCmd = &cobra.Command{
 	Long:  `compare data from api and print in screen`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("compare called")
-		// 获取结果
-		source = map[string]string{
-			"repo":strings.Join(repoArr,""),
-			"month":strings.Join(monthArr,""),
+		if len(repoArr) + len(monthArr) != 3 {
+			fmt.Errorf("argc number mismatch")
 		}
-		fmt.Print(source)
+
+		// 获取结果
+		var ret1 map[string]string
+		var ret2 map[string]string
+		if len(repoArr) == 2 {
+			queryPara1 := Query{
+				repo : repoArr[0],
+				month : monthArr[0],
+				metric : queryPara.metric,
+			}
+			queryPara2 := Query{
+				repo : repoArr[0],
+				month : monthArr[0],
+				metric : queryPara.metric,
+			}
+			ret1 = getResult(queryPara1)
+			ret2 = getResult(queryPara2)
+		} else {
+			queryPara1 := Query{
+				repo : repoArr[0],
+				month : monthArr[0],
+				metric : queryPara.metric,
+			}
+			queryPara2 := Query{
+				repo : repoArr[0],
+				month : monthArr[0],
+				metric : queryPara.metric,
+			}
+			ret1 = getResult(queryPara1)
+			ret2 = getResult(queryPara2)
+		}
+		fmt.Print(ret1)
+		fmt.Print(ret2)
+
 	},
 }
 
