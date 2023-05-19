@@ -5,14 +5,13 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
 // downloadCmd represents the download command
 var showCmd = &cobra.Command{
 	Use:   "show",
-	Short: "show data from api",
+	Short: "Show data from OpenDigger",
 	Long:  `show data from api and print in screen`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("show called")

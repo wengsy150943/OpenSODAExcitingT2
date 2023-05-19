@@ -15,8 +15,8 @@ var position string
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
 	Use:   "download",
-	Short: "download data from api",
-	Long:  `download data from api and generate pdf`,
+	Short: "Download and plot data from OpenDigger",
+	Long:  `Download data from api and generate pdf`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("download called")
 		// 获取结果
