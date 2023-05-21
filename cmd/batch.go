@@ -10,17 +10,17 @@ import (
 )
 
 // versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number of OpenSODAExcitingT2",
-	Long:  `All software has versions. This is OpenSODAExcitingT2's`,
+var batchCmd = &cobra.Command{
+	Use:   "batch",
+	Short: "Select a batch of data from OpenDigger",
+	Long:  "Select a batch of data from OpenDigger",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("OpenSODAExcitingT2 version v0.1 beta ")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(batchCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -10,12 +10,13 @@ type Query struct {
 	repo,month,metric string
 }
 var queryPara Query
+var source map[string]string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "exciting-opendigger",
-	Short: "exciting-opendigger,a tool to get and download opendigger result",
-	Long:  `exciting-opendigger,a tool to get and download opendigger result.`,
+	Short: "Exciting-opendigger,a tool to get and download opendigger result",
+	Long:  `Exciting-opendigger,a tool to get and download opendigger result.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

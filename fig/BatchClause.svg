@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="757" height="81">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #002233; stroke-width: 1;}
+    .bold-line            {stroke: #000E14; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #00141F; shape-rendering: crispEdges}
+    .filled               {fill: #002233; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #000E14;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00111A;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00141F;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #002233; stroke: #002233;}
+    rect.terminal         {fill: #4DC3FF; stroke: #002233; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EDFFF; stroke: #002233; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7ECFF; stroke: #002233; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <rect x="31" y="3" width="66" height="32" rx="10"/>
+   <rect x="29"
+          y="1"
+          width="66"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="39" y="21">BATCH</text>
+   <rect x="137" y="3" width="82" height="32" rx="10"/>
+   <rect x="135"
+          y="1"
+          width="82"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="145" y="21">-SOURCE</text>
+   <rect x="137" y="47" width="34" height="32" rx="10"/>
+   <rect x="135"
+          y="45"
+          width="34"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="145" y="65">-S</text>
+   <rect x="279" y="3" width="48" height="32" rx="10"/>
+   <rect x="277"
+          y="1"
+          width="48"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="287" y="21">TOP</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#FileName"
+       xlink:title="FileName">
+      <rect x="279" y="47" width="78" height="32"/>
+      <rect x="277" y="45" width="78" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="287" y="65">FileName</text>
+   </a>
+   <rect x="417" y="3" width="96" height="32" rx="10"/>
+   <rect x="415"
+          y="1"
+          width="96"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="425" y="21">-POSITION</text>
+   <rect x="417" y="47" width="34" height="32" rx="10"/>
+   <rect x="415"
+          y="45"
+          width="34"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="425" y="65">-P</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#FileName"
+       xlink:title="FileName">
+      <rect x="553" y="3" width="78" height="32"/>
+      <rect x="551" y="1" width="78" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="561" y="21">FileName</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#BatchOpt"
+       xlink:title="BatchOpt">
+      <rect x="651" y="3" width="78" height="32"/>
+      <rect x="649" y="1" width="78" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="659" y="21">BatchOpt</text>
+   </a>
+   <path class="line"
+          d="m17 17 h2 m0 0 h10 m66 0 h10 m20 0 h10 m82 0 h10 m-122 0 h20 m102 0 h20 m-142 0 q10 0 10 10 m122 0 q0 -10 10 -10 m-132 10 v24 m122 0 v-24 m-122 24 q0 10 10 10 m102 0 q10 0 10 -10 m-112 10 h10 m34 0 h10 m0 0 h48 m40 -44 h10 m48 0 h10 m0 0 h30 m-118 0 h20 m98 0 h20 m-138 0 q10 0 10 10 m118 0 q0 -10 10 -10 m-128 10 v24 m118 0 v-24 m-118 24 q0 10 10 10 m98 0 q10 0 10 -10 m-108 10 h10 m78 0 h10 m40 -44 h10 m96 0 h10 m-136 0 h20 m116 0 h20 m-156 0 q10 0 10 10 m136 0 q0 -10 10 -10 m-146 10 v24 m136 0 v-24 m-136 24 q0 10 10 10 m116 0 q10 0 10 -10 m-126 10 h10 m34 0 h10 m0 0 h62 m20 -44 h10 m78 0 h10 m0 0 h10 m78 0 h10 m3 0 h-3"/>
+   <polygon points="747 17 755 13 755 21"/>
+   <polygon points="747 17 739 13 739 21"/>
+</svg>
