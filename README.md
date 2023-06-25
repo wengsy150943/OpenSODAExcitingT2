@@ -2,6 +2,11 @@
 
 ![Untitled](https://github.com/wengsy150943/OpenSODAExcitingT2/blob/main/fig/Untitled.png)
 
+## 0.项目依赖
+### 0.1 wkhtmltox
+项目中用到了go-wkhtmltopdf这个库，这个库依赖于wkhtmltox，Linux以及windows的安装方法见如下链接
+链接：https://github.com/adrg/go-wkhtmltopdf
+
 ## 1.Introduction
 
 ### 1.1 项目背景
@@ -132,7 +137,3 @@ PDF版本报告demo：
 - 梁辉       查询模块
 - 孙印政   查询模块
 
-## 5.项目依赖
-### 5.1 wkhtmltox
-项目中用到了go-wkhtmltopdf这个库，这个库依赖于wkhtmltox，Linux以及windows的安装方法见如下链接
-链接：https://github.com/adrg/go-wkhtmltopdf
