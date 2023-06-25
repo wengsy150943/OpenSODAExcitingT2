@@ -131,3 +131,8 @@ PDF版本报告demo：
 - 钱堃       输出模块
 - 梁辉       查询模块
 - 孙印政   查询模块
+
+## 5.项目依赖
+### 5.1 wkhtmltox
+项目中用到了go-wkhtmltopdf这个库，这个库依赖于wkhtmltox，Linux以及windows的安装方法见如下链接
+链接：https://github.com/adrg/go-wkhtmltopdf
