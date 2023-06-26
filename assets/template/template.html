@@ -72,8 +72,8 @@
             <li><strong>项目名称:</strong> {{.Title}}</li>
             <li>
                 <strong>项目链接:</strong>
-                <a href="{{.Api}}"
-                >{{.Api}}</a
+                <a href="{{.Source}}"
+                >{{.Source}}</a
                 >
             </li>
         </ul>
@@ -134,7 +134,7 @@
             <script type="text/javascript">
                 "use strict";
                 var dates = [{{ range .Dates }}"{{ . }}",{{ end }}];
-                var openranks = [{{ range .Openranks }}"{{ . }}",{{ end }}];
+                var openranks = [{{ range .OpenRanks }}"{{ . }}",{{ end }}];
 
 
                 var myChart_qOCwHNGsZeZg = echarts.init(document.getElementById('qOCwHNGsZeZg'), "white");
