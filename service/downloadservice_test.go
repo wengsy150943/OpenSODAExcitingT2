@@ -9,8 +9,14 @@ func TestSingleDownloadService(t *testing.T) {
 	fmt.Println("TestDownloadAsHtml：")
 	var downloadService DownloadService
 	downloadService = &SingleDownloadService{}
-	downloadService.SetData("www.github.com/aaaaa", "html_output")
-	downloadService.Download()
+	err := downloadService.SetData("www.github.com/aaaaa", "html_output")
+	if err != nil {
+		return
+	}
+	err2 := downloadService.Download()
+	if err2 != nil {
+		return
+	}
 }
 
 //func TestDownloadAsPdf(t *testing.T) {
@@ -25,6 +31,12 @@ func TestBatchDownloadService(t *testing.T) {
 	fmt.Println("TestDownloadAsHtml：")
 	var downloadService DownloadService
 	downloadService = &BatchDownloadService{}
-	downloadService.SetData("aaaa.txt", "csv_output")
-	downloadService.Download()
+	err := downloadService.SetData("aaaa.txt", "csv_output")
+	if err != nil {
+		return
+	}
+	err2 := downloadService.Download()
+	if err2 != nil {
+		return
+	}
 }
