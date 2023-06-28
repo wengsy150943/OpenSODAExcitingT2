@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>数据分析报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+        }
+
+        .chart-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+
+    <meta charset="utf-8">
+    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
+    <link href="https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+    <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>数据分析报告</strong></h1>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目信息：</strong></h2>
+        <ul>
+            <li><strong>项目名称:</strong> {{.Title}}</li>
+            <li>
+                <strong>项目链接:</strong>
+                <a href="{{.Source}}"
+                >{{.Source}}</a
+                >
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>近期表现：</strong></h2>
+        <table>
+            <thead>
+            <tr>
+                <th>日期</th>
+                <th>评级</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {{ range $key, $value := .Recent }}
+            <tr>
+                <td>{{ $key }}</td>
+                <td>{{ $value }}</td>
+            </tr>
+            {{ end }}
+
+<!--            <tr>-->
+<!--                <td>2023-04</td>-->
+<!--                <td>18.79</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>2023-03</td>-->
+<!--                <td>22.05</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>2023-02</td>-->
+<!--                <td>40.48</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>2023-01</td>-->
+<!--                <td>19.9</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>2022-12</td>-->
+<!--                <td>19.36</td>-->
+<!--            </tr>-->
+            <!-- 继续添加其他日期和评级的行 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>月份趋势：</strong></h2>
+        <div id="chart">
+            <!-- 可视化图表将在这里插入 -->
+
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="qOCwHNGsZeZg" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+                "use strict";
+                var dates = [{{ range .Dates }}"{{ . }}",{{ end }}];
+                var openranks = [{{ range .OpenRanks }}"{{ . }}",{{ end }}];
+
+
+                var myChart_qOCwHNGsZeZg = echarts.init(document.getElementById('qOCwHNGsZeZg'), "white");
+                var option_qOCwHNGsZeZg = {
+                    title: {"text":"Bar-Month-Report",},
+                    tooltip: {},
+                    legend: {},
+                    toolbox: {"show":true,"feature":{"saveAsImage":{},"dataZoom":{},"dataView":{},"restore":{}}},
+                    xAxis: [{"data":dates,"splitArea":{"show":false,},"splitLine":{"show":false,}}],
+                    yAxis: [{"axisLabel":{"show":true},"splitArea":{"show":false,},"splitLine":{"show":false,}}],
+                    series: [
+                        {"name":"openrank值","type":"bar","data":openranks,"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
+                    ],
+                    color: ["#c23531","#2f4554","#61a0a8","#d48265","#91c7ae","#749f83","#ca8622","#bda29a","#6e7074","#546570","#c4ccd3"],
+                };
+                myChart_qOCwHNGsZeZg.setOption(option_qOCwHNGsZeZg);
+            </script>
+        </div>
+    </div>
+</body>
+</html>
