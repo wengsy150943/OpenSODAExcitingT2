@@ -1,6 +1,9 @@
 package service
 
 import (
+	"encoding/binary"
+	"math"
+	"strconv"
 	"testing"
 )
 
@@ -19,8 +22,12 @@ func TestGetCertainRepo(t *testing.T) {
 func TestGetCertainMonth(t *testing.T) {
 	a := RepoInfoMonth{}
 	a.Getrepoinfo("X-lab2017/open-digger", "openrank", "2020-09")
-	//println(a.data)
-	if a.data != "4.91" {
+	bits := binary.LittleEndian.Uint64(a.data)
+
+	b := math.Float64frombits(bits)
+	converted_string := strconv.FormatFloat(b, 'f', 10, 64)
+	println(converted_string)
+	if "4.91" != converted_string[:4] {
 		t.Errorf("RESULT ERROR")
 	}
 }

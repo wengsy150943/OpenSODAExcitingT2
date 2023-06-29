@@ -1,10 +1,11 @@
 package service
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"io/ioutil"
+	"math"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ import (
 //		activity      string `json:"repo.index.xlab.activity"`
 //		datesAndTimes string `json:"repo.metric.chaoss.active dates and times"`
 //	}
+
 type RepoInfoservice interface {
 	Getrepoinfo(repo string, metric string, month string)
 }
@@ -30,8 +32,8 @@ type RepoInfoMonth struct {
 	metric   string
 	reponame string
 	repourl  string
-	data     string
 	month    string
+	data     []byte
 }
 
 func (r *RepoInfo) Getrepoinfo(repo, metric, month string) {
@@ -68,8 +70,16 @@ func (r *RepoInfoMonth) Getrepoinfo(repo, metric, month string) {
 	for k, v := range d {
 		if k == month {
 			println(month)
-			r.data = strconv.FormatFloat(v.(float64), 'f', 2, 32)
+			println(v.(float64))
+			r.data = Float64ToBytes(v.(float64))
+			println(r.data)
 			r.month = month
 		}
 	}
+}
+func Float64ToBytes(float float64) []byte {
+	bits := math.Float64bits(float)
+	bytes := make([]byte, 8)
+	binary.LittleEndian.PutUint64(bytes, bits)
+	return bytes
 }
