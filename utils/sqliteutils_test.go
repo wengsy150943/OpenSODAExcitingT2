@@ -10,7 +10,7 @@ func TestCreate(t *testing.T) {
 }
 func TestInsert(t *testing.T) {
 	a := service.RepoInfo{}
-	a.Getrepoinfo("X-lab2017/open-digger", "openrank", "")
+	a.Getrepoinfo("X-lab2017/open-digger", "openrank")
 	Insert("openrank")
 
 }
