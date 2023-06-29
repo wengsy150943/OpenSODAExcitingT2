@@ -1,33 +1,25 @@
 package service
 
-import (
-	"encoding/json"
-	"fmt"
-	"github.com/go-echarts/go-echarts/charts"
-	"log"
-	"os"
-)
+import "encoding/json"
 
-func PlotBar(metric string, body []byte) {
-	monthItems := []string{}
-	numsItems := []float64{}
+type PlotChartInterface interface {
+	Plot(metric string, plotMethod string, body []byte)
+}
+type Chart struct {
+	Method     string
+	Title      string
+	monthitems []string
+	numsitems  []float64
+}
 
-	var v2 interface{}
-
-	json.Unmarshal(body, &v2)
-	data2 := v2.(map[string]interface{})
-	for k, v := range data2 {
-		fmt.Println(k)
-		monthItems = append(monthItems, k)
-		numsItems = append(numsItems, v.(float64))
+func (c *Chart) Plot(metric string, plotMethod string, body []byte) {
+	c.Method = plotMethod
+	c.Title = metric + " " + plotMethod + "图"
+	var v interface{}
+	json.Unmarshal(body, &v)
+	data := v.(map[string]interface{})
+	for k, value := range data {
+		c.monthitems = append(c.monthitems, k)
+		c.numsitems = append(c.numsitems, value.(float64))
 	}
-	bar := charts.NewBar()
-	bar.SetGlobalOptions(charts.TitleOpts{Title: "Bar-示例图"}, charts.ToolboxOpts{Show: true})
-	bar.AddXAxis(monthItems).
-		AddYAxis(metric+"值", numsItems)
-	f, err := os.Create("../assets/images/bar.html")
-	if err != nil {
-		log.Println(err)
-	}
-	bar.Render(f)
 }

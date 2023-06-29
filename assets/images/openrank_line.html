@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Awesome go-echarts</title>
+    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
+    <link href="https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="select" style="margin-right:10px; margin-top:10px; position:fixed; right:10px;"></div>
+
+<div class="container">
+    <div class="item" id="jJsVSlroNnEC"
+         style="width:900px;height:500px;"></div>
+</div>
+<script type="text/javascript">
+    "use strict";
+    var myChart_jJsVSlroNnEC = echarts.init(document.getElementById('jJsVSlroNnEC'), "white");
+    var option_jJsVSlroNnEC = {
+        title: {"text":"openrank折线图",},
+        tooltip: {},
+        legend: {},
+        toolbox: {"show":true,"feature":{"saveAsImage":{},"dataZoom":{},"dataView":{},"restore":{}}},
+        xAxis: [{"data":["2021-02","2022-01","2023-01","2023-02","2020-09","2022-04","2022-07","2021-07","2022-06","2021-01","2021-06","2021-11","2022-02","2022-09","2022-10","2021-04","2021-09","2021-10","2021-12","2022-11","2022-12","2023-03","2021-05","2022-03","2022-05","2023-04","2020-12","2022-08","2020-11","2020-10","2021-03","2021-08","2023-05","2021-10-raw","2020-08"],"splitArea":{"show":false,},"splitLine":{"show":false,}}],
+        yAxis: [{"axisLabel":{"show":true},"splitArea":{"show":false,},"splitLine":{"show":false,}}],
+        series: [
+        {"name":"openrank值","type":"line","data":[6.28,4.71,19.9,40.48,4.91,3.76,9.17,4.84,7.67,10.61,6.46,2.89,4.87,9.96,11.84,4.44,3.34,3,3.33,14.65,19.36,22.05,4.26,6.06,4.14,18.79,9.96,8.53,6.31,5.59,4.14,3.93,18.42,2.84,4.5],"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
+        ],
+        color: ["#c23531","#2f4554","#61a0a8","#d48265","#91c7ae","#749f83","#ca8622","#bda29a","#6e7074","#546570","#c4ccd3"],
+    };
+    myChart_jJsVSlroNnEC.setOption(option_jJsVSlroNnEC);
+</script>
+
+<style>
+    .container {margin-top:30px; display: flex;justify-content: center;align-items: center;}
+    .item {margin: auto;}
+</style>
+</body>
+</html>
