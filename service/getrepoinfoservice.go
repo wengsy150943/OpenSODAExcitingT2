@@ -1,22 +1,12 @@
 package service
 
 import (
-	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"strings"
 )
-
-//	type RepoInfo struct {
-//		name          string `json:"repo.name"`
-//		URL           string `json:"repo.url"`
-//		month         string
-//		openRank      string `json:"repo.index.xlab.openrank"`
-//		activity      string `json:"repo.index.xlab.activity"`
-//		datesAndTimes string `json:"repo.metric.chaoss.active dates and times"`
-//	}
 
 type RepoInfoservice interface {
 	Getrepoinfo(repo string, metric string, month string)
@@ -36,7 +26,7 @@ type RepoInfoMonth struct {
 	data     []byte
 }
 
-func (r *RepoInfo) Getrepoinfo(repo, metric, month string) {
+func (r *RepoInfo) Getrepoinfo(repo, metric string) {
 	BaseURL := "https://oss.x-lab.info/open_digger/github/"
 	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
 	response, err := http.Get(url)
@@ -57,29 +47,30 @@ func (r *RepoInfo) Getrepoinfo(repo, metric, month string) {
 
 func (r *RepoInfoMonth) Getrepoinfo(repo, metric, month string) {
 	a := RepoInfo{}
-	a.Getrepoinfo(repo, metric, "")
+	a.Getrepoinfo(repo, metric)
 
 	r.repourl = a.repourl
 	r.reponame = a.reponame
 	r.metric = a.metric
+	r.data = []byte{}
 
 	body := a.data
 	var temp interface{}
 	json.Unmarshal([]byte(body), &temp)
 	d := temp.(map[string]interface{})
-	for k, v := range d {
-		if k == month {
-			println(month)
-			println(v.(float64))
-			r.data = Float64ToBytes(v.(float64))
-			println(r.data)
-			r.month = month
+	value, ok := d[month]
+	if ok {
+		r.data = append(r.data, []byte(fmt.Sprintf("%v", value))...)
+	} else {
+		for k, v := range d {
+			switch v.(type) {
+			case map[string]interface{}:
+				innermap := v.(map[string]interface{})
+				v2, ok := innermap[month]
+				if ok {
+					r.data = append(r.data, []byte(fmt.Sprintf("%v:%v ", k, v2))...)
+				}
+			}
 		}
 	}
-}
-func Float64ToBytes(float float64) []byte {
-	bits := math.Float64bits(float)
-	bytes := make([]byte, 8)
-	binary.LittleEndian.PutUint64(bytes, bits)
-	return bytes
 }
