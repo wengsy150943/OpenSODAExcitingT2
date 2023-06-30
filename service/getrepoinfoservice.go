@@ -44,7 +44,7 @@ func GetCertainRepo(repo string, metric string) (map[string]string, []byte, stri
 	return repoInfo, body, metric
 }
 
-func GetCertainMonth(repo string, metric string, month string) map[string]string {
+func GetCertainMetricAndMonth(repo string, metric string, month string) map[string]string {
 
 	hashData, body, _ := GetCertainRepo(repo, metric)
 	var v2 interface{}
@@ -62,5 +62,10 @@ func GetCertainMonth(repo string, metric string, month string) map[string]string
 			}
 		}
 	}
+	return repoInfo
+}
+
+func GetCertainMonth(repo string, month string) map[string]string{
+	repoInfo := map[string]string{}
 	return repoInfo
 }

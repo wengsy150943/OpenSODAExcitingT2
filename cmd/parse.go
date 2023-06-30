@@ -27,9 +27,10 @@ func getResult(QueryPara Query)map[string]string {
 
 	// 特定月份的整体报告
 	if QueryPara.metric == "" {
-		
+		ret := service.GetCertainMonth(QueryPara.repo, QueryPara.month)
+		return ret
 	}
 
 	// 特定月份在特定指标上的数据
-	return service.GetCertainMonth(QueryPara.repo, QueryPara.metric, QueryPara.month)
+	return service.GetCertainMetricAndMonth(QueryPara.repo, QueryPara.metric, QueryPara.month)
 }

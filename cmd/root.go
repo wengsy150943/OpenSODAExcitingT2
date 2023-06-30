@@ -31,7 +31,6 @@ func Execute() {
 func init() {
 	// 更新查询参数，无论是显示还是下载都需要这些参数
 	rootCmd.PersistentFlags().StringVarP(&queryPara.repo, "repo", "r", "", "Repository asked")
-	rootCmd.MarkFlagRequired("repo")
 	rootCmd.PersistentFlags().StringVarP(&queryPara.month, "month", "M", "", "Month of asked metric")
 	rootCmd.PersistentFlags().StringVarP(&queryPara.metric, "metric", "m", "", "Metric asked")
 }

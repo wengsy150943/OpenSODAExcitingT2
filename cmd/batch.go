@@ -1,13 +1,20 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"fmt"
+	"encoding/json"
+	"exciting-opendigger/service"
 	"github.com/spf13/cobra"
 )
+
+var inputFile string
+var outputFile string
+var filter string
+var sortKey string
+var asc bool
+var desc bool
 
 // versionCmd represents the version command
 var batchCmd = &cobra.Command{
@@ -15,20 +22,40 @@ var batchCmd = &cobra.Command{
 	Short: "Select a batch of data from OpenDigger",
 	Long:  "Select a batch of data from OpenDigger",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("OpenSODAExcitingT2 version v0.1 beta ")
+		// 看一下是检索top的还是从文件检索
+		ifTop := inputFile == "TOP"
+		
+		if (ifTop){
+			source = map[string]string{"sth":"sth"}
+		}else{
+			source = map[string]string{"sth":"sth"}
+		}
+
+		var downloadService service.BatchDownloadService
+		str,_ :=json.Marshal(source)
+		downloadService.SetData(string(str), outputFile)
+		downloadService.Download()
 	},
 }
+
+
+
+
 
 func init() {
 	rootCmd.AddCommand(batchCmd)
 
-	// Here you will define your flags and configuration settings.
+	batchCmd.Flags().StringVarP(&inputFile, "source", "s", "", "Repo source file")
+	batchCmd.Flags().StringVarP(&outputFile, "position", "p", "", "Repo output file")
+	batchCmd.Flags().StringVarP(&filter, "filter", "f", "", "Filter for metric")
+	batchCmd.Flags().StringVarP(&sortKey, "orderBy", "o", "", "Sort key")
+	batchCmd.Flags().BoolVar(&asc,"asc",true,"Sort ASC")
+	batchCmd.Flags().BoolVar(&desc,"desc",false,"Sort DESC")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// versionCmd.PersistentFlags().String("foo", "", "A help for foo")
+	
+	batchCmd.MarkFlagFilename("position")
+	batchCmd.MarkFlagRequired("source")
+	batchCmd.MarkFlagRequired("position")
+	batchCmd.MarkFlagsMutuallyExclusive("asc","desc")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// versionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

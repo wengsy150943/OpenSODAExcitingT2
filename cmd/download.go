@@ -4,8 +4,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	// "exciting-opendigger/service"
-	"fmt"
+	"encoding/json"
+	"exciting-opendigger/service"
 
 	"github.com/spf13/cobra"
 )
@@ -18,19 +18,16 @@ var downloadCmd = &cobra.Command{
 	Short: "Download and plot data from OpenDigger",
 	Long:  `Download data from api and generate pdf`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("download called")
 		// 获取结果
 		source = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		fmt.Println("download print")
-		// var downloadService service.DownloadService
-		// downloadService = &service.DownloadAsPdf{"", ""}
+		var downloadService service.DownloadService
 
 		// 打印结果
-		fmt.Print(source)
-		// downloadService.SetData(source)
-		// downloadService.Download(position)
+		str,_ :=json.Marshal(source)
+		downloadService.SetData(string(str), position)
+		downloadService.Download()
 	},
 }
 
