@@ -1,22 +1,30 @@
-package cmd
+package parse
 
 import (
-	"github.com/spf13/cobra"
+	"exciting-opendigger/service"
 	"os"
+	"github.com/spf13/cobra"
 )
 
 // 访问参数
 type Query struct {
-	repo,month,metric string
+	repo, month, metric string
 }
+
+
+
 var queryPara Query
-var source map[string]string
+var repoInfo service.RepoInfo
+var repoInfoCompare service.RepoInfo
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "exciting-opendigger",
 	Short: "Exciting-opendigger,a tool to get and download opendigger result",
 	Long:  `Exciting-opendigger,a tool to get and download opendigger result.`,
+	PersistentPostRun: func (cmd *cobra.Command, args []string)  {
+		
+	}, 
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

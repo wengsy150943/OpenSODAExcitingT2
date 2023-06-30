@@ -1,11 +1,12 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 */
-package cmd
+package parse
 
 import (
-	"encoding/json"
 	"exciting-opendigger/service"
+	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -19,14 +20,24 @@ var downloadCmd = &cobra.Command{
 	Long:  `Download data from api and generate pdf`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
-		source = getResult(queryPara)
+		if (queryPara.metric != "" && queryPara.month != "") {
+			panic("Here is not necessary to download the result: simple return value.")
+		}
+		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		var downloadService service.DownloadService
+		fmt.Print(repoInfo)
+		downloadService = &service.SingleDownloadService{}
 
-		// 打印结果
-		str,_ :=json.Marshal(source)
-		downloadService.SetData(string(str), position)
+		if (strings.Contains(cmd.CommandPath(), "compare") ){
+			// TODO qk: download compare
+			downloadService.SetData(repoInfo, position)
+		} else{
+			downloadService.SetData(repoInfo, position)
+		}
+
+		
 		downloadService.Download()
 	},
 }
@@ -36,4 +47,5 @@ func init() {
 
 	// 下载相关参数
 	downloadCmd.Flags().StringVarP(&position, "position", "p", "", "Download place where data to write to")
+	downloadCmd.MarkFlagRequired("position")
 }

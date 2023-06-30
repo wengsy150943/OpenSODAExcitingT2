@@ -1,11 +1,11 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 */
-package cmd
+package parse
 
 import (
-	"encoding/json"
-	"exciting-opendigger/service"
+	// "encoding/json"
+	// "exciting-opendigger/service"
 	"github.com/spf13/cobra"
 )
 
@@ -23,18 +23,18 @@ var batchCmd = &cobra.Command{
 	Long:  "Select a batch of data from OpenDigger",
 	Run: func(cmd *cobra.Command, args []string) {
 		// 看一下是检索top的还是从文件检索
-		ifTop := inputFile == "TOP"
+		// ifTop := inputFile == "TOP"
 		
-		if (ifTop){
-			source = map[string]string{"sth":"sth"}
-		}else{
-			source = map[string]string{"sth":"sth"}
-		}
+		// if (ifTop){
+		// 	repoInfo = 
+		// }else{
+		// 	source = 
+		// }
 
-		var downloadService service.BatchDownloadService
-		str,_ :=json.Marshal(source)
-		downloadService.SetData(string(str), outputFile)
-		downloadService.Download()
+		// var downloadService service.BatchDownloadService
+		// str,_ :=json.Marshal(repoInfo)
+		// downloadService.SetData(string(str), outputFile)
+		// downloadService.Download()
 	},
 }
 

@@ -1,10 +1,11 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 */
-package cmd
+package parse
 
 import (
 	"fmt"
+	"strings"
 	"github.com/spf13/cobra"
 )
 
@@ -15,12 +16,17 @@ var showCmd = &cobra.Command{
 	Long:  `show data from api and print in screen`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
-		source = getResult(queryPara)
+		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		// TODO 输出结果，格式尚未整理
-		if (source != nil){
-			fmt.Print(source)
+
+		// 检查是否有compare,这里只有一个subcommand
+		if (strings.Contains(cmd.CommandPath(), "compare") ){
+			fmt.Println(repoInfo)
+			fmt.Println(repoInfoCompare)
+		} else{
+			fmt.Println(repoInfo)
 		}
 	},
 }
