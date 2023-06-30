@@ -4,7 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package parse
 
 import (
-	// "encoding/json"
 	// "exciting-opendigger/service"
 	"github.com/spf13/cobra"
 )
@@ -25,15 +24,20 @@ var batchCmd = &cobra.Command{
 		// 看一下是检索top的还是从文件检索
 		// ifTop := inputFile == "TOP"
 		
+		// var repoList []string
 		// if (ifTop){
-		// 	repoInfo = 
+		// 	// TODO qk: call crawler
 		// }else{
-		// 	source = 
+		// 	// TODO syz lh: read file
 		// }
 
-		// var downloadService service.BatchDownloadService
-		// str,_ :=json.Marshal(repoInfo)
-		// downloadService.SetData(string(str), outputFile)
+		// // TODO syz lh: get repo info
+		// repoInfoList := service.GetRepoList(repoList)
+
+
+		// var downloadService service.DownloadService
+		// downloadService = &service.BatchDownloadService{}
+		// downloadService.SetData(repoInfoList, outputFile)
 		// downloadService.Download()
 	},
 }

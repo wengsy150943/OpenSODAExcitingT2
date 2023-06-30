@@ -5,13 +5,12 @@ package parse
 
 import (
 	"exciting-opendigger/service"
-	"fmt"
 	"strings"
-
 	"github.com/spf13/cobra"
 )
 
 var position string
+var draw bool
 
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
@@ -27,7 +26,6 @@ var downloadCmd = &cobra.Command{
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		var downloadService service.DownloadService
-		fmt.Print(repoInfo)
 		downloadService = &service.SingleDownloadService{}
 
 		if (strings.Contains(cmd.CommandPath(), "compare") ){
@@ -37,8 +35,12 @@ var downloadCmd = &cobra.Command{
 			downloadService.SetData(repoInfo, position)
 		}
 
+		if (draw) {
+			// TODO qk: call plot
+		} else{
+			downloadService.Download()
+		}
 		
-		downloadService.Download()
 	},
 }
 
@@ -48,4 +50,5 @@ func init() {
 	// 下载相关参数
 	downloadCmd.Flags().StringVarP(&position, "position", "p", "", "Download place where data to write to")
 	downloadCmd.MarkFlagRequired("position")
+	downloadCmd.Flags().BoolVarP(&draw, "draw", "d", false, "Plot data")
 }

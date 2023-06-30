@@ -2,7 +2,10 @@ package parse
 
 import (
 	"exciting-opendigger/service"
+	"fmt"
 	"os"
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
@@ -22,9 +25,13 @@ var rootCmd = &cobra.Command{
 	Use:   "exciting-opendigger",
 	Short: "Exciting-opendigger,a tool to get and download opendigger result",
 	Long:  `Exciting-opendigger,a tool to get and download opendigger result.`,
-	PersistentPostRun: func (cmd *cobra.Command, args []string)  {
-		
+	PersistentPreRun: func (cmd *cobra.Command, args []string)  {
+		fmt.Printf("log is: %s\n",strings.Join(os.Args[1:]," "))
+		// TODO syz lh: save log here
 	}, 
+	Run: func (cmd *cobra.Command, args []string)  {
+		
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -6,6 +6,7 @@ package parse
 import (
 	"fmt"
 	"strings"
+
 	"github.com/spf13/cobra"
 )
 
@@ -19,10 +20,11 @@ var showCmd = &cobra.Command{
 		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		// TODO 输出结果，格式尚未整理
+		
 
 		// 检查是否有compare,这里只有一个subcommand
 		if (strings.Contains(cmd.CommandPath(), "compare") ){
+			// TODO qk: a more pretty output?
 			fmt.Println(repoInfo)
 			fmt.Println(repoInfoCompare)
 		} else{
