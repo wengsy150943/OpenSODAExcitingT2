@@ -1,7 +1,7 @@
 package main
 
-import "exciting-opendigger/cmd"
+import "exciting-opendigger/parse"
 
 func main() {
-	cmd.Execute()
+	parse.Execute()
 }

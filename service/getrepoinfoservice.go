@@ -2,31 +2,19 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-type RepoInfoservice interface {
-	Getrepoinfo(repo string, metric string, month string)
-}
-
 type RepoInfo struct {
-	metric   string
-	reponame string
-	repourl  string
-	data     []byte
-}
-type RepoInfoMonth struct {
-	metric   string
-	reponame string
-	repourl  string
+	repoName string
+	repoUrl  string
 	month    string
-	data     []byte
+	data     map[string](map[string]float32)
 }
 
-func (r *RepoInfo) Getrepoinfo(repo, metric string) {
+func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	BaseURL := "https://oss.x-lab.info/open_digger/github/"
 	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
 	response, err := http.Get(url)
@@ -39,38 +27,44 @@ func (r *RepoInfo) Getrepoinfo(repo, metric string) {
 	repoName := strings.Split(repo, "/")[1]
 	repoURL := "https://github.com/" + repo
 
-	r.metric = metric
-	r.reponame = repoName
-	r.repourl = repoURL
-	r.data = body
+	var temp map[string]float32
+	json.Unmarshal([]byte(body), &temp)
+
+	
+
+	data := make(map[string](map[string]float32))
+	data[metric] = temp
+
+	ret := RepoInfo{
+		repoName: repoName,
+		repoUrl:  repoURL,
+		month:    "",
+		data:     data,
+	}
+
+	return ret
 }
 
-func (r *RepoInfoMonth) Getrepoinfo(repo, metric, month string) {
-	a := RepoInfo{}
-	a.Getrepoinfo(repo, metric)
+func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
+	repoInfo := GetRepoInfoOfMetric(repo, metric)
+	repoInfo.month = month
 
-	r.repourl = a.repourl
-	r.reponame = a.reponame
-	r.metric = a.metric
-	r.data = []byte{}
+	data := make(map[string](map[string]float32))
 
-	body := a.data
-	var temp interface{}
-	json.Unmarshal([]byte(body), &temp)
-	d := temp.(map[string]interface{})
-	value, ok := d[month]
-	if ok {
-		r.data = append(r.data, []byte(fmt.Sprintf("%v", value))...)
-	} else {
-		for k, v := range d {
-			switch v.(type) {
-			case map[string]interface{}:
-				innermap := v.(map[string]interface{})
-				v2, ok := innermap[month]
-				if ok {
-					r.data = append(r.data, []byte(fmt.Sprintf("%v:%v ", k, v2))...)
-				}
-			}
-		}
+	for k, v := range repoInfo.data {
+		data[k] = map[string]float32{month: v[month]}
+	}
+
+	repoInfo.data = data
+
+	return repoInfo
+}
+
+func GetRepoInfoOfMonth(repo, month string) RepoInfo{
+	return RepoInfo{
+		repoName: "",
+		repoUrl:  "",
+		month:    "",
+		data:     nil,
 	}
 }

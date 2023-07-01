@@ -9,7 +9,7 @@ import (
 )
 
 type DownloadService interface {
-	SetData(source_ string, target_ string) error
+	SetData(source_ RepoInfo, target_ string) error
 	Download() error
 	//DownloadAsPdf(target_ string) error
 }
@@ -23,10 +23,10 @@ type SingleDownloadService struct {
 	Recent    map[string]float64
 }
 
-func (d *SingleDownloadService) SetData(source_ string, target_ string) error {
+func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
 	d.Target = target_
 	//这里需要调用lhg的数据获取接口,数据结构SingleDownloadService也根据接口数据修改！！！！！！！！！！！！！
-	d.Source = source_
+	d.Source = source_.repoName
 	d.Title = "opendigger"
 	dates := []string{"2020-08", "2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-10-raw", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04"}
 	d.Dates = append(d.Dates, dates...)
@@ -132,7 +132,7 @@ type BatchDownloadData struct {
 }
 
 type BatchDownloadService struct {
-	Source string
+	Source RepoInfo
 	Target string
 	Rows   int
 	Cols   int
@@ -140,7 +140,7 @@ type BatchDownloadService struct {
 	Dates  []string
 }
 
-func (d *BatchDownloadService) SetData(source_ string, target_ string) error {
+func (d *BatchDownloadService) SetData(source_ RepoInfo, target_ string) error {
 	d.Target = target_
 	//这里需要调用lhg的批量数据获取接口,数据结构BatchDownloadService和BatchDownloadData也根据接口数据修改！！！！！！！！！！！！！
 	d.Source = source_
