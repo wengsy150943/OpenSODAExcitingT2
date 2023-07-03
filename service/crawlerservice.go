@@ -295,7 +295,7 @@ type CrawlTrendingService struct {
 
 func (c *CrawlTrendingService) loadOptions(opts ...option) {
 	o := options{
-		GitHubURL:   "https://kgithub.com",
+		GitHubURL:   "http://www.github.com",
 		ProgramLang: "",
 		SpokenLang:  "",
 		DateRange:   "",
