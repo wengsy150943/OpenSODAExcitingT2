@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ type RepoInfo struct {
 	repoName string
 	repoUrl  string
 	month    string
+	dates	 []string
 	data     map[string](map[string]float32)
 }
 
@@ -30,7 +32,15 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	var temp map[string]float32
 	json.Unmarshal([]byte(body), &temp)
 
-	
+	// 获取日期并排序
+	dates := make([]string, len(temp))
+	cnt := 0
+	for i := range temp {
+		dates[cnt] = i
+		cnt ++
+	}
+	sort.Slice(dates, func(i, j int) bool {return dates[i] < dates[j]})
+
 
 	data := make(map[string](map[string]float32))
 	data[metric] = temp
@@ -40,6 +50,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		repoUrl:  repoURL,
 		month:    "",
 		data:     data,
+		dates: dates,
 	}
 
 	return ret
@@ -56,6 +67,7 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	}
 
 	repoInfo.data = data
+	repoInfo.dates = []string{month}
 
 	return repoInfo
 }
