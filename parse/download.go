@@ -5,8 +5,8 @@ package parse
 
 import (
 	"exciting-opendigger/service"
-	"strings"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 var position string
@@ -19,28 +19,28 @@ var downloadCmd = &cobra.Command{
 	Long:  `Download data from api and generate pdf`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
-		if (queryPara.metric != "" && queryPara.month != "") {
+		if queryPara.metric != "" && queryPara.month != "" {
 			panic("Here is not necessary to download the result: simple return value.")
 		}
 		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		var downloadService service.DownloadService
-		downloadService = &service.SingleDownloadService{}
+		//var downloadService service.DownloadService
+		downloadService := &service.SingleDownloadService{}
 
-		if (strings.Contains(cmd.CommandPath(), "compare") ){
+		if strings.Contains(cmd.CommandPath(), "compare") {
 			// TODO qk: download compare
 			downloadService.SetData(repoInfo, position)
-		} else{
+		} else {
 			downloadService.SetData(repoInfo, position)
 		}
 
-		if (draw) {
+		if draw {
 			// TODO qk: call plot
-		} else{
+		} else {
 			downloadService.Download()
 		}
-		
+
 	},
 }
 
