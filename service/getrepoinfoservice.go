@@ -13,7 +13,7 @@ type RepoInfo struct {
 	repoUrl  string
 	month    string
 	dates	 []string
-	data     map[string](map[string]float32)
+	data     map[string](map[string]interface{})
 }
 
 func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
@@ -29,7 +29,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	repoName := strings.Split(repo, "/")[1]
 	repoURL := "https://github.com/" + repo
 
-	var temp map[string]float32
+	var temp map[string]interface{}
 	json.Unmarshal([]byte(body), &temp)
 
 	// 获取日期并排序
@@ -42,7 +42,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	sort.Slice(dates, func(i, j int) bool {return dates[i] < dates[j]})
 
 
-	data := make(map[string](map[string]float32))
+	data := make(map[string](map[string]interface{}))
 	data[metric] = temp
 
 	ret := RepoInfo{
@@ -60,10 +60,10 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	repoInfo := GetRepoInfoOfMetric(repo, metric)
 	repoInfo.month = month
 
-	data := make(map[string](map[string]float32))
+	data := make(map[string](map[string]interface{}))
 
 	for k, v := range repoInfo.data {
-		data[k] = map[string]float32{month: v[month]}
+		data[k] = map[string]interface{}{month: v[month]}
 	}
 
 	repoInfo.data = data

@@ -16,6 +16,15 @@ type SingleDownloadService struct {
 	Data   map[string]([]float32)
 }
 
+func parseFloatValue(v interface{}) float32 {
+	switch v.(type) {
+		case float32: return v.(float32);
+		case float64: return float32(v.(float64));
+		case int: return float32(v.(int));
+	}
+	return v.(float32);
+}
+
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
 	d.Target = target_
 	d.Source = source_.repoUrl
@@ -28,7 +37,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 		for _, v2 := range d.Dates {
 			temp, ok := v1[v2]
 			if ok {
-				tempList = append(tempList, temp)
+				tempList = append(tempList, parseFloatValue(temp))
 			} else {
 				continue
 			}
@@ -91,7 +100,7 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 		for _, v := range d.Dates {
 			temp, ok := repo.data[metric_][v]
 			if ok {
-				tempList = append(tempList, temp)
+				tempList = append(tempList, parseFloatValue(temp))
 			} else {
 				tempList = append(tempList, 0)
 			}
@@ -182,13 +191,13 @@ func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, t
 			for _, v3 := range d.Dates {
 				temp1, ok1 := v1[v3]
 				if ok1 {
-					data1 = append(data1, temp1)
+					data1 = append(data1, parseFloatValue(temp1))
 				} else {
 					data1 = append(data1, 0)
 				}
 				temp2, ok2 := v2[v3]
 				if ok2 {
-					data2 = append(data2, temp2)
+					data2 = append(data2, parseFloatValue(temp2))
 				} else {
 					data2 = append(data2, 0)
 				}
