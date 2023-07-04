@@ -2,6 +2,7 @@ package service
 
 import (
 	"testing"
+	"strconv"
 )
 
 func TestGetCertainMetric(t *testing.T) {
@@ -9,8 +10,10 @@ func TestGetCertainMetric(t *testing.T) {
 	a := GetRepoInfoOfMetric("X-lab2017/open-digger", "openrank")
 
 	for k, v := range result {
-		if a.data["openrank"][k] != v {
-			t.Errorf("get certain repo info false")
+		if float32(a.data["openrank"][k].(float64)) != v {
+			temp := a.data["openrank"][k].(float64)
+			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp),'f',6, 64) + " -> " + strconv.FormatFloat(float64(v),'f',6, 64))
+			break
 		}
 	}
 }
@@ -20,8 +23,9 @@ func TestGetCertainRepo(t *testing.T) {
 
 	for k, v := range result {
 		a := GetCertainRepoInfo("X-lab2017/open-digger", "openrank", k)
-		if a.data["openrank"][k] != v {
-			t.Errorf("get certain repo info false")
+		if float32(a.data["openrank"][k].(float64)) != v  {
+			temp := a.data["openrank"][k].(float64)
+			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp),'f',6, 64) + " -> " + strconv.FormatFloat(float64(v),'f',6, 64))
 			break
 		}
 	}

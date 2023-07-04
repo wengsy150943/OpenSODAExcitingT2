@@ -25,20 +25,27 @@ var downloadCmd = &cobra.Command{
 		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		//var downloadService service.DownloadService
-		downloadService := &service.SingleDownloadService{}
+		
 
 		if strings.Contains(cmd.CommandPath(), "compare") {
 			// TODO qk: download compare
-			downloadService.SetData(repoInfo, position)
-		} else {
-			downloadService.SetData(repoInfo, position)
-		}
+			downloadService := &service.CompareDownloadService{}
+			downloadService.SetData(repoInfo, repoInfoCompare, position)
 
-		if draw {
-			// TODO qk: call plot
+			if draw {
+				// TODO qk: call plot
+			} else {
+				downloadService.Download()
+			}
 		} else {
-			downloadService.Download()
+			downloadService := &service.SingleDownloadService{}
+			downloadService.SetData(repoInfo, position)
+
+			if draw {
+				// TODO qk: call plot
+			} else {
+				downloadService.Download()
+			}
 		}
 
 	},
