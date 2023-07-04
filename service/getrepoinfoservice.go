@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 )
 
 type RepoInfo struct {
@@ -79,11 +80,54 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	return repoInfo
 }
 
-func GetRepoInfoOfMonth(repo, month string) RepoInfo {
-	return RepoInfo{
-		repoName: "",
-		repoUrl:  "",
-		month:    "",
-		data:     nil,
+func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
+	MetricPerThread := MetricNum / GoroutinueNum
+	var repoinfos [MetricNum]RepoInfo
+	var begin, end int
+	id := 0
+	var wg sync.WaitGroup
+
+	for id < GoroutinueNum {
+		wg.Add(1)
+		// 划定每个协程处理的范围
+		begin = id * MetricPerThread
+		if id == GoroutinueNum-1 {
+			end = MetricNum
+		} else {
+			end = (id + 1) * MetricPerThread
+		}
+
+		go func(begin int, end int) {
+			for i := begin; i < end; i++ {
+				repoinfos[i] = GetCertainRepoInfo(repo, Metrics[i], month)
+			}
+			wg.Done()
+		}(begin, end)
+		id++
 	}
+	wg.Wait()
+
+	dateMap := map[string]bool{}
+	repoinfo.repoName = repo
+	repoinfo.repoUrl = repoinfos[0].repoUrl
+	repoinfo.month = month
+	repoinfo.data = make(map[string](map[string]interface{}))
+
+	for i := 0; i < MetricNum; i++ {
+		for _, date := range repoinfos[i].dates {
+			dateMap[date] = true
+		}
+		repoinfo.data[Metrics[i]] = repoinfos[i].data[Metrics[i]]
+	}
+
+	dates := make([]string, len(dateMap))
+	cnt := 0
+	for k, _ := range dateMap {
+		dates[cnt] = k
+		cnt++
+	}
+
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+	repoinfo.dates = dates
+	return
 }

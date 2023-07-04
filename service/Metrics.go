@@ -40,3 +40,4 @@ var Metrics = [...]string{
 }
 
 const MetricNum = len(Metrics)
+const GoroutinueNum = 3
