@@ -12,7 +12,7 @@ type RepoInfo struct {
 	repoName string
 	repoUrl  string
 	month    string
-	dates	 []string
+	dates    []string
 	data     map[string](map[string]interface{})
 }
 
@@ -30,17 +30,24 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	repoURL := "https://github.com/" + repo
 
 	var temp map[string]interface{}
+	data_list := &map[string]interface{}{}
 	json.Unmarshal([]byte(body), &temp)
 
-	// 获取日期并排序
-	dates := make([]string, len(temp))
+	// 获取日期并排序, 需要针对特殊情况做处理
 	cnt := 0
-	for i := range temp {
-		dates[cnt] = i
-		cnt ++
+	if Special_Metric[metric] {
+		*data_list = temp["avg"].(map[string]interface{})
+	} else {
+		data_list = &temp
 	}
-	sort.Slice(dates, func(i, j int) bool {return dates[i] < dates[j]})
 
+	dates := make([]string, len(*data_list))
+	for i := range *data_list {
+		dates[cnt] = i
+		cnt++
+	}
+
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
 
 	data := make(map[string](map[string]interface{}))
 	data[metric] = temp
@@ -50,7 +57,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		repoUrl:  repoURL,
 		month:    "",
 		data:     data,
-		dates: dates,
+		dates:    dates,
 	}
 
 	return ret
@@ -72,7 +79,7 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	return repoInfo
 }
 
-func GetRepoInfoOfMonth(repo, month string) RepoInfo{
+func GetRepoInfoOfMonth(repo, month string) RepoInfo {
 	return RepoInfo{
 		repoName: "",
 		repoUrl:  "",
