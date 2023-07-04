@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>数据分析报告</title>
+    <title>数据分析报告(compare)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,25 +64,39 @@
 
 <body>
 <div class="container">
-    <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>数据分析报告</strong></h1>
+    <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>数据分析报告(compare)</strong></h1>
 
     <div class="section">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目信息：</strong></h2>
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目1信息：</strong></h2>
         <ul>
-            <li><strong>项目名称:</strong> {{.Title}}</li>
+            <li><strong>项目1名称:</strong> {{.Title1}}</li>
             <li>
-                <strong>项目链接:</strong>
-                <a href="{{.Source}}"
-                >{{.Source}}</a
+                <strong>项目1链接:</strong>
+                <a href="{{.Source1}}"
+                >{{.Source1}}</a
                 >
             </li>
         </ul>
     </div>
 
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目2信息：</strong></h2>
+        <ul>
+            <li><strong>项目2名称:</strong> {{.Title2}}</li>
+            <li>
+                <strong>项目2链接:</strong>
+                <a href="{{.Source2}}"
+                >{{.Source2}}</a
+                >
+            </li>
+        </ul>
+    </div>
+
+
     {{ range $key, $value := .Data }}
 
     <div class="section">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}}各月份柱状图 ：</strong></h2>
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}}各月份对比：</strong></h2>
         <div id="chart">
             <!-- 可视化图表将在这里插入 -->
             <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
@@ -92,7 +106,8 @@
             <script type="text/javascript">
 
                 var dates = [{{ range $.Dates }}"{{ . }}",{{ end }}];
-                var data1 = [{{ range $value }}"{{ . }}",{{ end }}];
+                var data1 = [{{ range $value.Data1 }}"{{ . }}",{{ end }}];
+                var data2 = [{{ range $value.Data2 }}"{{ . }}",{{ end }}];
 
                 "use strict";
                 var myChart = echarts.init(document.getElementById('{{$key}}'), "white");
@@ -110,7 +125,8 @@
                     },
                     yAxis: [{"axisLabel":{"show":true},"splitArea":{"show":false,},"splitLine":{"show":false,}}],
                     series: [
-                        {"name":"{{$.Title}}","type":"bar","data":data1,"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
+                        {"name":"{{$.Title1}}","type":"bar","data":data1,"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
+                        {"name":"{{$.Title2}}","type":"bar","data":data2,"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
                     ],
                     color: ["#c23531","#2f4554","#61a0a8","#d48265","#91c7ae","#749f83","#ca8622","#bda29a","#6e7074","#546570","#c4ccd3"],
                 };
@@ -121,11 +137,8 @@
 
 
 
-    {{ end }}
+        {{ end }}
+
 </div>
 </body>
 </html>
-
-
-
-
