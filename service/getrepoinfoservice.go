@@ -70,8 +70,18 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 
 	data := make(map[string](map[string]interface{}))
 
-	for k, v := range repoInfo.data {
-		data[k] = map[string]interface{}{month: v[month]}
+	if Special_Metric[metric] {
+		for k, v := range repoInfo.data {
+			dataMap := make(map[string]interface{})
+			for _, val := range Special_Value {
+				dataMap[val] = v[val].(map[string]interface{})[month]
+			}
+			data[k] = map[string]interface{}{month: dataMap}
+		}
+	} else {
+		for k, v := range repoInfo.data {
+			data[k] = map[string]interface{}{month: v[month]}
+		}
 	}
 
 	repoInfo.data = data
