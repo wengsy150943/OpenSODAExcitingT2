@@ -1,8 +1,8 @@
 package service
 
 import (
-	"testing"
 	"strconv"
+	"testing"
 )
 
 func TestGetCertainMetric(t *testing.T) {
@@ -12,7 +12,7 @@ func TestGetCertainMetric(t *testing.T) {
 	for k, v := range result {
 		if float32(a.data["openrank"][k].(float64)) != v {
 			temp := a.data["openrank"][k].(float64)
-			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp),'f',6, 64) + " -> " + strconv.FormatFloat(float64(v),'f',6, 64))
+			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp), 'f', 6, 64) + " -> " + strconv.FormatFloat(float64(v), 'f', 6, 64))
 			break
 		}
 	}
@@ -23,10 +23,21 @@ func TestGetCertainRepo(t *testing.T) {
 
 	for k, v := range result {
 		a := GetCertainRepoInfo("X-lab2017/open-digger", "openrank", k)
-		if float32(a.data["openrank"][k].(float64)) != v  {
+		if float32(a.data["openrank"][k].(float64)) != v {
 			temp := a.data["openrank"][k].(float64)
-			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp),'f',6, 64) + " -> " + strconv.FormatFloat(float64(v),'f',6, 64))
+			t.Errorf("get certain repo info false " + strconv.FormatFloat(float64(temp), 'f', 6, 64) + " -> " + strconv.FormatFloat(float64(v), 'f', 6, 64))
 			break
 		}
 	}
+}
+
+func TestGetRepoInfoOfMonth(t *testing.T) {
+	var result float32
+	result = 4.5
+	month := "2020-08"
+	a := GetRepoInfoOfMonth("X-lab2017/open-digger", month)
+	if float32(a.data["openrank"][month].(float64)) != result {
+		t.Errorf("get certain repoinfo of month false ")
+	}
+
 }
