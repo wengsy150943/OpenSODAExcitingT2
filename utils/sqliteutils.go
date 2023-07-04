@@ -1,60 +1,95 @@
 package utils
 
 import (
-	"database/sql"
-	"fmt"
+	"database/sql/driver"
+	"encoding/json"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
 )
 
+/*
+*
+gorm.model包含
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+*/
+type Searchhistory struct {
+	gorm.Model
+	Uid int
+	Log string
+}
+type Datatype map[string](map[string]interface{})
+
 type Repoinfo struct {
-	id       int
-	metric   string
-	reponame string
-	repourl  string
-	data     []byte
-	uid      int
+	gorm.Model
+	Uid      int
+	Reponame string   `json:"reponame"`
+	Repourl  string   `json:"repourl"`
+	Data     Datatype `json:"data"`
 }
 
-func Create(dbname string) {
-	fmt.Println("打开数据")
-	db, err := sql.Open("sqlite3", "./userDB.db") //若数据库没有在这个项目文件下，则需要写绝对路径
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("生成数据表")
-	sql_table := `
-	CREATE TABLE IF NOT EXISTS "repoinfo" (
-	   "uid" INTEGER PRIMARY KEY AUTOINCREMENT,
-	   "reponame" VARCHAR(128) NULL,
-	   "repourl" VARCHAR(128) NULL,
-		"metric" VARCHAR(64) NULL,
-	    "data" VARCHAR(512) NULL,
-	   "created" TIMESTAMP default (datetime('now', 'localtime'))  
-	);`
-	_, err = db.Exec(sql_table) //执行数据表
-	if err != nil {
-		println("error create table")
-		log.Fatal(err)
-	}
+func (d *Datatype) Scan(value interface{}) error {
+	bytesValue, _ := value.([]byte)
+	return json.Unmarshal(bytesValue, d)
+}
+func (d Datatype) Value() (driver.Value, error) {
+	return json.Marshal(d)
 }
 
-func Insert(metric string, reponame string, repourl string, data []byte) {
+/*
+*
+插入查询结果
+*/
+func Insertsinglequery(reponame string, repourl string, data map[string](map[string]interface{})) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	db.AutoMigrate(&Repoinfo{})
 
-	db.Create(&Repoinfo{uid: 0, metric: metric, reponame: reponame, repourl: repourl, data: data})
+	tx := db.Create(&Repoinfo{Reponame: reponame, Repourl: repourl, Data: data})
+	if tx.Error != nil {
+		println(tx.Error)
+	}
+	return tx.Error
 }
 
-func Read(repoinfo *Repoinfo, metric string) {
-	db, err := gorm.Open(sqlite.Open("cache.db"), &gorm.Config{})
+/*
+*
+插入命令行log
+*/
+func Insertlog(log string) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.First(repoinfo, "metric = ?", metric)
+	db.AutoMigrate(&Searchhistory{})
+
+	tx := db.Create(&Searchhistory{Log: log})
+	if tx.Error != nil {
+		println(tx.Error)
+	}
+	return tx.Error
+}
+func Readlog(logs *[]Searchhistory) {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	result := db.Find(&logs)
+	println(result.Error)
+}
+func Readquery(repoinfo *Repoinfo, reponame string) {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	//db.First(repoinfo, 1)
+
+	db.First(repoinfo, "reponame = ?", reponame)
+	println(repoinfo.Reponame)
+	println(repoinfo.Data["openrank"]["2020-08"].(float64))
 }
