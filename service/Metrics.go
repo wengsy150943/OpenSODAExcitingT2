@@ -8,6 +8,16 @@ var Special_Metric = map[string]bool{
 	"change_request_age":                 true,
 }
 
+var Special_Value = []string{
+	"avg",
+	"levels",
+	"quantile_0",
+	"quantile_1",
+	"quantile_2",
+	"quantile_3",
+	"quantile_4",
+}
+
 var Metrics = [...]string{
 	"openrank",
 	"activity",
