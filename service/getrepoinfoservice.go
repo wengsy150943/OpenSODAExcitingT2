@@ -19,7 +19,7 @@ type SpecialDataStructure struct {
 	issueResponseTimeAvg   map[string]float32     //key为日期
 	issueResponseTimeLevel map[string]([]float32) //key为日期
 
-	//剩下这几个也不知道获取了什么，像issueResponseTime一样拆分吧
+	//剩下这几个也不知道获取了什么，像issueResponseTime一样拆分吧，如果有同类项可以写一个struct，然后map[string](NewStruct)
 	//issueResolutionDuration
 	//changeRequestResponseTime
 	//changeRequestResolutionDuration
