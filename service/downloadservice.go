@@ -18,21 +18,24 @@ type SingleDownloadService struct {
 
 func parseFloatValue(v interface{}) float32 {
 	switch v.(type) {
-		case float32: return v.(float32);
-		case float64: return float32(v.(float64));
-		case int: return float32(v.(int));
+	case float32:
+		return v.(float32)
+	case float64:
+		return float32(v.(float64))
+	case int:
+		return float32(v.(int))
 	}
-	return v.(float32);
+	return v.(float32)
 }
 
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
 	d.Target = target_
-	d.Source = source_.repoUrl
-	d.Title = source_.repoName
+	d.Source = source_.RepoUrl
+	d.Title = source_.RepoName
 
-	d.Dates = source_.dates
+	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
-	for k, v1 := range source_.data {
+	for k, v1 := range source_.Data {
 		tempList := make([]float32, 0)
 		for _, v2 := range d.Dates {
 			temp, ok := v1[v2]
@@ -86,8 +89,8 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 	d.Metric = metric_
 	maxLength := 0
 	for _, repo := range sources_ {
-		if len(repo.dates) > maxLength {
-			d.Dates = repo.dates
+		if len(repo.Dates) > maxLength {
+			d.Dates = repo.Dates
 			maxLength = len(d.Dates)
 		}
 	}
@@ -95,10 +98,10 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 	d.Data = make(map[string]([]float32))
 
 	for _, repo := range sources_ {
-		name := repo.repoName
+		name := repo.RepoName
 		tempList := make([]float32, 0)
 		for _, v := range d.Dates {
-			temp, ok := repo.data[metric_][v]
+			temp, ok := repo.Data[metric_][v]
 			if ok {
 				tempList = append(tempList, parseFloatValue(temp))
 			} else {
@@ -167,22 +170,22 @@ type CompareDownloadService struct {
 
 func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, target_ string) error {
 	d.Target = target_
-	d.Source1 = source1_.repoUrl
-	d.Source2 = source2_.repoUrl
-	d.Title1 = source1_.repoName
-	d.Title2 = source2_.repoName
+	d.Source1 = source1_.RepoUrl
+	d.Source2 = source2_.RepoUrl
+	d.Title1 = source1_.RepoName
+	d.Title2 = source2_.RepoName
 	d.Data = make(map[string]CompareDownloadData, 0)
 
 	//dates := []string{"2020-08", "2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-10-raw", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04"}
 	//d.Dates = append(d.Dates, dates...)
-	if len(source1_.dates) >= len(source2_.dates) {
-		d.Dates = source1_.dates
+	if len(source1_.Dates) >= len(source2_.Dates) {
+		d.Dates = source1_.Dates
 	} else {
-		d.Dates = source2_.dates
+		d.Dates = source2_.Dates
 	}
 
-	for k, v1 := range source1_.data {
-		v2, ok := source2_.data[k]
+	for k, v1 := range source1_.Data {
+		v2, ok := source2_.Data[k]
 		if ok {
 			c := &CompareDownloadData{}
 			data1 := make([]float32, 0)
