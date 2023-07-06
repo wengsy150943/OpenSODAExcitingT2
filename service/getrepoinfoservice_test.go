@@ -1,8 +1,8 @@
 package service
 
 import (
-	"strconv"
 	"testing"
+	"strconv"
 )
 
 func TestGetCertainMetric(t *testing.T) {
@@ -80,5 +80,26 @@ func TestGetCertainRepoInfoNotInCache(t *testing.T) {
 }
 
 func Test1(t *testing.T) {
+
+}
+
+func TestGetCertainRepoSpecial(t *testing.T) {
+	avg := 149.29
+	month := "2020-08"
+	metric := "issue_response_time"
+	a := GetCertainRepoInfo("X-lab2017/open-digger", metric, month)
+	if a.data["issue_response_time"][month].(map[string]interface{})["avg"] != avg {
+		t.Errorf("get Certain Repo Special fail")
+	}
+}
+
+func TestGetRepoInfoOfMonth(t *testing.T) {
+	var result float32
+	result = 4.5
+	month := "2020-08"
+	a := GetRepoInfoOfMonth("X-lab2017/open-digger", month)
+	if float32(a.data["openrank"][month].(float64)) != result {
+		t.Errorf("get certain repoinfo of month false ")
+	}
 
 }

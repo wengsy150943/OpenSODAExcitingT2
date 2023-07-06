@@ -1,0 +1,5 @@
+.idea
+.vscode/
+util/*.db
+service/*.html
+service/*.csv

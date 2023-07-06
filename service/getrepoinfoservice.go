@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 )
 
 type RepoInfo struct {
@@ -50,19 +51,29 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	defer response.Body.Close()
 
 	body, _ := ioutil.ReadAll(response.Body)
+	repoName := strings.Split(repo, "/")[1]
 	repoURL := "https://github.com/" + repo
 
 	var temp map[string]interface{}
+	data_list := &map[string]interface{}{}
 	json.Unmarshal([]byte(body), &temp)
 
-	// 获取日期并排序
-	dates := make([]string, len(temp))
+	// 获取日期并排序, 需要针对特殊情况做处理
 	cnt := 0
-	for i := range temp {
-		dates[cnt] = i
-		cnt++
+	if Special_Metric[metric] {
+		*data_list = temp["avg"].(map[string]interface{})
+	} else {
+		data_list = &temp
 	}
+
+	dates := make([]string, len(*data_list))
+	for i := range *data_list {
+		dates[cnt] = i
+		cnt ++
+	}
+
 	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+
 
 	data := make(map[string](map[string]interface{}))
 	data[metric] = temp
@@ -79,15 +90,24 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	return ret
 }
 
-// TODO 支持从缓存中查找指定 repo metric moth条目
 func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	repoInfo := GetRepoInfoOfMetric(repo, metric)
 	repoInfo.month = month
 
 	data := make(map[string](map[string]interface{}))
 
-	for k, v := range repoInfo.data {
-		data[k] = map[string]interface{}{month: v[month]}
+	if Special_Metric[metric] {
+		for k, v := range repoInfo.data {
+			dataMap := make(map[string]interface{})
+			for _, val := range Special_Value {
+				dataMap[val] = v[val].(map[string]interface{})[month]
+			}
+			data[k] = map[string]interface{}{month: dataMap}
+		}
+	} else {
+		for k, v := range repoInfo.data {
+			data[k] = map[string]interface{}{month: v[month]}
+		}
 	}
 
 	repoInfo.data = data
@@ -96,12 +116,54 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	return repoInfo
 }
 
-// TODO
-func GetRepoInfoOfMonth(repo, month string) RepoInfo {
-	return RepoInfo{
-		repoName: "",
-		repoUrl:  "",
-		month:    "",
-		data:     nil,
+func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
+	MetricPerThread := MetricNum / GoroutinueNum
+	var repoinfos [MetricNum]RepoInfo
+	var begin, end int
+	id := 0
+	var wg sync.WaitGroup
+
+	for id < GoroutinueNum {
+		wg.Add(1)
+		// 划定每个协程处理的范围
+		begin = id * MetricPerThread
+		if id == GoroutinueNum-1 {
+			end = MetricNum
+		} else {
+			end = (id + 1) * MetricPerThread
+		}
+
+		go func(begin int, end int) {
+			for i := begin; i < end; i++ {
+				repoinfos[i] = GetCertainRepoInfo(repo, Metrics[i], month)
+			}
+			wg.Done()
+		}(begin, end)
+		id++
 	}
+	wg.Wait()
+
+	dateMap := map[string]bool{}
+	repoinfo.repoName = repo
+	repoinfo.repoUrl = repoinfos[0].repoUrl
+	repoinfo.month = month
+	repoinfo.data = make(map[string](map[string]interface{}))
+
+	for i := 0; i < MetricNum; i++ {
+		for _, date := range repoinfos[i].dates {
+			dateMap[date] = true
+		}
+		repoinfo.data[Metrics[i]] = repoinfos[i].data[Metrics[i]]
+	}
+
+	dates := make([]string, len(dateMap))
+	cnt := 0
+	for k, _ := range dateMap {
+		dates[cnt] = k
+		cnt++
+	}
+
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+	repoinfo.dates = dates
+	return
 }
