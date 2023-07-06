@@ -13,7 +13,25 @@ import (
 	"time"
 )
 
+//TODO：来个高手帮忙在getrepo时把特殊的metric string value转成对应数据结构把，download那里还有一堆template要调，string处理也丢到download顶不住啊（by qk）
+type SpecialDataStructure struct {
+	activeDatesAndTimes   map[string]([]int)      //key为日期
+	newContributorsDetail map[string]([]string)   //key为日期
+	busFactorDetail       map[string]([][]string) //key为日期，value这边的float可以由string转
+	activityDetails       map[string]([][]string) //key为日期，value这边的float可以由string转
+	//这个实在不行可以拆分,反正都可以写死
+	issueResponseTimeAvg   map[string]float32     //key为日期
+	issueResponseTimeLevel map[string]([]float32) //key为日期
+
+	//剩下这几个也不知道获取了什么，像issueResponseTime一样拆分吧，如果有同类项可以写一个struct，然后map[string](NewStruct)
+	//issueResolutionDuration
+	//changeRequestResponseTime
+	//changeRequestResolutionDuration
+	//changeRequestAge
+}
+
 type RepoInfo struct {
+
 	RepoName string
 	RepoUrl  string
 	Month    string
