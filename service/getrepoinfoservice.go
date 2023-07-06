@@ -74,6 +74,7 @@ func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 		Month:    "",
 		Data:     data,
 		Dates:    dates,
+		SpecialData: specialData,
 	}
 	return ret
 }
@@ -111,6 +112,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 			Month:    "",
 			Data:     cachedrepoinfo.Data,
 			Dates:    cachedrepoinfo.Dates,
+			SpecialData: cachedrepoinfo.SpecialData,
 		}
 		return ret
 	}
