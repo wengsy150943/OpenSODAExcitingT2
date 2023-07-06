@@ -28,8 +28,9 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		utils.CreateTable()
 	}
 	cachedrepoinfo := utils.CachedRepoInfo{}
+	repoName := strings.Split(repo, "/")[1]
 	//先去缓存中查询该repo的信息是否被缓存
-	err := utils.Readquerysinglemetric(&cachedrepoinfo, repo, metric)
+	err := utils.Readquerysinglemetric(&cachedrepoinfo, repoName, metric)
 	//若缓存在sqlite中，则将缓存的值返回
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		ret := RepoInfo{
@@ -49,7 +50,6 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	defer response.Body.Close()
 
 	body, _ := ioutil.ReadAll(response.Body)
-	repoName := strings.Split(repo, "/")[1]
 	repoURL := "https://github.com/" + repo
 
 	var temp map[string]interface{}
