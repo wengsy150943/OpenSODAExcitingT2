@@ -15,11 +15,11 @@ func TestSingleDownloadService(t *testing.T) {
 	testDataMap["metricOne"] = testData1
 	testDataMap["metricTwo"] = testData2
 	ret := RepoInfo{
-		repoName: "opendigger",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	err := downloadService.SetData(ret, "html_output")
@@ -45,31 +45,31 @@ func TestBatchDownloadService(t *testing.T) {
 	testDataMap["metricOne"] = testData1
 	testDataMap["metricTwo"] = testData2
 	ret := RepoInfo{
-		repoName: "opendigger",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	rets = append(rets, ret)
 
 	ret2 := RepoInfo{
-		repoName: "opendigger2",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger2",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	rets = append(rets, ret2)
 
 	ret3 := RepoInfo{
-		repoName: "opendigger3",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger3",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	rets = append(rets, ret3)
@@ -94,19 +94,19 @@ func TestCompareDownloadService(t *testing.T) {
 	testDataMap["metricOne"] = testData1
 	testDataMap["metricTwo"] = testData2
 	ret1 := RepoInfo{
-		repoName: "opendigger1",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger1",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	ret2 := RepoInfo{
-		repoName: "opendigger2",
-		repoUrl:  "www.github.com/X-lab2017/open-digger",
-		month:    "",
-		dates:    testDates,
-		data:     testDataMap,
+		RepoName: "opendigger2",
+		RepoUrl:  "www.github.com/X-lab2017/open-digger",
+		Month:    "",
+		Dates:    testDates,
+		Data:     testDataMap,
 	}
 
 	err := downloadService.SetData(ret1, ret2, "html_output_compare")

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 var printList = []string{
@@ -11,11 +11,11 @@ var printList = []string{
 }
 
 func PrintRepoInfo(source_ RepoInfo) {
-	fmt.Printf("%s: %s\n", printList[0], source_.repoName)
-	fmt.Printf("%s: %s\n", printList[1], source_.repoUrl)
+	fmt.Printf("%s: %s\n", printList[0], source_.RepoName)
+	fmt.Printf("%s: %s\n", printList[1], source_.RepoUrl)
 
 	for _,v := range Metrics {
-		datum, ok := source_.data[v]
+		datum, ok := source_.Data[v]
 		if ok{
 			jsonData,err := json.Marshal(datum)
 			if err != nil {
