@@ -2,6 +2,9 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"exciting-opendigger/utils"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -12,13 +15,33 @@ type RepoInfo struct {
 	repoName string
 	repoUrl  string
 	month    string
-	dates	 []string
+	dates    []string
 	data     map[string](map[string]interface{})
 }
 
 func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	BaseURL := "https://oss.x-lab.info/open_digger/github/"
 	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
+	//判断是否已经创建了缓存表
+	exists := utils.TableExist("cached_repo_infos")
+	if !exists {
+		utils.CreateTable()
+	}
+	cachedrepoinfo := utils.CachedRepoInfo{}
+	//先去缓存中查询该repo的信息是否被缓存
+	err := utils.Readquerysinglemetric(&cachedrepoinfo, repo, metric)
+	//若缓存在sqlite中，则将缓存的值返回
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		ret := RepoInfo{
+			repoName: cachedrepoinfo.Reponame,
+			repoUrl:  cachedrepoinfo.Repourl,
+			month:    "",
+			data:     cachedrepoinfo.Data,
+			dates:    cachedrepoinfo.Dates,
+		}
+		return ret
+	}
+
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -37,10 +60,9 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	cnt := 0
 	for i := range temp {
 		dates[cnt] = i
-		cnt ++
+		cnt++
 	}
-	sort.Slice(dates, func(i, j int) bool {return dates[i] < dates[j]})
-
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
 
 	data := make(map[string](map[string]interface{}))
 	data[metric] = temp
@@ -50,12 +72,14 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		repoUrl:  repoURL,
 		month:    "",
 		data:     data,
-		dates: dates,
+		dates:    dates,
 	}
-
+	//查询结果插入缓存
+	utils.Insertsinglequery(repoName, repoURL, metric, "", dates, data)
 	return ret
 }
 
+// TODO 支持从缓存中查找指定 repo metric moth条目
 func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	repoInfo := GetRepoInfoOfMetric(repo, metric)
 	repoInfo.month = month
@@ -72,7 +96,8 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	return repoInfo
 }
 
-func GetRepoInfoOfMonth(repo, month string) RepoInfo{
+// TODO
+func GetRepoInfoOfMonth(repo, month string) RepoInfo {
 	return RepoInfo{
 		repoName: "",
 		repoUrl:  "",
