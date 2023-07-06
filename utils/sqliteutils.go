@@ -67,10 +67,22 @@ func (a Datestype) Value() (driver.Value, error) {
 
 /*
 *
+创建表
+*/
+func CreateTable() {
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	db.AutoMigrate(&CachedRepoInfo{})
+}
+
+/*
+*
 数据表是否存在
 */
 func TableExist(tablename string) bool {
-	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -84,13 +96,12 @@ func TableExist(tablename string) bool {
 注：这里参数一定要用Datestype和Datatype，直接使用map[]Gorm会因为反射报错。
 */
 func UpdateSingleRow(reponame string, metric string, dates Datestype, data Datatype) error {
-	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	repoinfo := CachedRepoInfo{}
 	res := db.Model(&repoinfo).Where("reponame = ? AND metric = ?", reponame, metric).Updates(map[string]interface{}{"dates": dates, "data": data})
-	println(repoinfo.UpdatedAt.Format("2006-01-02 15:04:05"))
 	return res.Error
 }
 
@@ -100,25 +111,17 @@ func UpdateSingleRow(reponame string, metric string, dates Datestype, data Datat
 */
 func InsertSingleQuery(reponame string, repourl string, metric string, month string, dates []string, data map[string](map[string]interface{})) error {
 	//暂时使用全局路径，后面改相对路径
-	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	db.AutoMigrate(&CachedRepoInfo{})
 
 	tx := db.Create(&CachedRepoInfo{Reponame: reponame, Repourl: repourl, Metric: metric, Month: month, Dates: dates, Data: data})
-	println("插入" + reponame + " " + repourl + " " + metric + " ")
 	if tx.Error != nil {
 		println(tx.Error)
 	}
 	return tx.Error
-}
-func CreateTable() {
-	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-	db.AutoMigrate(&CachedRepoInfo{})
 }
 
 /*
@@ -126,7 +129,7 @@ func CreateTable() {
 查询特定仓库的数据
 */
 func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric string) error {
-	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -134,7 +137,6 @@ func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric str
 
 	result := db.Where("reponame = ? AND metric = ?", reponame, metric).First(repoinfo)
 
-	println(errors.Is(result.Error, gorm.ErrRecordNotFound))
 	return result.Error
 }
 
@@ -143,7 +145,7 @@ func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric str
 插入命令行log
 */
 func Insertlog(log string) error {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -155,8 +157,9 @@ func Insertlog(log string) error {
 	}
 	return tx.Error
 }
+
 func Readlog(logs *[]Searchhistory) {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
