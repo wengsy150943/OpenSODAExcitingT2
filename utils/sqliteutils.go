@@ -80,9 +80,25 @@ func TableExist(tablename string) bool {
 
 /*
 *
+更新单个行
+注：这里参数一定要用Datestype和Datatype，直接使用map[]Gorm会因为反射报错。
+*/
+func UpdateSingleRow(reponame string, metric string, dates Datestype, data Datatype) error {
+	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	repoinfo := CachedRepoInfo{}
+	res := db.Model(&repoinfo).Where("reponame = ? AND metric = ?", reponame, metric).Updates(map[string]interface{}{"dates": dates, "data": data})
+	println(repoinfo.UpdatedAt.Format("2006-01-02 15:04:05"))
+	return res.Error
+}
+
+/*
+*
 插入查询结果
 */
-func Insertsinglequery(reponame string, repourl string, metric string, month string, dates []string, data map[string](map[string]interface{})) error {
+func InsertSingleQuery(reponame string, repourl string, metric string, month string, dates []string, data map[string](map[string]interface{})) error {
 	//暂时使用全局路径，后面改相对路径
 	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
 	if err != nil {
@@ -109,17 +125,11 @@ func CreateTable() {
 *
 查询特定仓库的数据
 */
-func Readquerysinglemetric(repoinfo *CachedRepoInfo, reponame string, metric string) error {
+func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric string) error {
 	db, err := gorm.Open(sqlite.Open("D:\\Documents\\PostGraduate1\\下学期\\开源软件\\OpenSODAExcitingT2\\utils\\userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	//db.First(repoinfo, 1)
-	//result := db.First(&user)
-	//result.RowsAffected // 返回找到的记录数
-	//result.Error        // returns error or nil
-
-	// 检查 ErrRecordNotFound 错误
 	metric = strings.ToLower(metric)
 
 	result := db.Where("reponame = ? AND metric = ?", reponame, metric).First(repoinfo)

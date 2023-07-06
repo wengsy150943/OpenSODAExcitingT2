@@ -10,40 +10,19 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 type RepoInfo struct {
-	repoName string
-	repoUrl  string
-	month    string
-	dates    []string
-	data     map[string](map[string]interface{})
+	RepoName string
+	RepoUrl  string
+	Month    string
+	Dates    []string
+	Data     map[string](map[string]interface{})
 }
 
-func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
-	BaseURL := "https://oss.x-lab.info/open_digger/github/"
-	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
-	//判断是否已经创建了缓存表
-	exists := utils.TableExist("cached_repo_infos")
-	if !exists {
-		utils.CreateTable()
-	}
-	cachedrepoinfo := utils.CachedRepoInfo{}
+func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 	repoName := strings.Split(repo, "/")[1]
-	//先去缓存中查询该repo的信息是否被缓存
-	err := utils.Readquerysinglemetric(&cachedrepoinfo, repoName, metric)
-	//若缓存在sqlite中，则将缓存的值返回
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		ret := RepoInfo{
-			repoName: cachedrepoinfo.Reponame,
-			repoUrl:  cachedrepoinfo.Repourl,
-			month:    "",
-			data:     cachedrepoinfo.Data,
-			dates:    cachedrepoinfo.Dates,
-		}
-		return ret
-	}
-
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -51,7 +30,6 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	defer response.Body.Close()
 
 	body, _ := ioutil.ReadAll(response.Body)
-	repoName := strings.Split(repo, "/")[1]
 	repoURL := "https://github.com/" + repo
 
 	var temp map[string]interface{}
@@ -69,35 +47,75 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	dates := make([]string, len(*data_list))
 	for i := range *data_list {
 		dates[cnt] = i
-		cnt ++
+		cnt++
 	}
 
 	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
-
 
 	data := make(map[string](map[string]interface{}))
 	data[metric] = temp
 
 	ret := RepoInfo{
-		repoName: repoName,
-		repoUrl:  repoURL,
-		month:    "",
-		data:     data,
-		dates:    dates,
+		RepoName: repoName,
+		RepoUrl:  repoURL,
+		Month:    "",
+		Data:     data,
+		Dates:    dates,
 	}
+	return ret
+}
+
+func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
+	BaseURL := "https://oss.x-lab.info/open_digger/github/"
+	url := BaseURL + repo + "/" + strings.ToLower(metric) + ".json"
+	//判断是否已经创建了缓存表
+	exists := utils.TableExist("cached_repo_infos")
+	if !exists {
+		utils.CreateTable()
+	}
+	cachedrepoinfo := utils.CachedRepoInfo{}
+	repoName := strings.Split(repo, "/")[1]
+	//先去缓存中查询该repo的信息是否被缓存
+	err := utils.ReadQuerySingleMetric(&cachedrepoinfo, repoName, metric)
+	//若缓存在sqlite中，则将缓存的值返回
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		//判断缓存是否最新
+		//将缓存的修改时间与当前时间做对比,
+		currentTime := time.Now()
+		updateTime := cachedrepoinfo.UpdatedAt
+		duration := currentTime.Sub(updateTime)
+		//更新时间超过24小时则重新获取并更新缓存
+		if duration > 24*time.Hour {
+			temp := GetUrlCotent(url, repo, metric)
+			err := utils.UpdateSingleRow(repoName, metric, temp.Dates, temp.Data)
+			if err != nil {
+				panic("update" + repoName + " " + metric + " faild")
+			}
+		}
+		ret := RepoInfo{
+			RepoName: cachedrepoinfo.Reponame,
+			RepoUrl:  cachedrepoinfo.Repourl,
+			Month:    "",
+			Data:     cachedrepoinfo.Data,
+			Dates:    cachedrepoinfo.Dates,
+		}
+		return ret
+	}
+
+	ret := GetUrlCotent(url, repo, metric)
 	//查询结果插入缓存
-	utils.Insertsinglequery(repoName, repoURL, metric, "", dates, data)
+	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
 	return ret
 }
 
 func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	repoInfo := GetRepoInfoOfMetric(repo, metric)
-	repoInfo.month = month
+	repoInfo.Month = month
 
 	data := make(map[string](map[string]interface{}))
 
 	if Special_Metric[metric] {
-		for k, v := range repoInfo.data {
+		for k, v := range repoInfo.Data {
 			dataMap := make(map[string]interface{})
 			for _, val := range Special_Value {
 				dataMap[val] = v[val].(map[string]interface{})[month]
@@ -105,13 +123,13 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 			data[k] = map[string]interface{}{month: dataMap}
 		}
 	} else {
-		for k, v := range repoInfo.data {
+		for k, v := range repoInfo.Data {
 			data[k] = map[string]interface{}{month: v[month]}
 		}
 	}
 
-	repoInfo.data = data
-	repoInfo.dates = []string{month}
+	repoInfo.Data = data
+	repoInfo.Dates = []string{month}
 
 	return repoInfo
 }
@@ -144,16 +162,16 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 	wg.Wait()
 
 	dateMap := map[string]bool{}
-	repoinfo.repoName = repo
-	repoinfo.repoUrl = repoinfos[0].repoUrl
-	repoinfo.month = month
-	repoinfo.data = make(map[string](map[string]interface{}))
+	repoinfo.RepoName = repo
+	repoinfo.RepoUrl = repoinfos[0].RepoUrl
+	repoinfo.Month = month
+	repoinfo.Data = make(map[string](map[string]interface{}))
 
 	for i := 0; i < MetricNum; i++ {
-		for _, date := range repoinfos[i].dates {
+		for _, date := range repoinfos[i].Dates {
 			dateMap[date] = true
 		}
-		repoinfo.data[Metrics[i]] = repoinfos[i].data[Metrics[i]]
+		repoinfo.Data[Metrics[i]] = repoinfos[i].Data[Metrics[i]]
 	}
 
 	dates := make([]string, len(dateMap))
@@ -164,6 +182,6 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 	}
 
 	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
-	repoinfo.dates = dates
+	repoinfo.Dates = dates
 	return
 }
