@@ -17,13 +17,11 @@ func PrintRepoInfo(source_ RepoInfo) {
 	for _,v := range Metrics {
 		datum, ok := source_.data[v]
 		if ok{
-			fmt.Printf("%s:", v)
 			jsonData,err := json.Marshal(datum)
 			if err != nil {
-				fmt.Errorf("trans fail",err)
+				fmt.Println("trans fail: ",err)
 			}
-			fmt.Println(string(jsonData))
+			fmt.Printf("%s:%s\n", v, string(jsonData))
 		}
 	}
-
 }
