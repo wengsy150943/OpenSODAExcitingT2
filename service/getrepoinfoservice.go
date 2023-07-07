@@ -215,3 +215,55 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 	repoinfo.Dates = dates
 	return
 }
+
+func GetAllRepoInfo(repo string) (repoinfo RepoInfo) {
+	MetricPerThread := MetricNum / GoroutinueNum
+	var repoinfos [MetricNum]RepoInfo
+	var begin, end int
+	id := 0
+	var wg sync.WaitGroup
+
+	for id < GoroutinueNum {
+		wg.Add(1)
+		// 划定每个协程处理的范围
+		begin = id * MetricPerThread
+		if id == GoroutinueNum-1 {
+			end = MetricNum
+		} else {
+			end = (id + 1) * MetricPerThread
+		}
+
+		go func(begin int, end int) {
+			for i := begin; i < end; i++ {
+				repoinfos[i] = GetRepoInfoOfMetric(repo, Metrics[i])
+			}
+			wg.Done()
+		}(begin, end)
+		id++
+	}
+	wg.Wait()
+
+	dateMap := map[string]bool{}
+	repoinfo.RepoName = repo
+	repoinfo.RepoUrl = repoinfos[0].RepoUrl
+	repoinfo.Data = make(map[string](map[string]interface{}))
+
+	for i := 0; i < MetricNum; i++ {
+		for _, date := range repoinfos[i].Dates {
+			dateMap[date] = true
+		}
+		repoinfo.Data[Metrics[i]] = repoinfos[i].Data[Metrics[i]]
+		repoinfo.SpecialData.MergeSpecialData(repoinfos[i].SpecialData)
+	}
+
+	dates := make([]string, len(dateMap))
+	cnt := 0
+	for k, _ := range dateMap {
+		dates[cnt] = k
+		cnt++
+	}
+
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+	repoinfo.Dates = dates
+	return
+}
