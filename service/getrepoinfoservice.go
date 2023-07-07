@@ -25,6 +25,18 @@ type RepoInfo struct {
 	SpecialData utils.SpecialDataStructure
 }
 
+// 把特殊metric转存一份到specialData里
+func initSpecialDataStructure(data map[string]map[string]interface{})utils.SpecialDataStructure{
+	var specialData utils.SpecialDataStructure
+	for k, v := range data {
+		parseFunction, ok := utils.Parse[k] 
+		if ok {
+			specialData = parseFunction(v, specialData)
+		} 
+	}
+	return specialData
+}
+
 func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 	repoName := strings.Split(repo, "/")[1]
 	response, err := http.Get(url)
@@ -58,12 +70,7 @@ func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 
 	// 将数据赋值给RepoInfo，如果数据是9种特殊指标，解析为specialData；并赋给data
 	// 获取特殊指标对应的解析函数
-	parseFunction, ok := utils.Parse[metric] 
-	var specialData utils.SpecialDataStructure
 	var data map[string](map[string]interface{})
-	if ok {
-		specialData = parseFunction(temp, specialData)
-	} 
 	data = make(map[string](map[string]interface{}))
 	data[metric] = temp
 	
@@ -74,7 +81,7 @@ func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 		Month:    "",
 		Data:     data,
 		Dates:    dates,
-		SpecialData: specialData,
+		SpecialData: initSpecialDataStructure(data),
 	}
 	return ret
 }
@@ -112,7 +119,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 			Month:    "",
 			Data:     cachedrepoinfo.Data,
 			Dates:    cachedrepoinfo.Dates,
-			SpecialData: cachedrepoinfo.SpecialData,
+			SpecialData: initSpecialDataStructure(cachedrepoinfo.Data),
 		}
 		return ret
 	}
@@ -194,6 +201,7 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 			dateMap[date] = true
 		}
 		repoinfo.Data[Metrics[i]] = repoinfos[i].Data[Metrics[i]]
+		repoinfo.SpecialData.MergeSpecialData(repoinfos[i].SpecialData)
 	}
 
 	dates := make([]string, len(dateMap))

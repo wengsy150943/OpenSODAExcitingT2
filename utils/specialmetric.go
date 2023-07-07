@@ -14,16 +14,16 @@ type QuantileStats struct {
 }
 
 type SpecialDataStructure struct {
-	active_dates_and_times   map[string]([]int)      //key为日期
-	new_contributors_detail map[string]([]string)   //key为日期
-	bus_factor_detail       map[string]([][]string) //key为日期，value这边的float可以由string转
-	activity_details       map[string]([][]string) //key为日期，value这边的float可以由string转
+	ActiveDatesAndTimes   map[string]([]int)      //key为日期
+	NewContributorsDetail map[string]([]string)   //key为日期
+	BusFactorDetail       map[string]([][]string) //key为日期，value这边的float可以由string转
+	ActivityDetails       map[string]([][]string) //key为日期，value这边的float可以由string转
 	// 以下部分都是转为QuantileStats格式的数据
-	issue_response_time   map[string](QuantileStats)     //key为日期
-	issue_resolution_duration	map[string](QuantileStats)
-	change_request_response_time	map[string](QuantileStats)
-	change_request_resolution_duration	 map[string](QuantileStats)
-	change_request_age	map[string](QuantileStats)
+	IssueResponseTime   map[string](QuantileStats)     //key为日期
+	IssueResolutionDuration	map[string](QuantileStats)
+	ChangeRequestResponseTime	map[string](QuantileStats)
+	ChangeRequestResolutionDuration	 map[string](QuantileStats)
+	ChangeRequestAge	map[string](QuantileStats)
 }
 
 type parseFunc func(map[string]interface{}, SpecialDataStructure)SpecialDataStructure
@@ -41,57 +41,74 @@ var Parse  = map[string]parseFunc{
 	"change_request_age":                 parseChangeRequestAge,
 }
 	
+
+func (r* SpecialDataStructure)MergeSpecialData(others SpecialDataStructure){
+	value := reflect.ValueOf(r).Elem()
+	dataType := reflect.TypeOf(r).Elem()
+	
+	
+	otherValue := reflect.ValueOf(others)
+	for i := 0; i < value.NumField(); i++ {
+		if otherValue.FieldByName(dataType.Field(i).Name).IsValid(){
+			val := reflect.New(dataType.Field(i).Type)
+			val.Elem().Set( otherValue.FieldByName(dataType.Field(i).Name) )
+
+			if val.Elem().Len() > 0{
+				value.Field(i).Set(val.Elem())
+			}
+			
+		}
+	}
+}
 // 用反射遍历所有变量，逐个暴力枚举把月份清理掉
 func (r* SpecialDataStructure) SelectMonth(month string){
 
+		
 	value := reflect.ValueOf(r).Elem()
 	dataType := reflect.TypeOf(r).Elem()
-	for i := 0; i < value.NumField(); i++ {
-		if value.FieldByName(dataType.Name()).IsValid(){
-			val := value.FieldByName(dataType.Name())
-			dataMap := reflect.MakeMap(val.Type())
-
+	for i := 0; i < dataType.NumField(); i++ {
+		
+		val := value.FieldByName(dataType.Field(i).Name)
+		if val.IsValid() && len(val.MapKeys()) > 0 {		
+		
 			iter := val.MapRange()
 			for iter.Next() {
 				keyValue := iter.Key()
-				value := iter.Value()
 				// 只设置对的月份
-				if keyValue.String() == month {
-					dataMap.SetMapIndex(keyValue, value)
+				if keyValue.String() != month {
+					val.SetMapIndex(keyValue, reflect.Value{})
 				}
 			}
-			// 更新值
-			val.Set(dataMap)
 		}
 	}
 }
 
 func parseActiveDatesAndTimes(data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.active_dates_and_times = make(map[string][]int)
+	r.ActiveDatesAndTimes = make(map[string][]int)
 	for month, v := range data{
 		valueList := make([]int, len(v.([]interface{})))
 		for key,value := range v.([]interface{}){
 			valueList[key] = int(value.(float64))
 		}
-		r.active_dates_and_times[month] = valueList
+		r.ActiveDatesAndTimes[month] = valueList
 	}
 	return r
 }
 
 func parseNewContributorsDetail(data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.new_contributors_detail = make(map[string][]string)
+	r.NewContributorsDetail = make(map[string][]string)
 	for month, v := range data{
 		valueList := make([]string, len(v.([]interface{})))
 		for key,value := range v.([]interface{}){
 			valueList[key] = value.(string)
 		}
-		r.new_contributors_detail[month] = valueList
+		r.NewContributorsDetail[month] = valueList
 	}
 	return r
 }
 // 这两个的内层都是[string, float],为了组织方便强转为[]string
 func  parseBusFactorDetail (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.bus_factor_detail = make(map[string][][]string)
+	r.BusFactorDetail = make(map[string][][]string)
 	for month, v := range data{
 		
 		val := v.([]interface {})
@@ -102,13 +119,13 @@ func  parseBusFactorDetail (data map[string]interface{}, r SpecialDataStructure)
 			temp[1] = strconv.FormatFloat(value.([]interface {})[1].(float64), 'f', -1, 64) 
 			valueList[key] = temp
 		}
-		r.bus_factor_detail[month] = valueList
+		r.BusFactorDetail[month] = valueList
 	}
 	return r
 }
 
 func  parseActivityDetails (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.activity_details = make(map[string][][]string)
+	r.ActivityDetails = make(map[string][][]string)
 	for month, v := range data{
 		val := v.([]interface {})
 		valueList := make([][]string,len(val))
@@ -118,7 +135,7 @@ func  parseActivityDetails (data map[string]interface{}, r SpecialDataStructure)
 			temp[1] = strconv.FormatFloat(value.([]interface {})[1].(float64), 'f', -1, 64) 
 			valueList[key] = temp
 		}
-		r.activity_details[month] = valueList
+		r.ActivityDetails[month] = valueList
 	}
 	return r
 }
@@ -128,7 +145,7 @@ func  parseActivityDetails (data map[string]interface{}, r SpecialDataStructure)
 //   data: 对应metric的数据项
 
 func parseIssueResponseTime(data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.issue_response_time = make(map[string]QuantileStats)
+	r.IssueResponseTime = make(map[string]QuantileStats)
 
 	for month, _ := range data["avg"].(map[string]interface{}) {
 		
@@ -142,7 +159,7 @@ func parseIssueResponseTime(data map[string]interface{}, r SpecialDataStructure)
 		for k, v := range dataMap[month].([]interface{}) {
 			levels[k] = int(v.(float64))
 		}
-		r.issue_response_time[month] = QuantileStats{
+		r.IssueResponseTime[month] = QuantileStats{
 			levels: levels,
 			quantile: quantile,
 			avg: data["avg"].(map[string]interface{})[month].(float64),
@@ -152,7 +169,7 @@ func parseIssueResponseTime(data map[string]interface{}, r SpecialDataStructure)
 }
 
 func  parseIssueResolutionDuration (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.issue_resolution_duration = make(map[string]QuantileStats)
+	r.IssueResolutionDuration = make(map[string]QuantileStats)
 
 	for month, _ := range data["avg"].(map[string]interface{}) {
 		
@@ -166,7 +183,7 @@ func  parseIssueResolutionDuration (data map[string]interface{}, r SpecialDataSt
 		for k, v := range dataMap[month].([]interface{}) {
 			levels[k] = int(v.(float64))
 		}
-		r.issue_resolution_duration[month] = QuantileStats{
+		r.IssueResolutionDuration[month] = QuantileStats{
 			levels: levels,
 			quantile: quantile,
 			avg: data["avg"].(map[string]interface{})[month].(float64),
@@ -177,7 +194,7 @@ func  parseIssueResolutionDuration (data map[string]interface{}, r SpecialDataSt
 
 func  parseChangeRequestResponseTime (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
 	
-	r.change_request_response_time = make(map[string]QuantileStats)
+	r.ChangeRequestResponseTime = make(map[string]QuantileStats)
 
 	for month, _ := range data["avg"].(map[string]interface{}) {
 		
@@ -191,7 +208,7 @@ func  parseChangeRequestResponseTime (data map[string]interface{}, r SpecialData
 		for k, v := range dataMap[month].([]interface{}) {
 			levels[k] = int(v.(float64))
 		}
-		r.change_request_response_time[month] = QuantileStats{
+		r.ChangeRequestResponseTime[month] = QuantileStats{
 			levels: levels,
 			quantile: quantile,
 			avg: data["avg"].(map[string]interface{})[month].(float64),
@@ -201,7 +218,7 @@ func  parseChangeRequestResponseTime (data map[string]interface{}, r SpecialData
 }
 
 func  parseChangeRequestResolutionDuration (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.change_request_resolution_duration = make(map[string]QuantileStats)
+	r.ChangeRequestResolutionDuration = make(map[string]QuantileStats)
 
 	for month, _ := range data["avg"].(map[string]interface{}) {
 		
@@ -215,7 +232,7 @@ func  parseChangeRequestResolutionDuration (data map[string]interface{}, r Speci
 		for k, v := range dataMap[month].([]interface{}) {
 			levels[k] = int(v.(float64))
 		}
-		r.change_request_resolution_duration[month] = QuantileStats{
+		r.ChangeRequestResolutionDuration[month] = QuantileStats{
 			levels: levels,
 			quantile: quantile,
 			avg: data["avg"].(map[string]interface{})[month].(float64),
@@ -225,7 +242,7 @@ func  parseChangeRequestResolutionDuration (data map[string]interface{}, r Speci
 }
 
 func  parseChangeRequestAge (data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure{
-	r.change_request_age = make(map[string]QuantileStats)
+	r.ChangeRequestAge = make(map[string]QuantileStats)
 
 	for month, _ := range data["avg"].(map[string]interface{}) {
 		
@@ -239,7 +256,7 @@ func  parseChangeRequestAge (data map[string]interface{}, r SpecialDataStructure
 		for k, v := range dataMap[month].([]interface{}) {
 			levels[k] = int(v.(float64))
 		}
-		r.change_request_age[month] = QuantileStats{
+		r.ChangeRequestAge[month] = QuantileStats{
 			levels: levels,
 			quantile: quantile,
 			avg: data["avg"].(map[string]interface{})[month].(float64),
