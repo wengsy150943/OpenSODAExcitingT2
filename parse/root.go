@@ -19,6 +19,7 @@ type Query struct {
 var queryPara Query
 var repoInfo service.RepoInfo
 var repoInfoCompare service.RepoInfo
+var isShow bool = true
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

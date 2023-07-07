@@ -17,6 +17,9 @@ var downloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "Download and plot data from OpenDigger",
 	Long:  `Download data from api and generate pdf`,
+	PersistentPreRun: func (cmd *cobra.Command, args []string)  {
+		isShow = false
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
 		if queryPara.metric != "" && queryPara.month != "" {

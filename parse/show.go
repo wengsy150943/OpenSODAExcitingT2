@@ -15,6 +15,9 @@ var showCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Show data from OpenDigger",
 	Long:  `show data from api and print in screen`,
+	PersistentPreRun: func (cmd *cobra.Command, args []string)  {
+		isShow = true
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
 		repoInfo = getResult(queryPara)
