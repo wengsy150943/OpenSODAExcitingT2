@@ -36,6 +36,7 @@ type CachedRepoInfo struct {
 	Month    string
 	Dates    Datestype
 	Data     Datatype
+	SpecialData SpecialDataStructure
 }
 
 func (d *Datatype) Scan(value interface{}) error {
