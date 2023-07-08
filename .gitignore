@@ -3,4 +3,4 @@
 util/*.db
 service/*.html
 service/*.csv
-*/*.db
+*.db
