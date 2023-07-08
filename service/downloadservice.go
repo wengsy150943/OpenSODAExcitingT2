@@ -2,18 +2,59 @@ package service
 
 import (
 	"encoding/csv"
+	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"os"
 	"strconv"
 )
 
+var MonthMap = map[string]int{
+	"January":   1,
+	"February":  2,
+	"March":     3,
+	"April":     4,
+	"May":       5,
+	"June":      6,
+	"July":      7,
+	"August":    8,
+	"September": 9,
+	"October":   10,
+	"November":  11,
+	"December":  12,
+}
+
+type WordCloudData struct {
+	YearData []YearMonthData
+	Years    []int
+}
+
+// 定义云图结构
+type WordCloudDetailData struct {
+	Name  string
+	Value float32
+}
+
+// 定义年份和月份的数据结构
+type YearMonthData struct {
+	Year  int
+	Month int
+	Data  []WordCloudDetailData
+}
+
 type SingleDownloadService struct {
-	Source string
-	Target string
-	Title  string
-	Dates  []string
-	Data   map[string]([]float32)
+	Source                    string
+	Target                    string
+	Title                     string
+	Dates                     []string
+	Data                      map[string]([]float32)
+	Years                     []int
+	InitYear                  int //前端按钮默认显示
+	InitMonth                 int //前端按钮默认显示
+	ActivityDetailsData       []YearMonthData
+	BusFactorDetailData       []YearMonthData
+	NewContributorsDetailData []YearMonthData
 }
 
 func parseFloatValue(v interface{}) float32 {
@@ -35,18 +76,81 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
-	for k, v1 := range source_.Data {
-		tempList := make([]float32, 0)
-		for _, v2 := range d.Dates {
-			temp, ok := v1[v2]
-			if ok {
-				tempList = append(tempList, parseFloatValue(temp))
-			} else {
-				continue
-			}
-		}
-		d.Data[k] = tempList
+
+	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
+	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
+
+	if err1 != nil {
+		fmt.Println(err1)
 	}
+
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+
+	d.InitYear = initYear
+	d.InitMonth = initMonth
+
+	for k, v1 := range source_.Data {
+		if k == "active_dates_and_times" {
+			continue
+		} else if k == "new_contributors_detail" {
+			tempDetail := source_.SpecialData.NewContributorsDetail
+			tempDetail2 := make(map[string]([][]string))
+			for k, v := range tempDetail {
+
+				temp := make([][]string, 0)
+
+				for _, v1 := range v {
+					temp = append(temp, []string{v1, "1"})
+				}
+
+				tempDetail2[k] = temp
+			}
+			w := getWordCloudData(tempDetail2)
+			d.NewContributorsDetailData = w.YearData
+			d.Years = w.Years
+			fmt.Println("new")
+			fmt.Println(d.NewContributorsDetailData)
+			fmt.Println(d.Years)
+		} else if k == "bus_factor_detail" {
+			w := getWordCloudData(source_.SpecialData.BusFactorDetail)
+			d.BusFactorDetailData = w.YearData
+			d.Years = w.Years
+			fmt.Println("bus")
+			fmt.Println(d.BusFactorDetailData)
+			fmt.Println(d.Years)
+		} else if k == "activity_details" {
+			w := getWordCloudData(source_.SpecialData.ActivityDetails)
+			d.ActivityDetailsData = w.YearData
+			d.Years = w.Years
+			fmt.Println("act")
+			fmt.Println(d.ActivityDetailsData)
+			fmt.Println(d.Years)
+		} else if k == "issue_response_time" {
+			continue
+		} else if k == "issue_resolution_duration" {
+			continue
+		} else if k == "change_request_response_time" {
+			continue
+		} else if k == "change_request_resolution_duration" {
+			continue
+		} else if k == "change_request_age" {
+			continue
+		} else {
+			tempList := make([]float32, 0)
+			for _, v2 := range d.Dates {
+				temp, ok := v1[v2]
+				if ok {
+					tempList = append(tempList, parseFloatValue(temp))
+				} else {
+					continue
+				}
+			}
+			d.Data[k] = tempList
+		}
+	}
+
 	return nil
 }
 
@@ -81,7 +185,8 @@ type BatchDownloadService struct {
 	Rows   int
 	Cols   int
 	Data   map[string]([]float32) //这里的key为仓库名
-	Dates  []string
+
+	Dates []string
 }
 
 func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, target_ string) error {
@@ -239,4 +344,79 @@ func (d *CompareDownloadService) Download() error {
 	}
 
 	return nil
+}
+
+func getWordCloudData(data_ map[string]([][]string)) WordCloudData {
+	yearMin := math.MaxInt
+	yearMax := math.MinInt
+	wordCloudData := make(map[int]map[int][]WordCloudDetailData)
+
+	for key, item := range data_ {
+
+		year, err := strconv.Atoi(key[:4])
+		if year < yearMin {
+			yearMin = year
+		}
+
+		if year > yearMax {
+			yearMax = year
+		}
+
+		if wordCloudData[year] == nil {
+			wordCloudData[year] = make(map[int][]WordCloudDetailData)
+		}
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		month, err1 := strconv.Atoi(key[5:7])
+		if err != nil {
+			fmt.Println(err1)
+			continue
+		}
+
+		for _, value := range item {
+			score, err2 := strconv.ParseFloat(value[1], 32)
+			if err2 != nil {
+				fmt.Println(err2)
+				continue
+			}
+			temp := &WordCloudDetailData{value[0], float32(score)}
+
+			wordCloudData[year][month] = append(wordCloudData[year][month], *temp)
+		}
+
+	}
+
+	//fmt.Println(data_)
+
+	// 创建一个用于存储年份和月份数据的切片
+	var yearMonthData []YearMonthData
+
+	// 转换为 YearMonthData 结构，并添加到 yearMonthData 切片中
+	for year, monthData := range wordCloudData {
+		for month, data := range monthData {
+			yearMonthData = append(yearMonthData, YearMonthData{
+				Year:  year,
+				Month: month,
+				Data:  data,
+			})
+		}
+	}
+
+	// 计算数组的长度
+	length := yearMax - yearMin + 1
+
+	// 创建并初始化连续数组
+	years := make([]int, length)
+	for i := 0; i < length; i++ {
+		years[i] = yearMin + i
+	}
+
+	res := &WordCloudData{yearMonthData, years}
+
+	return *res
+
 }

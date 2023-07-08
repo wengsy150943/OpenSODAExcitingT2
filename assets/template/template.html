@@ -55,11 +55,52 @@
             text-align: center;
             margin-top: 30px;
         }
+
+        /* 添加样式 */
+        .select-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+
+        .custom-select {
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .custom-select:hover {
+            background-color: #e8e8e8;
+        }
+
+        .custom-select:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 并排放置年份和月份按钮 */
+        .select-container-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .select-container-inline select {
+            margin-right: 10px;
+        }
+
     </style>
 
     <meta charset="utf-8">
-    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
-    <link href="https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 </head>
 
 <body>
@@ -78,6 +119,313 @@
             </li>
         </ul>
     </div>
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>ActivityDetailsData：</strong></h2>
+        <div id="chart1">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect1" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect1" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud1" style="width:1200px;height:600px;"></div>
+
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData1 = {{.ActivityDetailsData}};
+
+                // 生成词云图函数
+                function generateWordCloud1(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData1 = [];
+                    for (var i = 0; i < yearMonthData1.length; i++) {
+                        if (yearMonthData1[i].Year === year && yearMonthData1[i].Month === month) {
+                            selectedData1 = yearMonthData1[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData1 = selectedData1.map(function(item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option1 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData1
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart1 = echarts.init(document.getElementById('wordcloud1'));
+                    chart1.setOption(option1);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect1 = document.getElementById('yearSelect1');
+                var monthSelect1 = document.getElementById('monthSelect1');
+                yearSelect1.addEventListener('change', updateWordCloud1);
+                monthSelect1.addEventListener('change', updateWordCloud1);
+
+                // 更新词云图
+                function updateWordCloud1() {
+                    var selectedYear1 = parseInt(yearSelect1.value);
+                    var selectedMonth1 = parseInt(monthSelect1.value);
+                    generateWordCloud1(selectedYear1, selectedMonth1);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear1 = parseInt(yearSelect1.value);
+                var defaultMonth1 = parseInt(monthSelect1.value);
+                // var defaultYear = parseInt({{.InitYear}});
+                // var defaultMonth = parseInt({{.InitMonth}});
+                generateWordCloud1(defaultYear1, defaultMonth1);
+            </script>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>BusFactorDetail：</strong></h2>
+        <div id="chart2">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect2" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect2" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud2" style="width:1200px;height:600px;"></div>
+
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData2 = {{.BusFactorDetailData}};
+
+                // 生成词云图函数
+                function generateWordCloud2(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData2 = [];
+                    for (var i = 0; i < yearMonthData2.length; i++) {
+                        if (yearMonthData2[i].Year === year && yearMonthData2[i].Month === month) {
+                            selectedData2 = yearMonthData2[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData2 = selectedData2.map(function(item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option2 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData2
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart2= echarts.init(document.getElementById('wordcloud2'));
+                    chart2.setOption(option2);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect2 = document.getElementById('yearSelect2');
+                var monthSelect2 = document.getElementById('monthSelect2');
+                yearSelect2.addEventListener('change', updateWordCloud2);
+                monthSelect2.addEventListener('change', updateWordCloud2);
+
+                // 更新词云图
+                function updateWordCloud2() {
+                    var selectedYear2 = parseInt(yearSelect2.value);
+                    var selectedMonth2 = parseInt(monthSelect2.value);
+                    generateWordCloud2(selectedYear2, selectedMonth2);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear2 = parseInt(yearSelect2.value);
+                var defaultMonth2 = parseInt(monthSelect2.value);
+
+                generateWordCloud2(defaultYear2, defaultMonth2);
+            </script>
+
+        </div>
+    </div>
+
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>NewContributorsDetail：</strong></h2>
+        <div id="chart3">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect3" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect3" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud3" style="width:1200px;height:600px;"></div>
+
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData3 = {{.NewContributorsDetailData}};
+
+                // 生成词云图函数
+                function generateWordCloud3(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData3 = [];
+                    for (var i = 0; i < yearMonthData3.length; i++) {
+                        if (yearMonthData3[i].Year === year && yearMonthData3[i].Month === month) {
+                            selectedData3 = yearMonthData3[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData3 = selectedData3.map(function(item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option3 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData3
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart3 = echarts.init(document.getElementById('wordcloud3'));
+                    chart3.setOption(option3);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect3 = document.getElementById('yearSelect3');
+                var monthSelect3 = document.getElementById('monthSelect3');
+                yearSelect3.addEventListener('change', updateWordCloud3);
+                monthSelect3.addEventListener('change', updateWordCloud3);
+
+                // 更新词云图
+                function updateWordCloud3() {
+                    var selectedYear3 = parseInt(yearSelect3.value);
+                    var selectedMonth3 = parseInt(monthSelect3.value);
+                    generateWordCloud3(selectedYear3, selectedMonth3);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear3 = parseInt(yearSelect3.value);
+                var defaultMonth3 = parseInt(monthSelect3.value);
+
+                generateWordCloud3(defaultYear3, defaultMonth3);
+            </script>
+
+        </div>
+    </div>
+
+
+
+
+
+
 
     {{ range $key, $value := .Data }}
 
