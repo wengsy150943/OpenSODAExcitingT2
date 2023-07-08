@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"testing"
+	"strconv"
 )
 
 func TestInsertAndRead(t *testing.T) {
@@ -58,12 +59,12 @@ func TestReadquery(t *testing.T) {
 
 	res := CachedRepoInfo{}
 	ReadQuerySingleMetric(&res, "X-lab2017/open-digger", metric)
-	println(res.Data["openrank"]["2023-06"].(float64))
-	//for k, v := range testData1 {
-	//	if res.Data[metric][k].(float64) != v {
-	//		t.Errorf("Read query error" + k + strconv.FormatFloat(float64(res.Data[metric][k].(float64)), 'f', 6, 64) + " correct:" + strconv.FormatFloat(v.(float64), 'f', 6, 64))
-	//	}
-	//}
+	println(res.Data["openrank"]["2023-06"])
+	for k, v := range testData1 {
+		if res.Data[metric][k].(float64) != v {
+			t.Errorf("Read query error" + k + strconv.FormatFloat(float64(res.Data[metric][k].(float64)), 'f', 6, 64) + " correct:" + strconv.FormatFloat(v.(float64), 'f', 6, 64))
+		}
+	}
 }
 
 func TestUpdateSingleRow(t *testing.T) {

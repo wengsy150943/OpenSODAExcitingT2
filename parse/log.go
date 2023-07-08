@@ -1,11 +1,12 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package parse
 
 import (
+	"exciting-opendigger/utils"
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,11 @@ var logCmd = &cobra.Command{
 	Short: "Show previous logs of query",
 	Long:  "Show previous logs of query",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("OpenSODAExcitingT2 version v0.1 beta ")
+		var logs []utils.Searchhistory
+		utils.Readlog(&logs)
+		for it, history := range logs {
+			fmt.Printf("%d. %s\n", it + 1, history.Log)
+		}	
 	},
 }
 
