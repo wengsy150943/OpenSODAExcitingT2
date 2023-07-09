@@ -2,19 +2,17 @@ package parse
 
 import (
 	"exciting-opendigger/service"
+	"exciting-opendigger/utils"
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 // 访问参数
 type Query struct {
 	repo, month, metric string
 }
-
-
 
 var queryPara Query
 var repoInfo service.RepoInfo
@@ -26,12 +24,13 @@ var rootCmd = &cobra.Command{
 	Use:   "exciting-opendigger",
 	Short: "Exciting-opendigger,a tool to get and download opendigger result",
 	Long:  `Exciting-opendigger,a tool to get and download opendigger result.`,
-	PersistentPreRun: func (cmd *cobra.Command, args []string)  {
-		fmt.Printf("log is: %s\n",strings.Join(os.Args[1:]," "))
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("log is: %s\n", strings.Join(os.Args[1:], " "))
 		// TODO syz lh: save log here
-	}, 
-	Run: func (cmd *cobra.Command, args []string)  {
-		
+		utils.Insertlog(strings.Join(os.Args[1:], " "))
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+
 	},
 }
 

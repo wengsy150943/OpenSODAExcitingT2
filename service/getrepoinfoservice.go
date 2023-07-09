@@ -13,26 +13,23 @@ import (
 	"time"
 )
 
-
-
 type RepoInfo struct {
-
-	RepoName string
-	RepoUrl  string
-	Month    string
-	Dates    []string
-	Data     map[string](map[string]interface{})
+	RepoName    string
+	RepoUrl     string
+	Month       string
+	Dates       []string
+	Data        map[string](map[string]interface{})
 	SpecialData utils.SpecialDataStructure
 }
 
 // 把特殊metric转存一份到specialData里
-func initSpecialDataStructure(data map[string]map[string]interface{})utils.SpecialDataStructure{
+func initSpecialDataStructure(data map[string]map[string]interface{}) utils.SpecialDataStructure {
 	var specialData utils.SpecialDataStructure
 	for k, v := range data {
-		parseFunction, ok := utils.Parse[k] 
+		parseFunction, ok := utils.Parse[k]
 		if ok {
 			specialData = parseFunction(v, specialData)
-		} 
+		}
 	}
 	return specialData
 }
@@ -73,14 +70,13 @@ func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 	var data map[string](map[string]interface{})
 	data = make(map[string](map[string]interface{}))
 	data[metric] = temp
-	
 
 	ret := RepoInfo{
-		RepoName: repoName,
-		RepoUrl:  repoURL,
-		Month:    "",
-		Data:     data,
-		Dates:    dates,
+		RepoName:    repoName,
+		RepoUrl:     repoURL,
+		Month:       "",
+		Data:        data,
+		Dates:       dates,
 		SpecialData: initSpecialDataStructure(data),
 	}
 	return ret
@@ -114,11 +110,11 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 			}
 		}
 		ret := RepoInfo{
-			RepoName: cachedrepoinfo.Reponame,
-			RepoUrl:  cachedrepoinfo.Repourl,
-			Month:    "",
-			Data:     cachedrepoinfo.Data,
-			Dates:    cachedrepoinfo.Dates,
+			RepoName:    cachedrepoinfo.Reponame,
+			RepoUrl:     cachedrepoinfo.Repourl,
+			Month:       "",
+			Data:        cachedrepoinfo.Data,
+			Dates:       cachedrepoinfo.Dates,
 			SpecialData: initSpecialDataStructure(cachedrepoinfo.Data),
 		}
 		return ret
@@ -137,10 +133,10 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	data := make(map[string](map[string]interface{}))
 
 	// 处理特殊指标
-	_, ok := utils.Parse[metric] 
+	_, ok := utils.Parse[metric]
 	if ok {
 		repoInfo.SpecialData.SelectMonth(month)
-	} 
+	}
 
 	// 因为仍然保留一份数据在data里，这部分也要处理，用于show的输出
 	if Special_Metric[metric] {

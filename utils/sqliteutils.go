@@ -145,7 +145,7 @@ func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric str
 插入命令行log
 */
 func Insertlog(log string) error {
-	db, err := gorm.Open(sqlite.Open("./utils/userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -159,7 +159,7 @@ func Insertlog(log string) error {
 }
 
 func Readlog(logs *[]Searchhistory) {
-	db, err := gorm.Open(sqlite.Open("./utils/userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("../utils/userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
