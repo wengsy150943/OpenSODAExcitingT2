@@ -7,7 +7,7 @@ import (
 
 func DownLoadRepoList(repoList []string, outputfile string) {
 	repoInfoList := [MetricNum][]RepoInfo{}
-	downloadList := make([]BatchDownloadService, MetricNum)
+	downloadList := make([]BatchDownloadService, GoroutinueNum)
 	id := 0
 	MetricPerThread := MetricNum / GoroutinueNum
 	var begin, end int
@@ -22,7 +22,7 @@ func DownLoadRepoList(repoList []string, outputfile string) {
 		} else {
 			end = (id + 1) * MetricPerThread
 		}
-		go func(begin int, end int) {
+		go func(begin int, end int, id int) {
 			for i := begin; i < end; i++ {
 				for _, repo := range repoList {
 					repoInfoList[i] = append(repoInfoList[i], GetRepoInfoOfMetric(repo, Metrics[i]))
@@ -35,7 +35,7 @@ func DownLoadRepoList(repoList []string, outputfile string) {
 				}
 			}
 			wg.Done()
-		}(begin, end)
+		}(begin, end, id)
 		id++
 	}
 	wg.Wait()
