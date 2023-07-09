@@ -24,8 +24,9 @@ func parseFloatValue(v interface{}) float32 {
 		return float32(v.(float64))
 	case int:
 		return float32(v.(int))
+	default:
+		return 0
 	}
-	return v.(float32)
 }
 
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {

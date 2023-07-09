@@ -7,7 +7,7 @@ import (
 
 func DownLoadRepoList(repoList []string, outputfile string) {
 	repoInfoList := [MetricNum][]RepoInfo{}
-	downloadList := make([]BatchDownloadService, GoroutinueNum)
+	downloadList := make([]BatchDownloadService, MetricNum)
 	id := 0
 	MetricPerThread := MetricNum / GoroutinueNum
 	var begin, end int
@@ -22,7 +22,6 @@ func DownLoadRepoList(repoList []string, outputfile string) {
 		} else {
 			end = (id + 1) * MetricPerThread
 		}
-
 		go func(begin int, end int) {
 			for i := begin; i < end; i++ {
 				for _, repo := range repoList {
