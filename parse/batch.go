@@ -6,10 +6,12 @@ package parse
 import (
 	"bufio"
 	"exciting-opendigger/service"
-	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 var inputFile string
@@ -46,6 +48,8 @@ var batchCmd = &cobra.Command{
 				repoList = append(repoList, string(repo))
 			}
 		}
+		// 如果文件名本身已经带了csv后缀，把它裁掉
+		outputFile,_ = strings.CutSuffix(outputFile,".csv")
 		service.DownLoadRepoList(repoList, outputFile)
 	},
 }
@@ -55,13 +59,8 @@ func init() {
 
 	batchCmd.Flags().StringVarP(&inputFile, "source", "s", "", "Repo source file")
 	batchCmd.Flags().StringVarP(&outputFile, "position", "p", "", "Repo output file")
-	batchCmd.Flags().StringVarP(&filter, "filter", "f", "", "Filter for metric")
-	batchCmd.Flags().StringVarP(&sortKey, "orderBy", "o", "", "Sort key")
-	batchCmd.Flags().BoolVar(&asc, "asc", true, "Sort ASC")
-	batchCmd.Flags().BoolVar(&desc, "desc", false, "Sort DESC")
 
 	batchCmd.MarkFlagFilename("position")
 	batchCmd.MarkFlagRequired("source")
 	batchCmd.MarkFlagRequired("position")
-	batchCmd.MarkFlagsMutuallyExclusive("asc", "desc")
 }
