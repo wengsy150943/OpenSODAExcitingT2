@@ -2,10 +2,10 @@ package service
 
 import (
 	"encoding/csv"
+	"fmt"
 	"html/template"
 	"log"
 	"os"
-	"strconv"
 )
 
 type SingleDownloadService struct {
@@ -13,20 +13,7 @@ type SingleDownloadService struct {
 	Target string
 	Title  string
 	Dates  []string
-	Data   map[string]([]float32)
-}
-
-func parseFloatValue(v interface{}) float32 {
-	switch v.(type) {
-	case float32:
-		return v.(float32)
-	case float64:
-		return float32(v.(float64))
-	case int:
-		return float32(v.(int))
-	default:
-		return 0
-	}
+	Data   map[string]([]interface{})
 }
 
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
@@ -35,13 +22,13 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.Title = source_.RepoName
 
 	d.Dates = source_.Dates
-	d.Data = make(map[string]([]float32))
+	d.Data = make(map[string]([]interface{}))
 	for k, v1 := range source_.Data {
-		tempList := make([]float32, 0)
+		tempList := make([]interface{}, 0)
 		for _, v2 := range d.Dates {
 			temp, ok := v1[v2]
 			if ok {
-				tempList = append(tempList, parseFloatValue(temp))
+				tempList = append(tempList, temp)
 			} else {
 				continue
 			}
@@ -81,7 +68,7 @@ type BatchDownloadService struct {
 	Target string
 	Rows   int
 	Cols   int
-	Data   map[string]([]float32) //这里的key为仓库名
+	Data   map[string]([]interface{}) //这里的key为仓库名
 	Dates  []string
 }
 
@@ -96,15 +83,15 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 		}
 	}
 
-	d.Data = make(map[string]([]float32))
+	d.Data = make(map[string]([]interface{}))
 
 	for _, repo := range sources_ {
 		name := repo.RepoName
-		tempList := make([]float32, 0)
+		tempList := make([]interface{}, 0)
 		for _, v := range d.Dates {
 			temp, ok := repo.Data[metric_][v]
 			if ok {
-				tempList = append(tempList, parseFloatValue(temp))
+				tempList = append(tempList, temp)
 			} else {
 				tempList = append(tempList, 0)
 			}
@@ -131,7 +118,8 @@ func (d *BatchDownloadService) Download() error {
 		tempRow := make([]string, d.Cols+1)
 		tempRow[0] = key
 		for j := 1; j <= d.Cols; j++ {
-			tempRow[j] = strconv.FormatFloat(float64(value[j-1]), 'f', 3, 64)
+			tempRow[j] = fmt.Sprintf("%v", value[j-1])
+
 		}
 		data = append(data, tempRow)
 	}
@@ -155,8 +143,8 @@ func (d *BatchDownloadService) Download() error {
 }
 
 type CompareDownloadData struct {
-	Data1 []float32 //第一个仓库的数据
-	Data2 []float32 //第二个仓库的数据
+	Data1 []interface{} //第一个仓库的数据
+	Data2 []interface{} //第二个仓库的数据
 }
 
 type CompareDownloadService struct {
@@ -189,19 +177,19 @@ func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, t
 		v2, ok := source2_.Data[k]
 		if ok {
 			c := &CompareDownloadData{}
-			data1 := make([]float32, 0)
-			data2 := make([]float32, 0)
+			data1 := make([]interface{}, 0)
+			data2 := make([]interface{}, 0)
 
 			for _, v3 := range d.Dates {
 				temp1, ok1 := v1[v3]
 				if ok1 {
-					data1 = append(data1, parseFloatValue(temp1))
+					data1 = append(data1, temp1)
 				} else {
 					data1 = append(data1, 0)
 				}
 				temp2, ok2 := v2[v3]
 				if ok2 {
-					data2 = append(data2, parseFloatValue(temp2))
+					data2 = append(data2, temp2)
 				} else {
 					data2 = append(data2, 0)
 				}
