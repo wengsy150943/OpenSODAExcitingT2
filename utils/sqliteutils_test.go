@@ -3,8 +3,8 @@ package utils
 import (
 	"errors"
 	"gorm.io/gorm"
-	"strconv"
 	"testing"
+	"strconv"
 )
 
 func TestInsertAndRead(t *testing.T) {
@@ -24,10 +24,10 @@ func TestInsertAndRead(t *testing.T) {
 			dates[cnt] = k
 			cnt++
 		}
-		//err1 := InsertSingleQuery("X-lab2017/open-digger", "https://oss.x-lab.info/open_digger/github/X-lab2017/open-digger", "activity", "", dates, testQueryresult)
-		//if err1 != nil {
-		//	t.Fatal(err)
-		//}
+		err1 := InsertSingleQuery("X-lab2017/open-digger", "https://oss.x-lab.info/open_digger/github/X-lab2017/open-digger", "activity", "", dates, testQueryresult)
+		if err1 != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -37,79 +37,7 @@ func TestInsertsinglequery(t *testing.T) {
 	testQueryresult := make(map[string](map[string]interface{}))
 
 	testQueryresult["openrank"] = testData1
-	//newcontributorsdetails := map[string]([]string){
-	//	"2020-08": {
-	//		"sunshinemingo",
-	//		"frank-zsy",
-	//		"tianyichow",
-	//	},
-	//	"2020-09": {
-	//		"heming6666",
-	//	},
-	//	"2020-11": {
-	//		"liwen-tj",
-	//	},
-	//	"2020-12": {
-	//		"xiaoya-yaya",
-	//		"WuShaoling",
-	//		"wengzhenjie",
-	//		"16647615268",
-	//		"mb0ma",
-	//	},
-	//
-	//	"2021-01": {
-	//		"QuakeWang",
-	//		"chenxi112",
-	//		"gymgym1212",
-	//		"BenS-Move",
-	//	},
-	//	"2021-07": {
-	//		"xgdyp",
-	//	},
-	//	"2021-11": {
-	//		"terrymanu",
-	//	},
-	//	"2022-03": {
-	//		"LinuxSuRen",
-	//	},
-	//	"2022-06": {
-	//		"Best-Eminem",
-	//	},
-	//	"2022-07": {
-	//		"yoyo-wu98",
-	//		"longyanz",
-	//	},
-	//	"2022-09": {
-	//		"PureNatural",
-	//		"longranger2",
-	//		"zhicheng-ning",
-	//	},
-	//	"2022-10": {
-	//		"bytemain",
-	//		"lhbvvvvv",
-	//		"Zzzzzhuzhiwei",
-	//	},
-	//	"2022-11": {
-	//		"2ek0bin",
-	//	},
-	//	"2022-12": {
-	//		"birdflyi",
-	//	},
-	//	"2023-01": {
-	//		"tisonkun",
-	//		"bifenglin",
-	//	},
-	//	"2023-03": {
-	//		"sy-records",
-	//		"yanchaomei",
-	//	},
-	//	"2023-05": {
-	//		"tc2000731",
-	//		"stevending1st",
-	//		"tyn1998",
-	//	},
-	//}
-	//specialdata := SpecialDataStructure{new_contributors_detail: newcontributorsdetails}
+
 	dates := make([]string, len(testData1))
 	cnt := 0
 	for k, _ := range testData1 {
@@ -131,6 +59,7 @@ func TestReadquery(t *testing.T) {
 
 	res := CachedRepoInfo{}
 	ReadQuerySingleMetric(&res, "X-lab2017/open-digger", metric)
+	println(res.Data["openrank"]["2023-06"])
 	for k, v := range testData1 {
 		if res.Data[metric][k].(float64) != v {
 			t.Errorf("Read query error" + k + strconv.FormatFloat(float64(res.Data[metric][k].(float64)), 'f', 6, 64) + " correct:" + strconv.FormatFloat(v.(float64), 'f', 6, 64))
