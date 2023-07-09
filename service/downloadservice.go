@@ -2,12 +2,15 @@ package service
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"math"
 	"os"
+	"sort"
 	"strconv"
+	"time"
 )
 
 var MonthMap = map[string]int{
@@ -23,6 +26,18 @@ var MonthMap = map[string]int{
 	"October":   10,
 	"November":  11,
 	"December":  12,
+}
+
+var SpecialMetricForDownload = map[string]bool{
+	"activity_details":                   true,
+	"bus_factor_detail":                  true,
+	"new_contributors_detail":            true,
+	"active_dates_and_times":             true,
+	"issue_response_time":                true,
+	"issue_resolution_duration":          true,
+	"change_request_response_time":       true,
+	"change_request_resolution_duration": true,
+	"change_request_age":                 true,
 }
 
 type WordCloudData struct {
@@ -55,6 +70,7 @@ type SingleDownloadService struct {
 	ActivityDetailsData       []YearMonthData
 	BusFactorDetailData       []YearMonthData
 	NewContributorsDetailData []YearMonthData
+	ActiveDatesAndTimes       map[string]int
 }
 
 func parseFloatValue(v interface{}) float32 {
@@ -93,7 +109,13 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 
 	for k, v1 := range source_.Data {
 		if k == "active_dates_and_times" {
-			continue
+
+			activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
+			d.ActiveDatesAndTimes = activeDatesAndTimes
+			d.Years = getUnionOfTwoLists(d.Years, years)
+			//fmt.Println("active")
+			//fmt.Println(d.ActiveDatesAndTimes)
+			//fmt.Println(d.Years)
 		} else if k == "new_contributors_detail" {
 			tempDetail := source_.SpecialData.NewContributorsDetail
 			tempDetail2 := make(map[string]([][]string))
@@ -109,24 +131,26 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 			}
 			w := getWordCloudData(tempDetail2)
 			d.NewContributorsDetailData = w.YearData
-			d.Years = w.Years
-			fmt.Println("new")
-			fmt.Println(d.NewContributorsDetailData)
-			fmt.Println(d.Years)
+			d.Years = getUnionOfTwoLists(d.Years, w.Years)
+			//fmt.Println("new")
+			//fmt.Println(d.NewContributorsDetailData)
+			//fmt.Println(d.Years)
 		} else if k == "bus_factor_detail" {
 			w := getWordCloudData(source_.SpecialData.BusFactorDetail)
 			d.BusFactorDetailData = w.YearData
-			d.Years = w.Years
-			fmt.Println("bus")
-			fmt.Println(d.BusFactorDetailData)
-			fmt.Println(d.Years)
+			d.Years = getUnionOfTwoLists(d.Years, w.Years)
+			//d.Years = w.Years
+			//fmt.Println("bus")
+			//fmt.Println(d.BusFactorDetailData)
+			//fmt.Println(d.Years)
 		} else if k == "activity_details" {
 			w := getWordCloudData(source_.SpecialData.ActivityDetails)
 			d.ActivityDetailsData = w.YearData
-			d.Years = w.Years
-			fmt.Println("act")
-			fmt.Println(d.ActivityDetailsData)
-			fmt.Println(d.Years)
+			d.Years = getUnionOfTwoLists(d.Years, w.Years)
+			//d.Years = w.Years
+			//fmt.Println("act")
+			//fmt.Println(d.ActivityDetailsData)
+			//fmt.Println(d.Years)
 		} else if k == "issue_response_time" {
 			continue
 		} else if k == "issue_resolution_duration" {
@@ -190,6 +214,10 @@ type BatchDownloadService struct {
 }
 
 func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, target_ string) error {
+	if SpecialMetricForDownload[metric_] == true {
+		return errors.New("unsupported metric")
+	}
+
 	d.Target = target_
 	d.Metric = metric_
 	maxLength := 0
@@ -274,6 +302,7 @@ type CompareDownloadService struct {
 }
 
 func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, target_ string) error {
+
 	d.Target = target_
 	d.Source1 = source1_.RepoUrl
 	d.Source2 = source2_.RepoUrl
@@ -290,6 +319,11 @@ func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, t
 	}
 
 	for k, v1 := range source1_.Data {
+
+		if SpecialMetricForDownload[k] == true {
+			continue
+		}
+
 		v2, ok := source2_.Data[k]
 		if ok {
 			c := &CompareDownloadData{}
@@ -418,5 +452,66 @@ func getWordCloudData(data_ map[string]([][]string)) WordCloudData {
 	res := &WordCloudData{yearMonthData, years}
 
 	return *res
+}
 
+func getUnionOfTwoLists(listA_ []int, listB_ []int) []int {
+	listA := listA_
+	listB := listB_
+
+	union := make(map[int]bool)
+
+	// 将列表 A 中的元素添加到并集
+	for _, num := range listA {
+		union[num] = true
+	}
+
+	// 将列表 B 中的元素添加到并集
+	for _, num := range listB {
+		union[num] = true
+	}
+
+	// 将并集转换回切片
+	result := make([]int, 0, len(union))
+	for num := range union {
+		result = append(result, num)
+	}
+
+	sort.Slice(result, func(i, j int) bool { return result[i] < result[j] })
+
+	return result
+}
+
+func getCalendarData(data_ map[string]([]int)) (map[string]int, []int) {
+	union := make(map[int]bool)
+	res := make(map[string]int)
+	for k, v := range data_ {
+		yearMonth, err := time.Parse("2006-01", k)
+		if err != nil {
+			fmt.Println("Invalid date format:", k)
+			continue
+		}
+
+		// 获取该月的天数
+		year, month, _ := yearMonth.Date()
+		union[year] = true
+		_, _, lastDay := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC).Date()
+
+		if lastDay != len(v) {
+			fmt.Println("Invalid month data:", k, " ", lastDay, " ", len(v))
+			continue
+		}
+
+		// 生成年份-月份-日列表
+		for day := 1; day <= lastDay; day++ {
+			date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+			//fmt.Println(date.Format("2006-01-02"))
+			res[date.Format("2006-01-02")] = v[day-1]
+		}
+	}
+
+	res2 := make([]int, 0, len(union))
+	for num := range union {
+		res2 = append(res2, num)
+	}
+	return res, res2
 }
