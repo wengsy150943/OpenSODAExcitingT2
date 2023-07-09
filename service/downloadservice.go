@@ -58,19 +58,35 @@ type YearMonthData struct {
 	Data  []WordCloudDetailData
 }
 
+//定义多折线图结构
+type RaceLineData struct {
+	RaceDates  []string
+	Avg        []float64
+	Quantile_0 []float64
+	Quantile_1 []float64
+	Quantile_2 []float64
+	Quantile_3 []float64
+	Quantile_4 []float64
+}
+
 type SingleDownloadService struct {
-	Source                    string
-	Target                    string
-	Title                     string
-	Dates                     []string
-	Data                      map[string]([]float32)
-	Years                     []int
-	InitYear                  int //前端按钮默认显示
-	InitMonth                 int //前端按钮默认显示
-	ActivityDetailsData       []YearMonthData
-	BusFactorDetailData       []YearMonthData
-	NewContributorsDetailData []YearMonthData
-	ActiveDatesAndTimes       map[string]int
+	Source                              string
+	Target                              string
+	Title                               string
+	Dates                               []string
+	Data                                map[string]([]float32)
+	Years                               []int
+	InitYear                            int //前端按钮默认显示
+	InitMonth                           int //前端按钮默认显示
+	ActivityDetailsData                 []YearMonthData
+	BusFactorDetailData                 []YearMonthData
+	NewContributorsDetailData           []YearMonthData
+	ActiveDatesAndTimesData             map[string]int
+	IssueResponseTimeData               RaceLineData
+	IssueResolutionDurationData         RaceLineData
+	ChangeRequestResponseTimeData       RaceLineData
+	ChangeRequestResolutionDurationData RaceLineData
+	ChangeRequestAgeData                RaceLineData
 }
 
 func parseFloatValue(v interface{}) float32 {
@@ -109,9 +125,8 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 
 	for k, v1 := range source_.Data {
 		if k == "active_dates_and_times" {
-
 			activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
-			d.ActiveDatesAndTimes = activeDatesAndTimes
+			d.ActiveDatesAndTimesData = activeDatesAndTimes
 			d.Years = getUnionOfTwoLists(d.Years, years)
 			//fmt.Println("active")
 			//fmt.Println(d.ActiveDatesAndTimes)
@@ -152,14 +167,19 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 			//fmt.Println(d.ActivityDetailsData)
 			//fmt.Println(d.Years)
 		} else if k == "issue_response_time" {
+
 			continue
 		} else if k == "issue_resolution_duration" {
+
 			continue
 		} else if k == "change_request_response_time" {
+
 			continue
 		} else if k == "change_request_resolution_duration" {
+
 			continue
 		} else if k == "change_request_age" {
+
 			continue
 		} else {
 			tempList := make([]float32, 0)

@@ -768,6 +768,102 @@
 
 
     {{ end }}
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>race ：</strong></h2>
+        <div id="chartRace">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="Race" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('Race');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', // 设置触发类型为轴
+                        axisPointer: {
+                            type: 'cross' // 启用十字准星指示器
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ['时间点1', '时间点2', '时间点3', '时间点4']
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: [10, 20, 30, 40],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: [15, 25, 35, 45],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: [20, 30, 4, 50],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: [25, 30, 40, 50],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: [20, 35, 40, 50],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: [20, 30, 48, 50],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+
+        </div>
+    </div>
 </div>
 
 

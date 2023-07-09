@@ -6,8 +6,17 @@ import (
 	"testing"
 )
 
-//func TempTest(t *testing.T) {
+func TestTemp(t *testing.T) {
+	a := GetAllRepoInfo("X-lab2017/open-digger")
+
+	fmt.Println(a.Data["issue_resolution_duration"])
+}
+
 //
+//func TempTest(t *testing.T) {
+//	a := GetAllRepoInfo("X-lab2017/open-digger")
+//
+//	fmt.Println( a.Data["issue_resolution_duration"])
 //	dateStrings := []string{"2020-02", "2021-02", "2022-02"}
 //
 //	for _, dateString := range dateStrings {
