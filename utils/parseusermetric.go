@@ -7,14 +7,6 @@ type Usermetric struct {
 	Reponetwork      map[string]([]interface{})
 }
 
-func parse(m map[string]interface{}) {
-	if m != nil {
-		for k, _ := range m {
-			parse(m[k].(map[string]interface{}))
-		}
-	}
-}
-
 func Parseuser(data map[string](map[string]interface{}), u Usermetric) Usermetric {
 	openrank := data["openrank"]
 	activity := data["activity"]

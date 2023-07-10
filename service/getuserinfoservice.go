@@ -51,7 +51,6 @@ func GetCertainUser(username string) UserInfo {
 		go appendlist(&wg, &m, res, GetUserUrlContent(Urls[i], username), UserMetric[i])
 	}
 	wg.Wait()
-	//println(res["developernetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string))
 	//println(res["reponetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string))
 	//map赋值前需要先初始化(包括内部的map[string]interface{}
 	data := make(map[string](map[string]interface{}))
