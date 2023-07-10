@@ -25,3 +25,15 @@ func PrintRepoInfo(source_ RepoInfo) {
 		}
 	}
 }
+
+func PrintUserInfo(source_ UserInfo) {
+	fmt.Printf("user.name: %s\n", source_.Username)
+
+	for k,v := range source_.Data {
+		jsonData,err := json.Marshal(v)
+		if err != nil {
+			fmt.Println("trans fail: ",err)
+		}
+		fmt.Printf("%s:%s\n", k, string(jsonData))
+	}
+}
