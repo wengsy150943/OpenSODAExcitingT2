@@ -163,5 +163,6 @@ func Readlog(logs *[]Searchhistory) {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.Find(&logs)
+	result := db.Find(&logs)
+	println(result.Error)
 }

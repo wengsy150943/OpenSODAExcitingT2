@@ -17,7 +17,6 @@ func getResult(QueryPara Query) service.RepoInfo {
 
 		return service.GetAllRepoInfo(QueryPara.repo)
 	}
-
 	// 特定指标
 	if QueryPara.month == "" {
 		return service.GetRepoInfoOfMetric(QueryPara.repo, QueryPara.metric)
