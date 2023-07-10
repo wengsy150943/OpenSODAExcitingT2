@@ -59,28 +59,33 @@ func GetCertainUser(username string) UserInfo {
 	data["reponetwork"] = make(map[string]interface{})
 
 	//包括内部的map[string]interface{}
-	data_list := make(map[string]interface{})
-	data_list_developerinfo := make(map[string]interface{})
+	data_list := make([]map[string]interface{}, 4)
+	for i := 0; i < 4; i++ {
+		data_list[i] = make(map[string]interface{})
+	}
 	for k, _ := range res {
 		//=使用浅赋值，data[k]指向data_list的地址，需要重新深拷贝
-		if k == "openrank" || k == "activity" {
-			data_list = res[k]
-			data[k] = data_list
+		if k == "openrank" {
+			data_list[0] = res[k]
+			data[k] = data_list[0]
+			//data_list = res[k]
+			//data[k] = data_list
+		} else if k == "activity" {
+			data_list[1] = res[k]
+			data[k] = data_list[1]
 		} else if k == "reponetwork" {
 			//println(k)
-			data_list["nodes"] = res[k]["nodes"]
-			data_list["edges"] = res[k]["edges"]
-			data[k] = data_list
+			data_list[2]["nodes"] = res[k]["nodes"]
+			data_list[2]["edges"] = res[k]["edges"]
+			data[k] = data_list[2]
 		} else {
-			data_list_developerinfo["nodes"] = res[k]["nodes"]
-			data_list_developerinfo["edges"] = res[k]["edges"]
-			data[k] = data_list_developerinfo
+			data_list[3]["nodes"] = res[k]["nodes"]
+			data_list[3]["edges"] = res[k]["edges"]
+			data[k] = data_list[3]
 		}
 
 	}
 	ret.Data = data
 
-	//println(ret.Data["developernetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string))
-	//println(ret.Data["reponetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string))
 	return ret
 }

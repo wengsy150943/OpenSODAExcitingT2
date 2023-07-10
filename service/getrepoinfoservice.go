@@ -34,7 +34,7 @@ func initSpecialDataStructure(data map[string]map[string]interface{}) utils.Spec
 	return specialData
 }
 
-func GetUrlCotent(url string, repo string, metric string) RepoInfo {
+func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	repoName := strings.Split(repo, "/")[1]
 	response, err := http.Get(url)
 	if err != nil {
@@ -103,7 +103,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		duration := currentTime.Sub(updateTime)
 		//更新时间超过24小时则重新获取并更新缓存
 		if duration > 24*time.Hour {
-			temp := GetUrlCotent(url, repo, metric)
+			temp := GetUrlContent(url, repo, metric)
 			err := utils.UpdateSingleRow(repoName, metric, temp.Dates, temp.Data)
 			if err != nil {
 				panic("update" + repoName + " " + metric + " faild")
@@ -120,7 +120,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		return ret
 	}
 
-	ret := GetUrlCotent(url, repo, metric)
+	ret := GetUrlContent(url, repo, metric)
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
 	return ret
