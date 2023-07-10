@@ -55,11 +55,52 @@
             text-align: center;
             margin-top: 30px;
         }
+
+        /* 添加样式 */
+        .select-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+
+        .custom-select {
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .custom-select:hover {
+            background-color: #e8e8e8;
+        }
+
+        .custom-select:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 并排放置年份和月份按钮 */
+        .select-container-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .select-container-inline select {
+            margin-right: 10px;
+        }
+
     </style>
 
     <meta charset="utf-8">
-    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
-    <link href="https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
 </head>
 
 <body>
@@ -79,6 +120,595 @@
         </ul>
     </div>
 
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>ActiveDatesAndTimes  ：</strong></h2>
+        <div id="chartcal">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="item" id="ca" style="width:1200px;height:300px;"></div>
+
+            <script type="text/javascript">
+                var myChartActiveDatesAndTimes = echarts.init(document.getElementById('ca'));
+
+                function mapRange(value, inMin, inMax, outMin, outMax) {
+
+                    if (value==0){
+                        return 0;
+                    }
+                    // 首先将输入值限制在输入范围内
+                    value = Math.max(Math.min(value, inMax), inMin);
+
+                    // 计算输入范围和输出范围的差值
+                    var inRange = inMax - inMin;
+                    var outRange = outMax - outMin;
+
+                    // 根据比例计算映射值
+                    var mappedValue = (value - inMin) / inRange;
+                    mappedValue = mappedValue * outRange + outMin;
+
+                    // 返回映射后的值
+                    return mappedValue;
+                }
+
+                function getData() {
+                    var data0 = {{.ActiveDatesAndTimesData}}
+                    var data = [];
+
+
+                    // var data3 = []
+                    // var date = +echarts.number.parseDate(2016 + '-01-01');
+                    // var end = +echarts.number.parseDate((+2023 + 1) + '-01-01');
+                    // var dayTime = 3600 * 24 * 1000;
+                    //
+                    // for (var time = date; time < end; time += dayTime) {
+                    //     data3.push([
+                    //         echarts.format.formatTime('yyyy-MM-dd', time),
+                    //         Math.floor(Math.random() * 10000)
+                    //     ]);
+                    // }
+                    //
+                    // console.log(data3)
+                    //
+                    // {{ range $keya, $valuea := .ActiveDatesAndTimesData }}
+                    // data.push([{{$keya}},{{$valuea}}]);
+                    // {{ end }}
+                    for (var [key, value] of Object.entries(data0)) {
+                        data.push([key, value]);
+                    }
+
+                    //console.log(data)
+                    return data;
+                }
+
+                function changeCalendar() {
+                    var yearSelect = document.getElementById('yearSelect');
+                    var selectedYear = yearSelect.value;
+
+                    var data = getData();
+                    // 根据选择的年份筛选数据
+                    var filteredData = data.filter(function (item) {
+                        var year = item[0].split('-')[0];
+                        return year === selectedYear;
+                    });
+
+                    //console.log(filteredData)
+
+                    var option = {
+                        backgroundColor: '#ffffff',
+
+                        title: {
+                            top: 30,
+                            text: 'active_dates_and_times',
+                            subtext: '活跃日期图',
+                            left: 'center',
+                            textStyle: {
+                                color: '#000000'
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        legend: {
+                            top: '30',
+                            left: '100',
+                            data: ['活跃度', 'Top 10'],
+                            textStyle: {
+                                color: '#000000'
+                            }
+                        },
+                        calendar: [{
+                            top: 100,
+                            left: 'center',
+                            range:selectedYear,
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: '#000',
+                                    width: 4,
+                                    type: 'solid'
+                                }
+                            },
+                            yearLabel: {
+                                formatter: '{start}',
+                                textStyle: {
+                                    color: '#000000'
+                                }
+                            },
+                            itemStyle: {
+                                color: '#323c48',
+                                borderWidth: 1,
+                                borderColor: '#111'
+                            }
+                        },],
+                        series: [
+                            {
+                                name: '活跃度',
+                                type: 'scatter',
+                                coordinateSystem: 'calendar',
+                                data: filteredData,
+                                symbolSize: function (val) {
+
+                                    return mapRange(val[1],5,15,5,15);
+                                },
+                                itemStyle: {
+                                    color: '#ddb926'
+                                }
+                            },
+                            {
+                                name: '活跃度',
+                                type: 'scatter',
+                                coordinateSystem: 'calendar',
+                                calendarIndex: 1,
+                                data: filteredData,
+                                symbolSize: function (val) {
+                                    return mapRange(val[1],5,15,5,15);
+                                    //return val[1] ;
+                                },
+                                itemStyle: {
+                                    color: '#ddb926'
+                                }
+                            },
+                            {
+                                name: 'Top 10',
+                                type: 'effectScatter',
+                                coordinateSystem: 'calendar',
+                                calendarIndex: 1,
+                                data: filteredData.sort(function (a, b) {
+                                    return b[1] - a[1];
+                                }).slice(0, 10),
+                                symbolSize: function (val) {
+                                    return mapRange(val[1],5,15,5,15);
+                                    //return val[1] ;
+                                },
+                                showEffectOn: 'render',
+                                rippleEffect: {
+                                    brushType: 'stroke'
+                                },
+                                hoverAnimation: true,
+                                itemStyle: {
+                                    color: '#f4e925',
+                                    shadowBlur: 10,
+                                    shadowColor: '#333'
+                                },
+                                zlevel: 1
+                            },
+                            {
+                                name: 'Top 10',
+                                type: 'effectScatter',
+                                coordinateSystem: 'calendar',
+                                data: filteredData.sort(function (a, b) {
+                                    return b[1] - a[1];
+                                }).slice(0, 10),
+                                symbolSize: function (val) {
+                                    return mapRange(val[1],5,15,5,15);
+                                    //return val[1] ;
+                                },
+                                showEffectOn: 'render',
+                                rippleEffect: {
+                                    brushType: 'stroke'
+                                },
+                                hoverAnimation: true,
+                                itemStyle: {
+                                    color: '#f4e925',
+                                    shadowBlur: 10,
+                                    shadowColor: '#333'
+                                },
+                                zlevel: 1
+                            }
+                        ]
+                    };
+                    myChartActiveDatesAndTimes.setOption(option);
+                }
+                var yearSelect = document.getElementById('yearSelect');
+                yearSelect.addEventListener('change', changeCalendar);
+
+
+                changeCalendar();
+
+            </script>
+        </div>
+    </div>
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>ActivityDetailsData：</strong></h2>
+        <div id="chart1">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect1" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect1" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud1" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData1 = {{
+                    .ActivityDetailsData
+                }};
+
+                document.getElementById("yearSelect1").value = {{.InitYear}};
+                document.getElementById("monthSelect1").value = {{.InitMonth}};
+
+
+                // 生成词云图函数
+                function generateWordCloud1(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData1 = [];
+                    for (var i = 0; i < yearMonthData1.length; i++) {
+                        if (yearMonthData1[i].Year === year && yearMonthData1[i].Month === month) {
+                            selectedData1 = yearMonthData1[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData1 = selectedData1.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option1 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData1,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            // width: '96%',
+                            // height: '100%',
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart1 = echarts.init(document.getElementById('wordcloud1'));
+                    chart1.setOption(option1);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect1 = document.getElementById('yearSelect1');
+                var monthSelect1 = document.getElementById('monthSelect1');
+                yearSelect1.addEventListener('change', updateWordCloud1);
+                monthSelect1.addEventListener('change', updateWordCloud1);
+
+                // 更新词云图
+                function updateWordCloud1() {
+                    var selectedYear1 = parseInt(yearSelect1.value);
+                    var selectedMonth1 = parseInt(monthSelect1.value);
+                    generateWordCloud1(selectedYear1, selectedMonth1);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear1 = parseInt(yearSelect1.value);
+                var defaultMonth1 = parseInt(monthSelect1.value);
+                // var defaultYear = parseInt({{.InitYear}});
+                // var defaultMonth = parseInt({{.InitMonth}});
+                generateWordCloud1(defaultYear1, defaultMonth1);
+            </script>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>BusFactorDetail：</strong></h2>
+        <div id="chart2">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect2" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect2" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud2" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData2 = {{
+                    .BusFactorDetailData
+                }};
+
+                document.getElementById("yearSelect2").value = {{.InitYear}};
+                document.getElementById("monthSelect2").value = {{.InitMonth}};
+
+                // 生成词云图函数
+                function generateWordCloud2(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData2 = [];
+                    for (var i = 0; i < yearMonthData2.length; i++) {
+                        if (yearMonthData2[i].Year === year && yearMonthData2[i].Month === month) {
+                            selectedData2 = yearMonthData2[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData2 = selectedData2.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option2 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData2,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            // width: '96%',
+                            // height: '100%',
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart2 = echarts.init(document.getElementById('wordcloud2'));
+                    chart2.setOption(option2);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect2 = document.getElementById('yearSelect2');
+                var monthSelect2 = document.getElementById('monthSelect2');
+                yearSelect2.addEventListener('change', updateWordCloud2);
+                monthSelect2.addEventListener('change', updateWordCloud2);
+
+                // 更新词云图
+                function updateWordCloud2() {
+                    var selectedYear2 = parseInt(yearSelect2.value);
+                    var selectedMonth2 = parseInt(monthSelect2.value);
+                    generateWordCloud2(selectedYear2, selectedMonth2);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear2 = parseInt(yearSelect2.value);
+                var defaultMonth2 = parseInt(monthSelect2.value);
+
+                generateWordCloud2(defaultYear2, defaultMonth2);
+            </script>
+
+        </div>
+    </div>
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>NewContributorsDetail：</strong></h2>
+        <div id="chart3">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <!-- 创建一个并排放置年份和月份按钮的容器 -->
+            <div class="select-container-inline">
+                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
+                <div class="select-container">
+                    <select id="yearSelect3" class="custom-select">
+                        {{range $value := .Years}}
+                        <option value="{{$value}}">{{$value}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- 创建一个居中且美化的下拉菜单用于选择月份 -->
+                <div class="select-container">
+                    <select id="monthSelect3" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud3" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                // JavaScript 部分代码
+                // 获取数据
+                var yearMonthData3 = {{
+                    .NewContributorsDetailData
+                }};
+
+                document.getElementById("yearSelect3").value = {{.InitYear}};
+                document.getElementById("monthSelect3").value = {{.InitMonth}};
+
+                // 生成词云图函数
+                function generateWordCloud3(year, month) {
+                    // 根据年份和月份获取相应的词频数据
+                    var selectedData3 = [];
+                    for (var i = 0; i < yearMonthData3.length; i++) {
+                        if (yearMonthData3[i].Year === year && yearMonthData3[i].Month === month) {
+                            selectedData3 = yearMonthData3[i].Data;
+                            break;
+                        }
+                    }
+
+                    // 将词频数据转换为 ECharts 所需的格式
+                    var chartData3 = selectedData3.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    // 配置词云图的选项
+                    var option3 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData3,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            // width: '96%',
+                            // height: '100%',
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    // 使用配置项绘制词云图
+                    var chart3 = echarts.init(document.getElementById('wordcloud3'));
+                    chart3.setOption(option3);
+                }
+
+                // 监听下拉菜单的变化，根据选择的年份和月份生成对应的词云图
+                var yearSelect3 = document.getElementById('yearSelect3');
+                var monthSelect3 = document.getElementById('monthSelect3');
+                yearSelect3.addEventListener('change', updateWordCloud3);
+                monthSelect3.addEventListener('change', updateWordCloud3);
+
+                // 更新词云图
+                function updateWordCloud3() {
+                    var selectedYear3 = parseInt(yearSelect3.value);
+                    var selectedMonth3 = parseInt(monthSelect3.value);
+                    generateWordCloud3(selectedYear3, selectedMonth3);
+                }
+
+                // 初始生成默认年份和月份的词云图
+                var defaultYear3 = parseInt(yearSelect3.value);
+                var defaultMonth3 = parseInt(monthSelect3.value);
+
+                generateWordCloud3(defaultYear3, defaultMonth3);
+            </script>
+
+        </div>
+    </div>
+
+
     {{ range $key, $value := .Data }}
 
     <div class="section">
@@ -91,8 +721,13 @@
 
             <script type="text/javascript">
 
-                var dates = [{{ range $.Dates }}"{{ . }}",{{ end }}];
-                var data1 = [{{ range $value }}"{{ . }}",{{ end }}];
+                var dates = [{{range $.Dates}}"{{ . }}", {{end}}]
+                ;
+                var data1 = [{{range $value}}
+                "{{ . }}", {{
+                    end
+                }}]
+                ;
 
                 "use strict";
                 var myChart = echarts.init(document.getElementById('{{$key}}'), "white");
@@ -108,11 +743,23 @@
                             alignWithLabel: true
                         }
                     },
-                    yAxis: [{"axisLabel":{"show":true},"splitArea":{"show":false,},"splitLine":{"show":false,}}],
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
                     series: [
-                        {"name":"{{$.Title}}","type":"bar","data":data1,"label":{"show":false},"emphasis":{"label":{"show":false},},"markLine":{"label":{"show":false}},"markPoint":{"label":{"show":false}},},
+                        {
+                            "name": "{{$.Title}}",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
                     ],
-                    color: ["#c23531","#2f4554","#61a0a8","#d48265","#91c7ae","#749f83","#ca8622","#bda29a","#6e7074","#546570","#c4ccd3"],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
                 };
                 myChart.setOption(option);
             </script>
@@ -120,9 +767,108 @@
     </div>
 
 
+    {{ end }}
 
+
+
+    {{ range $key, $value := .QuantileStatsData }}
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}} line race图 ：</strong></h2>
+        <div id="chartRace">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="{{$key}}" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('{{$key}}');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', // 设置触发类型为轴
+                        axisPointer: {
+                            type: 'cross' // 启用十字准星指示器
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: [{{range $value.RaceDates}}"{{ . }}", {{end}}]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: [{{range $value.Avg}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: [{{range $value.Quantile0}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: [{{range $value.Quantile1}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: [{{range $value.Quantile2}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: [{{range $value.Quantile3}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: [{{range $value.Quantile4}}"{{ . }}", {{end}}],
+                            encode: {
+                                x: 0, // 将数据的第一列映射到X轴
+                                y: [1] // 将数据的第二列映射到Y轴
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
     {{ end }}
 </div>
+
+
 </body>
 </html>
 
