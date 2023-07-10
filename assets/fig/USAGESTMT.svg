@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="551" height="213">
+   <defs>
+      <style type="text/css">
+    @namespace "http://www.w3.org/2000/svg";
+    .line                 {fill: none; stroke: #001133; stroke-width: 1;}
+    .bold-line            {stroke: #000714; shape-rendering: crispEdges; stroke-width: 2;}
+    .thin-line            {stroke: #000A1F; shape-rendering: crispEdges}
+    .filled               {fill: #001133; stroke: none;}
+    text.terminal         {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #000714;
+                            font-weight: bold;
+                          }
+    text.nonterminal      {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #00091A;
+                            font-weight: normal;
+                          }
+    text.regexp           {font-family: Verdana, Sans-serif;
+                            font-size: 12px;
+                            fill: #000A1F;
+                            font-weight: normal;
+                          }
+    rect, circle, polygon {fill: #001133; stroke: #001133;}
+    rect.terminal         {fill: #4D88FF; stroke: #001133; stroke-width: 1;}
+    rect.nonterminal      {fill: #9EBFFF; stroke: #001133; stroke-width: 1;}
+    rect.text             {fill: none; stroke: none;}
+    polygon.regexp        {fill: #C7DAFF; stroke: #001133; stroke-width: 1;}
+  </style>
+   </defs>
+   <polygon points="9 17 1 13 1 21"/>
+   <polygon points="17 17 9 13 9 21"/>
+   <rect x="71" y="3" width="64" height="32" rx="10"/>
+   <rect x="69"
+          y="1"
+          width="64"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="79" y="21">SHOW</text>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#DownloadClause"
+       xlink:title="DownloadClause">
+      <rect x="71" y="47" width="126" height="32"/>
+      <rect x="69" y="45" width="126" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="79" y="65">DownloadClause</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#CompareClause"
+       xlink:title="CompareClause">
+      <rect x="257" y="35" width="120" height="32"/>
+      <rect x="255" y="33" width="120" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="265" y="53">CompareClause</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#SearchOpt"
+       xlink:title="SearchOpt">
+      <rect x="417" y="3" width="86" height="32"/>
+      <rect x="415" y="1" width="86" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="425" y="21">SearchOpt</text>
+   </a>
+   <a xmlns:xlink="http://www.w3.org/1999/xlink"
+       xlink:href="#BatchClause"
+       xlink:title="BatchClause">
+      <rect x="51" y="91" width="98" height="32"/>
+      <rect x="49" y="89" width="98" height="32" class="nonterminal"/>
+      <text class="nonterminal" x="59" y="109">BatchClause</text>
+   </a>
+   <rect x="51" y="135" width="48" height="32" rx="10"/>
+   <rect x="49"
+          y="133"
+          width="48"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="59" y="153">LOG</text>
+   <rect x="51" y="179" width="54" height="32" rx="10"/>
+   <rect x="49"
+          y="177"
+          width="54"
+          height="32"
+          class="terminal"
+          rx="10"/>
+   <text class="terminal" x="59" y="197">HELP</text>
+   <path class="line"
+          d="m17 17 h2 m40 0 h10 m64 0 h10 m0 0 h62 m-166 0 h20 m146 0 h20 m-186 0 q10 0 10 10 m166 0 q0 -10 10 -10 m-176 10 v24 m166 0 v-24 m-166 24 q0 10 10 10 m146 0 q10 0 10 -10 m-156 10 h10 m126 0 h10 m40 -44 h10 m0 0 h130 m-160 0 h20 m140 0 h20 m-180 0 q10 0 10 10 m160 0 q0 -10 10 -10 m-170 10 v12 m160 0 v-12 m-160 12 q0 10 10 10 m140 0 q10 0 10 -10 m-150 10 h10 m120 0 h10 m20 -32 h10 m86 0 h10 m-492 0 h20 m472 0 h20 m-512 0 q10 0 10 10 m492 0 q0 -10 10 -10 m-502 10 v68 m492 0 v-68 m-492 68 q0 10 10 10 m472 0 q10 0 10 -10 m-482 10 h10 m98 0 h10 m0 0 h354 m-482 -10 v20 m492 0 v-20 m-492 20 v24 m492 0 v-24 m-492 24 q0 10 10 10 m472 0 q10 0 10 -10 m-482 10 h10 m48 0 h10 m0 0 h404 m-482 -10 v20 m492 0 v-20 m-492 20 v24 m492 0 v-24 m-492 24 q0 10 10 10 m472 0 q10 0 10 -10 m-482 10 h10 m54 0 h10 m0 0 h398 m23 -176 h-3"/>
+   <polygon points="541 17 549 13 549 21"/>
+   <polygon points="541 17 533 13 533 21"/>
+</svg>
