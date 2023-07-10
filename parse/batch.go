@@ -72,6 +72,10 @@ var batchCmd = &cobra.Command{
 				repoList = append(repoList, x.Link)
 			}
 		} else {
+			if dateRange != "" || programLanguage != "" || spokenLanguage != "" {
+				log.Println("Parameters of dateRange/programLanguage/spokenLanguage will be ignore here.")
+			}
+
 			file, e := os.Open(inputFile)
 			if e != nil {
 				log.Fatalf(inputFile + " file not found!")
@@ -101,8 +105,8 @@ func init() {
 	batchCmd.Flags().StringVarP(&outputFile, "position", "p", "", "Repo output file")
 
 	batchCmd.Flags().StringVarP(&dateRange, "dateRange", "d", "", "TOP's dateRange")
-	batchCmd.Flags().StringVarP(&programLanguage, "programLanguage", "pl", "", "TOP's programLanguage")
-	batchCmd.Flags().StringVarP(&spokenLanguage, "spokenLanguage", "sl", "", "TOP's spokenLanguage")
+	batchCmd.Flags().StringVarP(&programLanguage, "programLanguage", "pl", "", "TOP's program language")
+	batchCmd.Flags().StringVarP(&spokenLanguage, "spokenLanguage", "sl", "", "TOP's spoken language")
 
 	batchCmd.MarkFlagFilename("position")
 	batchCmd.MarkFlagRequired("source")
