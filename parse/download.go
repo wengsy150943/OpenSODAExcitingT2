@@ -31,24 +31,16 @@ var downloadCmd = &cobra.Command{
 		
 
 		if strings.Contains(cmd.CommandPath(), "compare") {
-			// TODO qk: download compare
+			// TODO 参照show区分user和repo
 			downloadService := &service.CompareDownloadService{}
 			downloadService.SetData(repoInfo, repoInfoCompare, position)
 
-			if draw {
-				// TODO qk: call plot
-			} else {
-				downloadService.Download()
-			}
+			downloadService.Download()
 		} else {
 			downloadService := &service.SingleDownloadService{}
 			downloadService.SetData(repoInfo, position)
 
-			if draw {
-				// TODO qk: call plot
-			} else {
-				downloadService.Download()
-			}
+			downloadService.Download()
 		}
 
 	},

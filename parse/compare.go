@@ -4,10 +4,12 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package parse
 
 import (
+	"exciting-opendigger/service"
 	"github.com/spf13/cobra"
 )
 
 var repoArr []string
+var userArr []string
 var monthArr []string
 
 // downloadCmd represents the download command
@@ -16,6 +18,12 @@ var compareCmd = &cobra.Command{
 	Short: "compare data from api",
 	Long:  `compare data from api and print in screen`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(userArr) == 2 {
+			userInfo = service.GetCertainUser(userArr[0])
+			userInfoCompare = service.GetCertainUser(userArr[1])
+			return
+		}
+
 		// 参数有效性检验
 		if len(repoArr)+len(monthArr) != 3 || len(repoArr)*len(monthArr) == 0 {
 			panic("argc number mismatch")
@@ -47,10 +55,11 @@ var compareCmd = &cobra.Command{
 }
 
 func init() {
-	compareCmd.Flags().StringArrayVarP(&repoArr, "repo", "r", nil, "Repository asked")
-	compareCmd.MarkFlagRequired("repo")
+	compareCmd.Flags().StringArrayVarP(&repoArr, "repo", "r", nil, "Repositories asked")
+	compareCmd.Flags().StringArrayVarP(&userArr, "user", "u", nil, "Users asked")
+	compareCmd.MarkFlagsMutuallyExclusive("repo", "user")
+
 	compareCmd.Flags().StringArrayVarP(&monthArr, "month", "M", nil, "Month of asked metric")
-	compareCmd.MarkFlagRequired("month")
 	compareCmd.Flags().StringVarP(&queryPara.metric, "metric", "m", "", "Metric asked")
 
 	var showCompareCmd = *compareCmd

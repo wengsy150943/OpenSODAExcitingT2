@@ -13,31 +13,28 @@ import (
 	"time"
 )
 
-
-
 type RepoInfo struct {
-
-	RepoName string
-	RepoUrl  string
-	Month    string
-	Dates    []string
-	Data     map[string](map[string]interface{})
+	RepoName    string
+	RepoUrl     string
+	Month       string
+	Dates       []string
+	Data        map[string](map[string]interface{})
 	SpecialData utils.SpecialDataStructure
 }
 
 // 把特殊metric转存一份到specialData里
-func initSpecialDataStructure(data map[string]map[string]interface{})utils.SpecialDataStructure{
+func initSpecialDataStructure(data map[string]map[string]interface{}) utils.SpecialDataStructure {
 	var specialData utils.SpecialDataStructure
 	for k, v := range data {
-		parseFunction, ok := utils.Parse[k] 
+		parseFunction, ok := utils.Parse[k]
 		if ok {
 			specialData = parseFunction(v, specialData)
-		} 
+		}
 	}
 	return specialData
 }
 
-func GetUrlCotent(url string, repo string, metric string) RepoInfo {
+func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	repoName := strings.Split(repo, "/")[1]
 	response, err := http.Get(url)
 	if err != nil {
@@ -73,14 +70,13 @@ func GetUrlCotent(url string, repo string, metric string) RepoInfo {
 	var data map[string](map[string]interface{})
 	data = make(map[string](map[string]interface{}))
 	data[metric] = temp
-	
 
 	ret := RepoInfo{
-		RepoName: repoName,
-		RepoUrl:  repoURL,
-		Month:    "",
-		Data:     data,
-		Dates:    dates,
+		RepoName:    repoName,
+		RepoUrl:     repoURL,
+		Month:       "",
+		Data:        data,
+		Dates:       dates,
 		SpecialData: initSpecialDataStructure(data),
 	}
 	return ret
@@ -107,24 +103,24 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		duration := currentTime.Sub(updateTime)
 		//更新时间超过24小时则重新获取并更新缓存
 		if duration > 24*time.Hour {
-			temp := GetUrlCotent(url, repo, metric)
+			temp := GetUrlContent(url, repo, metric)
 			err := utils.UpdateSingleRow(repoName, metric, temp.Dates, temp.Data)
 			if err != nil {
 				panic("update" + repoName + " " + metric + " faild")
 			}
 		}
 		ret := RepoInfo{
-			RepoName: cachedrepoinfo.Reponame,
-			RepoUrl:  cachedrepoinfo.Repourl,
-			Month:    "",
-			Data:     cachedrepoinfo.Data,
-			Dates:    cachedrepoinfo.Dates,
+			RepoName:    cachedrepoinfo.Reponame,
+			RepoUrl:     cachedrepoinfo.Repourl,
+			Month:       "",
+			Data:        cachedrepoinfo.Data,
+			Dates:       cachedrepoinfo.Dates,
 			SpecialData: initSpecialDataStructure(cachedrepoinfo.Data),
 		}
 		return ret
 	}
 
-	ret := GetUrlCotent(url, repo, metric)
+	ret := GetUrlContent(url, repo, metric)
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
 	return ret
@@ -137,10 +133,10 @@ func GetCertainRepoInfo(repo, metric, month string) RepoInfo {
 	data := make(map[string](map[string]interface{}))
 
 	// 处理特殊指标
-	_, ok := utils.Parse[metric] 
+	_, ok := utils.Parse[metric]
 	if ok {
 		repoInfo.SpecialData.SelectMonth(month)
-	} 
+	}
 
 	// 因为仍然保留一份数据在data里，这部分也要处理，用于show的输出
 	if Special_Metric[metric] {
