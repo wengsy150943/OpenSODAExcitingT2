@@ -25,10 +25,8 @@ func GetUserUrlContent(url, username string) map[string]interface{} {
 	json.Unmarshal([]byte(body), &temp)
 	return temp
 }
-func appendlist(wg *sync.WaitGroup, m *sync.Mutex, l map[string](map[string]interface{}), t map[string]interface{}, metric string) {
-	m.Lock()
+func appendlist(wg *sync.WaitGroup, l map[string](map[string]interface{}), t map[string]interface{}, metric string) {
 	l[metric] = t
-	m.Unlock()
 	wg.Done()
 }
 func GetCertainUser(username string) UserInfo {
@@ -45,10 +43,9 @@ func GetCertainUser(username string) UserInfo {
 	UserMetric := []string{"openrank", "activity", "developernetwork", "reponetwork"}
 
 	var wg sync.WaitGroup
-	var m sync.Mutex
 	for i := 0; i < 4; i++ {
 		wg.Add(1)
-		go appendlist(&wg, &m, res, GetUserUrlContent(Urls[i], username), UserMetric[i])
+		go appendlist(&wg, res, GetUserUrlContent(Urls[i], username), UserMetric[i])
 	}
 	wg.Wait()
 	//println(res["reponetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string))
