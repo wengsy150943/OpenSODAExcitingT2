@@ -10,11 +10,11 @@ import (
 
 //爬虫选项常量Option设置（国家、编程语言、日期）
 var (
-	spokenLangCode map[string]string
+	SpokenLangCode map[string]string
 )
 
 func init() {
-	spokenLangCode = map[string]string{
+	SpokenLangCode = map[string]string{
 		"abkhazian":             "ab",
 		"afar":                  "aa",
 		"afrikaans":             "af",
@@ -232,47 +232,47 @@ func init() {
 	}
 }
 
-type options struct {
+type Options struct {
 	GitHubURL   string
 	SpokenLang  string
 	ProgramLang string
 	DateRange   string
 }
 
-type option func(*options)
+type Option func(*Options)
 
-func WithDaily() option {
-	return func(opt *options) {
+func WithDaily() Option {
+	return func(opt *Options) {
 		opt.DateRange = "daily"
 	}
 }
 
-func WithWeekly() option {
-	return func(opt *options) {
+func WithWeekly() Option {
+	return func(opt *Options) {
 		opt.DateRange = "weekly"
 	}
 }
 
-func WithMonthly() option {
-	return func(opt *options) {
+func WithMonthly() Option {
+	return func(opt *Options) {
 		opt.DateRange = "monthly"
 	}
 }
 
-func WithProgramLanguage(lang string) option {
-	return func(opt *options) {
+func WithProgramLanguage(lang string) Option {
+	return func(opt *Options) {
 		opt.ProgramLang = lang
 	}
 }
 
-func WithSpokenLanguage(lang string) option {
-	return func(opt *options) {
-		opt.SpokenLang = spokenLangCode[lang]
+func WithSpokenLanguage(lang string) Option {
+	return func(opt *Options) {
+		opt.SpokenLang = SpokenLangCode[lang]
 	}
 }
 
-func WithURL(url string) option {
-	return func(opt *options) {
+func WithURL(url string) Option {
+	return func(opt *Options) {
 		opt.GitHubURL = url
 	}
 }
@@ -286,15 +286,15 @@ type RepositoryInfo struct {
 //爬虫实现
 type CrawlerService interface {
 	Crawl() ([]*RepositoryInfo, error) //爬取返回info数组
-	loadOptions(opts ...option)
+	LoadOptions(opts ...Option)
 }
 
 type CrawlTrendingService struct {
-	opts options
+	opts Options
 }
 
-func (c *CrawlTrendingService) loadOptions(opts ...option) {
-	o := options{
+func (c *CrawlTrendingService) LoadOptions(opts ...Option) {
+	o := Options{
 		GitHubURL:   "http://www.github.com",
 		ProgramLang: "",
 		SpokenLang:  "",
