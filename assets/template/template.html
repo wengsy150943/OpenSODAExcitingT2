@@ -166,7 +166,7 @@
                 }
 
                 function getData() {
-                    var data0 = {{.ActiveDatesAndTimes}}
+                    var data0 = {{.ActiveDatesAndTimesData}}
                     var data = [];
 
 
@@ -184,7 +184,7 @@
                     //
                     // console.log(data3)
                     //
-                    // {{ range $keya, $valuea := .ActiveDatesAndTimes }}
+                    // {{ range $keya, $valuea := .ActiveDatesAndTimesData }}
                     // data.push([{{$keya}},{{$valuea}}]);
                     // {{ end }}
                     for (var [key, value] of Object.entries(data0)) {
@@ -770,15 +770,17 @@
     {{ end }}
 
 
+
+    {{ range $key, $value := .QuantileStatsData }}
     <div class="section">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>race ：</strong></h2>
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}} line race图 ：</strong></h2>
         <div id="chartRace">
             <!-- 可视化图表将在这里插入 -->
             <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
 
-            <div class="item" id="Race" style="width:1200px;height:600px;"></div>
+            <div class="item" id="{{$key}}" style="width:1200px;height:600px;"></div>
             <script>
-                var chartContainerRace = document.getElementById('Race');
+                var chartContainerRace = document.getElementById('{{$key}}');
                 var chartRace = echarts.init(chartContainerRace);
 
                 var optionRace = {
@@ -796,7 +798,7 @@
                     },
                     xAxis: {
                         type: 'category',
-                        data: ['时间点1', '时间点2', '时间点3', '时间点4']
+                        data: [{{range $value.RaceDates}}"{{ . }}", {{end}}]
                     },
                     yAxis: {
                         type: 'value'
@@ -805,7 +807,7 @@
                         {
                             name: 'avg',
                             type: 'line',
-                            data: [10, 20, 30, 40],
+                            data: [{{range $value.Avg}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -814,7 +816,7 @@
                         {
                             name: 'quantile_0',
                             type: 'line',
-                            data: [15, 25, 35, 45],
+                            data: [{{range $value.Quantile0}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -823,7 +825,7 @@
                         {
                             name: 'quantile_1',
                             type: 'line',
-                            data: [20, 30, 4, 50],
+                            data: [{{range $value.Quantile1}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -832,7 +834,7 @@
                         {
                             name: 'quantile_2',
                             type: 'line',
-                            data: [25, 30, 40, 50],
+                            data: [{{range $value.Quantile2}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -841,7 +843,7 @@
                         {
                             name: 'quantile_3',
                             type: 'line',
-                            data: [20, 35, 40, 50],
+                            data: [{{range $value.Quantile3}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -850,7 +852,7 @@
                         {
                             name: 'quantile_4',
                             type: 'line',
-                            data: [20, 30, 48, 50],
+                            data: [{{range $value.Quantile4}}"{{ . }}", {{end}}],
                             encode: {
                                 x: 0, // 将数据的第一列映射到X轴
                                 y: [1] // 将数据的第二列映射到Y轴
@@ -861,9 +863,9 @@
 
                 chartRace.setOption(optionRace);
             </script>
-
         </div>
     </div>
+    {{ end }}
 </div>
 
 

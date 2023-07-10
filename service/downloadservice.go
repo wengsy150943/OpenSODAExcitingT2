@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/csv"
 	"errors"
+	"exciting-opendigger/utils"
 	"fmt"
 	"html/template"
 	"log"
@@ -60,33 +61,29 @@ type YearMonthData struct {
 
 //定义多折线图结构
 type RaceLineData struct {
-	RaceDates  []string
-	Avg        []float64
-	Quantile_0 []float64
-	Quantile_1 []float64
-	Quantile_2 []float64
-	Quantile_3 []float64
-	Quantile_4 []float64
+	RaceDates []string
+	Avg       []float64
+	Quantile0 []float64
+	Quantile1 []float64
+	Quantile2 []float64
+	Quantile3 []float64
+	Quantile4 []float64
 }
 
 type SingleDownloadService struct {
-	Source                              string
-	Target                              string
-	Title                               string
-	Dates                               []string
-	Data                                map[string]([]float32)
-	Years                               []int
-	InitYear                            int //前端按钮默认显示
-	InitMonth                           int //前端按钮默认显示
-	ActivityDetailsData                 []YearMonthData
-	BusFactorDetailData                 []YearMonthData
-	NewContributorsDetailData           []YearMonthData
-	ActiveDatesAndTimesData             map[string]int
-	IssueResponseTimeData               RaceLineData
-	IssueResolutionDurationData         RaceLineData
-	ChangeRequestResponseTimeData       RaceLineData
-	ChangeRequestResolutionDurationData RaceLineData
-	ChangeRequestAgeData                RaceLineData
+	Source                    string
+	Target                    string
+	Title                     string
+	Dates                     []string
+	Data                      map[string]([]float32)
+	Years                     []int
+	InitYear                  int //前端按钮默认显示
+	InitMonth                 int //前端按钮默认显示
+	ActivityDetailsData       []YearMonthData
+	BusFactorDetailData       []YearMonthData
+	NewContributorsDetailData []YearMonthData
+	ActiveDatesAndTimesData   map[string]int
+	QuantileStatsData         map[string]RaceLineData //负责五个分位数均值的metric
 }
 
 func parseFloatValue(v interface{}) float32 {
@@ -108,6 +105,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
+	d.QuantileStatsData = make(map[string]RaceLineData)
 
 	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
 	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
@@ -167,20 +165,15 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 			//fmt.Println(d.ActivityDetailsData)
 			//fmt.Println(d.Years)
 		} else if k == "issue_response_time" {
-
-			continue
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else if k == "issue_resolution_duration" {
-
-			continue
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else if k == "change_request_response_time" {
-
-			continue
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else if k == "change_request_resolution_duration" {
-
-			continue
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else if k == "change_request_age" {
-
-			continue
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else {
 			tempList := make([]float32, 0)
 			for _, v2 := range d.Dates {
@@ -534,4 +527,26 @@ func getCalendarData(data_ map[string]([]int)) (map[string]int, []int) {
 		res2 = append(res2, num)
 	}
 	return res, res2
+}
+
+func getRaceLineData(data_ map[string]utils.QuantileStats) RaceLineData {
+	var raceDates []string
+	var avg []float64
+	var quantile0 []float64
+	var quantile1 []float64
+	var quantile2 []float64
+	var quantile3 []float64
+	var quantile4 []float64
+
+	for k, v := range data_ {
+		raceDates = append(raceDates, k)
+		avg = append(avg, v.Avg)
+		quantile0 = append(quantile0, v.Quantile[0])
+		quantile1 = append(quantile1, v.Quantile[1])
+		quantile2 = append(quantile2, v.Quantile[2])
+		quantile3 = append(quantile3, v.Quantile[3])
+		quantile4 = append(quantile4, v.Quantile[4])
+	}
+
+	return RaceLineData{Avg: avg, RaceDates: raceDates, Quantile0: quantile0, Quantile1: quantile1, Quantile2: quantile2, Quantile3: quantile3, Quantile4: quantile4}
 }

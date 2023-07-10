@@ -54,6 +54,12 @@ func TestSingleDownloadService(t *testing.T) {
 	testDataMap["activity_details"] = nil
 	testDataMap["active_dates_and_times"] = nil
 
+	testDataMap["issue_response_time"] = nil
+	testDataMap["issue_resolution_duration"] = nil
+	testDataMap["change_request_response_time"] = nil
+	testDataMap["change_request_resolution_duration"] = nil
+	testDataMap["change_request_age"] = nil
+
 	myMap := make(map[string]([][]string))
 
 	// 添加值到 map 中
@@ -74,7 +80,15 @@ func TestSingleDownloadService(t *testing.T) {
 	myMap3["2021-02"] = []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	myMap3["2022-01"] = []int{1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 111, 11, 0}
 
-	testSpecial := &utils.SpecialDataStructure{BusFactorDetail: myMap, ActivityDetails: myMap, NewContributorsDetail: myMap2, ActiveDatesAndTimes: myMap3}
+	myMap4 := make(map[string]utils.QuantileStats)
+	temp := utils.QuantileStats{Avg: 2, Quantile: []float64{1, 2, 3, 4, 5}, Levels: nil}
+
+	myMap4["2020-02"] = temp
+	myMap4["2020-09"] = temp
+	myMap4["2021-02"] = temp
+	myMap4["2022-01"] = temp
+
+	testSpecial := &utils.SpecialDataStructure{BusFactorDetail: myMap, ActivityDetails: myMap, NewContributorsDetail: myMap2, ActiveDatesAndTimes: myMap3, IssueResponseTime: myMap4, IssueResolutionDuration: myMap4, ChangeRequestResolutionDuration: myMap4, ChangeRequestAge: myMap4, ChangeRequestResponseTime: myMap4}
 
 	ret := RepoInfo{
 		RepoName:    "opendigger",
