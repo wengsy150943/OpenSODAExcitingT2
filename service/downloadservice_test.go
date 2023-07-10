@@ -6,39 +6,6 @@ import (
 	"testing"
 )
 
-func TestTemp(t *testing.T) {
-	a := GetAllRepoInfo("X-lab2017/open-digger")
-
-	fmt.Println(a.Data["issue_resolution_duration"])
-}
-
-//
-//func TempTest(t *testing.T) {
-//	a := GetAllRepoInfo("X-lab2017/open-digger")
-//
-//	fmt.Println( a.Data["issue_resolution_duration"])
-//	dateStrings := []string{"2020-02", "2021-02", "2022-02"}
-//
-//	for _, dateString := range dateStrings {
-//		yearMonth, err := time.Parse("2006-01", dateString)
-//		if err != nil {
-//			fmt.Println("Invalid date format:", dateString)
-//			continue
-//		}
-//
-//		// 获取该月的天数
-//		year, month, _ := yearMonth.Date()
-//		_, _, lastDay := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC).Date()
-//
-//		// 生成年份-月份-日列表
-//		for day := 1; day <= lastDay; day++ {
-//			date := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-//			fmt.Println(date.Format("2006-01-02"))
-//		}
-//	}
-//
-//}
-
 func TestSingleDownloadService(t *testing.T) {
 	fmt.Println("TestSingleDownloadService：")
 	downloadService := &SingleDownloadService{}
