@@ -8,6 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"strings"
 )
 
@@ -35,6 +36,13 @@ type CachedRepoInfo struct {
 	Metric   string
 	Month    string
 	Dates    Datestype
+	Data     Datatype
+}
+
+type CachedUserInfo struct {
+	gorm.Model
+	Uid      int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
+	Username string
 	Data     Datatype
 }
 
@@ -69,12 +77,22 @@ func (a Datestype) Value() (driver.Value, error) {
 *
 创建表
 */
-func CreateTable() {
+func CreateTable(structname interface{}) {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&CachedRepoInfo{})
+	switch structname.(type) {
+	case CachedRepoInfo:
+		db.AutoMigrate(&CachedRepoInfo{})
+		break
+	case CachedUserInfo:
+		db.AutoMigrate(&CachedUserInfo{})
+		break
+	case Searchhistory:
+		db.AutoMigrate(&Searchhistory{})
+		break
+	}
 }
 
 /*
@@ -96,7 +114,9 @@ func TableExist(tablename string) bool {
 注：这里参数一定要用Datestype和Datatype，直接使用map[]Gorm会因为反射报错。
 */
 func UpdateSingleRow(reponame string, metric string, dates Datestype, data Datatype) error {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -111,7 +131,9 @@ func UpdateSingleRow(reponame string, metric string, dates Datestype, data Datat
 */
 func InsertSingleQuery(reponame string, repourl string, metric string, month string, dates []string, data map[string](map[string]interface{})) error {
 	//暂时使用全局路径，后面改相对路径
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -129,13 +151,15 @@ func InsertSingleQuery(reponame string, repourl string, metric string, month str
 查询特定仓库的数据
 */
 func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric string) error {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	metric = strings.ToLower(metric)
-
-	result := db.Where("reponame = ? AND metric = ?", reponame, metric).Find(repoinfo)
+	//这里只能用First，使用Find查询不会返回RecordNotFound错误
+	result := db.Where("reponame = ? AND metric = ?", reponame, metric).First(repoinfo)
 
 	return result.Error
 }
@@ -165,4 +189,18 @@ func Readlog(logs *[]Searchhistory) {
 	}
 	result := db.Find(&logs)
 	println(result.Error)
+}
+
+func InsertUserInfo(username string, data Datatype) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	tx := db.Create(CachedUserInfo{Username: username, Data: data})
+	if tx.Error != nil {
+		println(tx.Error)
+	}
+	return tx.Error
 }
