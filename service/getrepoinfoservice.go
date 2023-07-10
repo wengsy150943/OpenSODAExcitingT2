@@ -88,7 +88,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	//判断是否已经创建了缓存表
 	exists := utils.TableExist("cached_repo_infos")
 	if !exists {
-		utils.CreateTable()
+		utils.CreateTable(utils.CachedRepoInfo{})
 	}
 	cachedrepoinfo := utils.CachedRepoInfo{}
 	repoName := strings.Split(repo, "/")[1]
