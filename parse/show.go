@@ -20,18 +20,34 @@ var showCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
-		repoInfo = getResult(queryPara)
+		if queryPara.user != "" {
+			userInfo = service.GetCertainUser(queryPara.user)
+		} else{
+			repoInfo = getResult(queryPara)
+		}
+		
+		
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		
 
 		// 检查是否有compare,这里只有一个subcommand
 		if (strings.Contains(cmd.CommandPath(), "compare") ){
-			// TODO qk: a more pretty output?
-			service.PrintRepoInfo(repoInfo)
-			service.PrintRepoInfo(repoInfoCompare)
+
+			if repoInfo.RepoName != "" {
+				service.PrintRepoInfo(repoInfo)
+				service.PrintRepoInfo(repoInfoCompare)
+			} else{
+				service.PrintUserInfo(userInfo)
+				service.PrintUserInfo(userInfoCompare)
+			}
+			
 		} else{
-			service.PrintRepoInfo(repoInfo)
+			if repoInfo.RepoName != "" {
+				service.PrintRepoInfo(repoInfo)
+			} else{
+				service.PrintUserInfo(userInfo)
+			}
 		}
 	},
 }
