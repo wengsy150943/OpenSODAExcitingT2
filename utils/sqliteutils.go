@@ -135,7 +135,7 @@ func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric str
 	}
 	metric = strings.ToLower(metric)
 
-	result := db.Where("reponame = ? AND metric = ?", reponame, metric).First(repoinfo)
+	result := db.Where("reponame = ? AND metric = ?", reponame, metric).Find(repoinfo)
 
 	return result.Error
 }
