@@ -6,12 +6,11 @@ package parse
 import (
 	"bufio"
 	"exciting-opendigger/service"
+	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"os"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 var inputFile string
@@ -20,6 +19,10 @@ var filter string
 var sortKey string
 var asc bool
 var desc bool
+
+var spokenLanguage string  //e.g. chinese,english
+var programLanguage string //e.g. c++,java
+var dateRange string       //daily、weekly、Monthly
 
 // versionCmd represents the version command
 var batchCmd = &cobra.Command{
@@ -33,6 +36,41 @@ var batchCmd = &cobra.Command{
 		var repoList []string
 		if ifTop {
 			// TODO qk: call crawler
+			var crawlerService service.CrawlerService
+			crawlerService = &service.CrawlTrendingService{}
+			//options用于根据前端接受的参数设置爬虫选项，分别是日期、
+			opts := make([]service.Option, 0)
+
+			if dateRange == "daily" {
+				opts = append(opts, service.WithDaily())
+
+			} else if dateRange == "weekly" {
+				opts = append(opts, service.WithWeekly())
+
+			} else if dateRange == "monthly" {
+				opts = append(opts, service.WithMonthly())
+			} else {
+				log.Fatalf(" unvalid dateRange,please choose dateRange in daily or weekly or monthly")
+			}
+
+			opts = append(opts, service.WithProgramLanguage(programLanguage))
+
+			_, err1 := service.SpokenLangCode[spokenLanguage]
+
+			if !err1 {
+				log.Fatalf(" unvalid spokenLanguage,please check the optional spokenLanguage in github.com")
+			}
+			opts = append(opts, service.WithSpokenLanguage(spokenLanguage))
+			crawlerService.LoadOptions(opts...)
+			res, err2 := crawlerService.Crawl()
+
+			if err2 != nil {
+				log.Fatalf(" crawl top failed,please check your Internet or check your input")
+			}
+
+			for _, x := range res {
+				repoList = append(repoList, x.Link)
+			}
 		} else {
 			file, e := os.Open(inputFile)
 			if e != nil {
@@ -48,8 +86,10 @@ var batchCmd = &cobra.Command{
 				repoList = append(repoList, string(repo))
 			}
 		}
+
 		// 如果文件名本身已经带了csv后缀，把它裁掉
-		outputFile,_ = strings.CutSuffix(outputFile,".csv")
+		outputFile = strings.TrimSuffix(outputFile, ".csv")
+
 		service.DownLoadRepoList(repoList, outputFile)
 	},
 }
@@ -59,6 +99,10 @@ func init() {
 
 	batchCmd.Flags().StringVarP(&inputFile, "source", "s", "", "Repo source file")
 	batchCmd.Flags().StringVarP(&outputFile, "position", "p", "", "Repo output file")
+
+	batchCmd.Flags().StringVarP(&dateRange, "dateRange", "d", "", "TOP's dateRange")
+	batchCmd.Flags().StringVarP(&programLanguage, "programLanguage", "pl", "", "TOP's programLanguage")
+	batchCmd.Flags().StringVarP(&spokenLanguage, "spokenLanguage", "sl", "", "TOP's spokenLanguage")
 
 	batchCmd.MarkFlagFilename("position")
 	batchCmd.MarkFlagRequired("source")
