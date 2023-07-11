@@ -225,6 +225,6 @@ func UpdateUserInfoSingleRow(username string, data Datatype) error {
 		panic("failed to connect database")
 	}
 	repoinfo := CachedRepoInfo{}
-	res := db.Model(&repoinfo).Where("reponame = ? AND metric = ?", reponame, metric).Updates(map[string]interface{}{"dates": dates, "data": data})
+	res := db.Model(&repoinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data})
 	return res.Error
 }

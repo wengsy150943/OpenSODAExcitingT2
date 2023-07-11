@@ -215,3 +215,16 @@ func TestInsertUserInfo(t *testing.T) {
 	InsertUserInfo(username, testQueryresult)
 
 }
+
+func TestReadSingleUserInfo(t *testing.T) {
+	a := CachedUserInfo{}
+	username := "frank-zsy"
+	err := ReadSingleUserInfo(&a, username)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		println("Not found")
+	}
+	println(a.Data["openrank"]["2020-08"].(float64))
+}
+func TestUpdateUserInfoSingleRow(t *testing.T) {
+
+}
