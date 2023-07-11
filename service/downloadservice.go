@@ -84,6 +84,11 @@ type SingleDownloadService struct {
 	NewContributorsDetailData []YearMonthData
 	ActiveDatesAndTimesData   map[string]int
 	QuantileStatsData         map[string]RaceLineData //负责五个分位数均值的metric
+
+	//以下时单月查询使用
+	MapDataOne map[string]float32
+	Year       int
+	Month      int
 }
 
 func parseFloatValue(v interface{}) float32 {
@@ -121,7 +126,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.InitYear = initYear
 	d.InitMonth = initMonth
 
-	for k, v1 := range source_.Data {
+	for k, v := range source_.Data {
 		if k == "active_dates_and_times" {
 			activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
 			d.ActiveDatesAndTimesData = activeDatesAndTimes
@@ -132,15 +137,15 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 		} else if k == "new_contributors_detail" {
 			tempDetail := source_.SpecialData.NewContributorsDetail
 			tempDetail2 := make(map[string]([][]string))
-			for k, v := range tempDetail {
+			for k1, v1 := range tempDetail {
 
 				temp := make([][]string, 0)
 
-				for _, v1 := range v {
-					temp = append(temp, []string{v1, "1"})
+				for _, v2 := range v1 {
+					temp = append(temp, []string{v2, "1"})
 				}
 
-				tempDetail2[k] = temp
+				tempDetail2[k1] = temp
 			}
 			w := getWordCloudData(tempDetail2)
 			d.NewContributorsDetailData = w.YearData
@@ -167,17 +172,17 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 		} else if k == "issue_response_time" {
 			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 		} else if k == "issue_resolution_duration" {
-			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResolutionDuration)
 		} else if k == "change_request_response_time" {
-			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.ChangeRequestResponseTime)
 		} else if k == "change_request_resolution_duration" {
-			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.ChangeRequestResolutionDuration)
 		} else if k == "change_request_age" {
-			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.ChangeRequestAge)
 		} else {
 			tempList := make([]float32, 0)
 			for _, v2 := range d.Dates {
-				temp, ok := v1[v2]
+				temp, ok := v[v2]
 				if ok {
 					tempList = append(tempList, parseFloatValue(temp))
 				} else {
@@ -191,9 +196,278 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	return nil
 }
 
+func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ string, k string) error {
+	d.Target = target_
+	d.Source = source_.RepoUrl
+	d.Title = source_.RepoName
+
+	d.Dates = source_.Dates
+	d.Data = make(map[string]([]float32))
+	d.QuantileStatsData = make(map[string]RaceLineData)
+
+	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
+	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
+
+	if err1 != nil {
+		fmt.Println(err1)
+	}
+
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+
+	d.InitYear = initYear
+	d.InitMonth = initMonth
+
+	v1, err := source_.Data[k]
+
+	if !err {
+		return errors.New("invalid metric")
+	}
+
+	if k == "active_dates_and_times" {
+		activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
+		d.ActiveDatesAndTimesData = activeDatesAndTimes
+		d.Years = getUnionOfTwoLists(d.Years, years)
+		//fmt.Println("active")
+		//fmt.Println(d.ActiveDatesAndTimes)
+		//fmt.Println(d.Years)
+	} else if k == "new_contributors_detail" {
+		tempDetail := source_.SpecialData.NewContributorsDetail
+		tempDetail2 := make(map[string]([][]string))
+		for k, v := range tempDetail {
+
+			temp := make([][]string, 0)
+
+			for _, v1 := range v {
+				temp = append(temp, []string{v1, "1"})
+			}
+
+			tempDetail2[k] = temp
+		}
+		w := getWordCloudData(tempDetail2)
+		d.NewContributorsDetailData = w.YearData
+		d.Years = getUnionOfTwoLists(d.Years, w.Years)
+		//fmt.Println("new")
+		//fmt.Println(d.NewContributorsDetailData)
+		//fmt.Println(d.Years)
+	} else if k == "bus_factor_detail" {
+		w := getWordCloudData(source_.SpecialData.BusFactorDetail)
+		d.BusFactorDetailData = w.YearData
+		d.Years = getUnionOfTwoLists(d.Years, w.Years)
+		//d.Years = w.Years
+		//fmt.Println("bus")
+		//fmt.Println(d.BusFactorDetailData)
+		//fmt.Println(d.Years)
+	} else if k == "activity_details" {
+		w := getWordCloudData(source_.SpecialData.ActivityDetails)
+		d.ActivityDetailsData = w.YearData
+		d.Years = getUnionOfTwoLists(d.Years, w.Years)
+		//d.Years = w.Years
+		//fmt.Println("act")
+		//fmt.Println(d.ActivityDetailsData)
+		//fmt.Println(d.Years)
+	} else if k == "issue_response_time" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else if k == "issue_resolution_duration" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else if k == "change_request_response_time" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else if k == "change_request_resolution_duration" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else if k == "change_request_age" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else {
+		tempList := make([]float32, 0)
+		for _, v2 := range d.Dates {
+			temp, ok := v1[v2]
+			if ok {
+				tempList = append(tempList, parseFloatValue(temp))
+			} else {
+				continue
+			}
+		}
+		d.Data[k] = tempList
+	}
+
+	return nil
+}
+
+func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string, year_ int, month_ int, metric_ string) error {
+	d.Target = target_
+	d.Source = source_.RepoUrl
+	d.Title = source_.RepoName
+	d.Dates = source_.Dates
+	d.MapDataOne = make(map[string]float32)
+	d.Years = []int{year_}
+	d.InitYear = year_
+	d.InitMonth = month_
+	d.QuantileStatsData = make(map[string]RaceLineData)
+
+	valid := false
+
+	yearStr := strconv.Itoa(year_)
+	monthStr := strconv.Itoa(month_)
+	if len(monthStr) < 2 {
+		monthStr = "0" + monthStr
+	}
+
+	date := yearStr + "-" + monthStr
+
+	//fmt.Println(date)
+	//
+	//fmt.Println(d.Dates)
+
+	for _, x := range d.Dates {
+		if x == date {
+			valid = true
+		}
+	}
+
+	if valid == false {
+		return errors.New("invalid date or no data ")
+	}
+
+	for k, v := range source_.Data {
+		if k == "active_dates_and_times" {
+
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+
+			monthActiveDatesAndTimes, err := source_.SpecialData.ActiveDatesAndTimes[date]
+			if !err {
+				continue
+			}
+
+			newActiveDatesAndTimes := make(map[string][]int)
+			newActiveDatesAndTimes[date] = monthActiveDatesAndTimes
+
+			activeDatesAndTimes, _ := getCalendarData(newActiveDatesAndTimes)
+			d.ActiveDatesAndTimesData = activeDatesAndTimes
+
+		} else if k == "new_contributors_detail" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.NewContributorsDetail
+			tempDetail2 := make(map[string]([][]string))
+			value, err := tempDetail[date]
+
+			if !err {
+				continue
+			}
+			temp := make([][]string, 0)
+
+			for _, v1 := range value {
+				temp = append(temp, []string{v1, "1"})
+			}
+			tempDetail2[date] = temp
+			w := getWordCloudData(tempDetail2)
+			d.NewContributorsDetailData = w.YearData
+
+		} else if k == "bus_factor_detail" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+
+			tempDetail := source_.SpecialData.BusFactorDetail
+			tempDetail2 := make(map[string]([][]string))
+			tempDetail2[date] = tempDetail[date]
+			w := getWordCloudData(tempDetail2)
+			d.BusFactorDetailData = w.YearData
+
+		} else if k == "activity_details" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.ActivityDetails
+			tempDetail2 := make(map[string]([][]string))
+			tempDetail2[date] = tempDetail[date]
+			w := getWordCloudData(tempDetail2)
+			d.ActivityDetailsData = w.YearData
+
+		} else if k == "issue_response_time" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.IssueResponseTime
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else if k == "issue_resolution_duration" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.IssueResolutionDuration
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else if k == "change_request_response_time" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.ChangeRequestResponseTime
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else if k == "change_request_resolution_duration" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.ChangeRequestResolutionDuration
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else if k == "change_request_age" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.ChangeRequestAge
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			d.MapDataOne[k] = parseFloatValue(v[date])
+		}
+	}
+
+	fmt.Println(d.MapDataOne)
+
+	return nil
+}
+
 func (d *SingleDownloadService) Download() error {
 
 	tmpl, err := template.ParseFiles("../assets/template/template.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 创建输出文件
+	file, err := os.Create(d.Target + ".html")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	page := d
+
+	// 渲染模板并将结果写入文件
+	err = tmpl.Execute(file, page)
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
+func (d *SingleDownloadService) DownloadMonth() error {
+
+	tmpl, err := template.ParseFiles("../assets/template/template_month.html")
 	if err != nil {
 		log.Fatal(err)
 	}
