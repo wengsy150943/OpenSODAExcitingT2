@@ -43,7 +43,7 @@ Exciting-Opendigger提供了多样的查询功能。为了更好地满足精细�
 
 **2.1.1 单点查询**
 
-其中，`SHOW`命令提供了基础的查询功能，即对特定对象的指标查询。此处我们提供一系列的查询参数如下：
+其中，`SHOW`命令提供了基础的查询功能，即对特定对象的指标查询。此处我们提供一系列的查询参数于`SearchOpt`如下：
 
 ![SearchOpt.svg](./assets/fig/SearchOpt.svg)
 
@@ -67,7 +67,7 @@ Exciting-Opendigger提供了多样的查询功能。为了更好地满足精细�
 
 ### 2.3 文件下载
 
-Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考虑到数据下载往往用于详细分析，我们为下载文件进行可视化的数据分析，将结果转化为html输出。
+Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考虑到数据下载往往用于详细分析，我们为下载文件进行可视化的数据分析，将结果转化为html输出。我们同样提供`SearchOpt`用于约束查询的内容，由于文件下载具有更强的表达能力，其支持不使用`SearchOpt`，直接输出所有的结果。
 
 ![DownloadClause.svg](./assets/fig/DownloadClause.svg)
 
