@@ -2,13 +2,19 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"exciting-opendigger/utils"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"sync"
+	"time"
 )
 
 type UserInfo struct {
 	Username string
+	Dates    []string
 	Data     map[string](map[string]interface{})
 }
 
@@ -25,23 +31,7 @@ func GetUserUrlContent(url, username string) map[string]interface{} {
 	json.Unmarshal([]byte(body), &temp)
 	return temp
 }
-func appendlist(wg *sync.WaitGroup, l map[string](map[string]interface{}), t map[string]interface{}, metric string) {
-	l[metric] = t
-	wg.Done()
-}
-func GetCertainUser(username string) UserInfo {
-	//TODO 获得四个指标的url，开四个携程分别去请求url，结果写入UserInfo
-	BaseURL := "https://oss.x-lab.info/open_digger/github/"
-	openrankURL := BaseURL + username + "/" + "openrank.json"
-	activity := BaseURL + username + "/" + "activity.json"
-	developernetworkURL := BaseURL + username + "/" + "developer_network.json"
-	reponetwork := BaseURL + username + "/" + "repo_network.json"
-	ret := UserInfo{}
-	ret.Username = username
-	Urls := []string{openrankURL, activity, developernetworkURL, reponetwork}
-	res := map[string](map[string]interface{}){}
-	UserMetric := []string{"openrank", "activity", "developernetwork", "reponetwork"}
-
+func GetContentParal(res map[string](map[string]interface{}), Urls []string, username string, UserMetric []string) UserInfo {
 	var wg sync.WaitGroup
 	for i := 0; i < 4; i++ {
 		wg.Add(1)
@@ -81,7 +71,61 @@ func GetCertainUser(username string) UserInfo {
 		}
 
 	}
+	dates := make([]string, len(data_list))
+	cnt := 0
+	for i := range data_list[0] {
+		dates[cnt] = i
+		cnt++
+	}
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+	ret := UserInfo{}
+	ret.Dates = dates
 	ret.Data = data
 
+	return ret
+}
+func appendlist(wg *sync.WaitGroup, l map[string](map[string]interface{}), t map[string]interface{}, metric string) {
+	l[metric] = t
+	wg.Done()
+}
+func GetCertainUser(username string) UserInfo {
+	//TODO 获得四个指标的url，开四个携程分别去请求url，结果写入UserInfo
+	BaseURL := "https://oss.x-lab.info/open_digger/github/"
+	openrankURL := BaseURL + username + "/" + "openrank.json"
+	activity := BaseURL + username + "/" + "activity.json"
+	developernetworkURL := BaseURL + username + "/" + "developer_network.json"
+	reponetwork := BaseURL + username + "/" + "repo_network.json"
+	ret := UserInfo{}
+	ret.Username = username
+	Urls := []string{openrankURL, activity, developernetworkURL, reponetwork}
+	res := map[string](map[string]interface{}){}
+	UserMetric := []string{"openrank", "activity", "developernetwork", "reponetwork"}
+
+	exists := utils.TableExist("cached_user_infos")
+	if !exists {
+		utils.CreateTable(utils.CachedUserInfo{})
+	}
+	cacheduserinfo := utils.CachedUserInfo{}
+	err := utils.ReadSingleUserInfo(&cacheduserinfo, username)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		currentTime := time.Now()
+		updateTime := cacheduserinfo.UpdatedAt
+		duration := currentTime.Sub(updateTime)
+		//更新时间超过24小时则重新获取并更新缓存
+		if duration > 24*time.Hour {
+			temp := GetContentParal(res, Urls, username, UserMetric)
+			err := utils.UpdateUserInfoSingleRow(username, temp.Data, temp.Dates)
+			if err != nil {
+				panic("update" + username + " faild")
+			}
+		}
+		ret := UserInfo{
+			Username: cacheduserinfo.Username,
+			Data:     cacheduserinfo.Data,
+		}
+		return ret
+	}
+	ret = GetContentParal(res, Urls, username, UserMetric)
+	utils.InsertUserInfo(username, ret.Data, ret.Dates)
 	return ret
 }
