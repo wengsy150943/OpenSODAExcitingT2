@@ -191,16 +191,40 @@ func Readlog(logs *[]Searchhistory) {
 	println(result.Error)
 }
 
-func InsertUserInfo(username string, data Datatype) error {
+func InsertUserInfo(username string, data map[string](map[string]interface{})) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	tx := db.Create(CachedUserInfo{Username: username, Data: data})
+	tx := db.Create(&CachedUserInfo{Username: username, Data: data})
 	if tx.Error != nil {
 		println(tx.Error)
 	}
 	return tx.Error
+}
+func ReadSingleUserInfo(userinfo *CachedUserInfo, username string) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	username = strings.ToLower(username)
+
+	result := db.Where("username = ?", username).First(userinfo)
+	return result.Error
+}
+
+func UpdateUserInfoSingleRow(username string, data Datatype) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	repoinfo := CachedRepoInfo{}
+	res := db.Model(&repoinfo).Where("reponame = ? AND metric = ?", reponame, metric).Updates(map[string]interface{}{"dates": dates, "data": data})
+	return res.Error
 }
