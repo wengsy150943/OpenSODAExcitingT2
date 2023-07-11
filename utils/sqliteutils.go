@@ -192,7 +192,13 @@ func Readlog(logs *[]Searchhistory) {
 	println(result.Error)
 }
 
-func InsertUserInfo(username string, data map[string](map[string]interface{}), dates Datestype) error {
+/*
+*
+插入用户信息
+注：这里参数一定要用Datestype和Datatype，直接使用map[]Gorm会因为反射报错。
+*/
+
+func InsertUserInfo(username string, data Datatype, dates Datestype) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
