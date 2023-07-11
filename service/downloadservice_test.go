@@ -118,11 +118,11 @@ func TestBatchDownloadService(t *testing.T) {
 
 	rets = append(rets, ret3)
 
-	err := downloadService.SetData(rets, "metricOne", "csv_output")
+	err := downloadService.SetData(rets, "metricOne")
 	if err != nil {
 		return
 	}
-	err2 := downloadService.Download()
+	err2 := downloadService.Download("./")
 	if err2 != nil {
 		return
 	}
