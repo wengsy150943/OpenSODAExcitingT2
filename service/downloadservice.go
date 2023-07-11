@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/csv"
+	"errors"
 	"exciting-opendigger/utils"
 	"fmt"
 	"html/template"
@@ -239,6 +240,10 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string) erro
 			d.Dates = repo.Dates
 			maxLength = len(d.Dates)
 		}
+	}
+
+	if SpecialMetricForDownload[metric_] == true {
+		return errors.New("unsupported metric")
 	}
 
 	d.Data = make(map[string]([]interface{}))
