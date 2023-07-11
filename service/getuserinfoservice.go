@@ -7,12 +7,14 @@ import (
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"sync"
 	"time"
 )
 
 type UserInfo struct {
 	Username string
+	Dates    []string
 	Data     map[string](map[string]interface{})
 }
 
@@ -69,7 +71,15 @@ func GetContentParal(res map[string](map[string]interface{}), Urls []string, use
 		}
 
 	}
+	dates := make([]string, len(data_list))
+	cnt := 0
+	for i := range data_list[0] {
+		dates[cnt] = i
+		cnt++
+	}
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
 	ret := UserInfo{}
+	ret.Dates = dates
 	ret.Data = data
 
 	return ret
@@ -104,7 +114,7 @@ func GetCertainUser(username string) UserInfo {
 		//更新时间超过24小时则重新获取并更新缓存
 		if duration > 24*time.Hour {
 			temp := GetContentParal(res, Urls, username, UserMetric)
-			err := utils.UpdateUserInfoSingleRow(username, temp.Data)
+			err := utils.UpdateUserInfoSingleRow(username, temp.Data, temp.Dates)
 			if err != nil {
 				panic("update" + username + " faild")
 			}
@@ -116,6 +126,6 @@ func GetCertainUser(username string) UserInfo {
 		return ret
 	}
 	ret = GetContentParal(res, Urls, username, UserMetric)
-	utils.InsertUserInfo(username, ret.Data)
+	utils.InsertUserInfo(username, ret.Data, ret.Dates)
 	return ret
 }

@@ -43,6 +43,7 @@ type CachedUserInfo struct {
 	gorm.Model
 	Uid      int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
 	Username string
+	Dates    Datestype
 	Data     Datatype
 }
 
@@ -191,14 +192,14 @@ func Readlog(logs *[]Searchhistory) {
 	println(result.Error)
 }
 
-func InsertUserInfo(username string, data map[string](map[string]interface{})) error {
+func InsertUserInfo(username string, data map[string](map[string]interface{}), dates Datestype) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	tx := db.Create(&CachedUserInfo{Username: username, Data: data})
+	tx := db.Create(&CachedUserInfo{Username: username, Data: data, Dates: dates})
 	if tx.Error != nil {
 		println(tx.Error)
 	}
@@ -217,7 +218,7 @@ func ReadSingleUserInfo(userinfo *CachedUserInfo, username string) error {
 	return result.Error
 }
 
-func UpdateUserInfoSingleRow(username string, data Datatype) error {
+func UpdateUserInfoSingleRow(username string, data Datatype, dates Datestype) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
@@ -225,6 +226,6 @@ func UpdateUserInfoSingleRow(username string, data Datatype) error {
 		panic("failed to connect database")
 	}
 	repoinfo := CachedRepoInfo{}
-	res := db.Model(&repoinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data})
+	res := db.Model(&repoinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data, "dates": dates})
 	return res.Error
 }

@@ -209,10 +209,14 @@ func TestInsertUserInfo(t *testing.T) {
 		"2023-06":     6.33,
 		"2021-10-raw": 1.48,
 	}
+	dates := make([]string, len(testData1))
+	for k, _ := range testData1 {
+		dates = append(dates, k)
+	}
 	testQueryresult := make(map[string](map[string]interface{}))
 	testQueryresult["openrank"] = testData1
 	username := "frank-zsy"
-	InsertUserInfo(username, testQueryresult)
+	InsertUserInfo(username, testQueryresult, dates)
 
 }
 
