@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/csv"
-	"errors"
 	"exciting-opendigger/utils"
 	"fmt"
 	"html/template"
@@ -59,7 +58,7 @@ type YearMonthData struct {
 	Data  []WordCloudDetailData
 }
 
-//定义多折线图结构
+// 定义多折线图结构
 type RaceLineData struct {
 	RaceDates []string
 	Avg       []float64
@@ -218,20 +217,21 @@ func (d *SingleDownloadService) Download() error {
 
 type BatchDownloadService struct {
 	Metric string
-	Target string
 	Rows   int
 	Cols   int
-	Data   map[string]([]float32) //这里的key为仓库名
-
-	Dates []string
+	Data   map[string]([]interface{}) //这里的key为仓库名
+	Dates  []string
 }
 
-func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, target_ string) error {
-	if SpecialMetricForDownload[metric_] == true {
-		return errors.New("unsupported metric")
+func pathExists(path string) (error, bool) {
+	s, err := os.Stat(path)
+	if err != nil {
+		return err, false
 	}
+	return nil, s.IsDir()
+}
 
-	d.Target = target_
+func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string) error {
 	d.Metric = metric_
 	maxLength := 0
 	for _, repo := range sources_ {
@@ -241,15 +241,15 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 		}
 	}
 
-	d.Data = make(map[string]([]float32))
+	d.Data = make(map[string]([]interface{}))
 
 	for _, repo := range sources_ {
 		name := repo.RepoName
-		tempList := make([]float32, 0)
+		tempList := make([]interface{}, 0)
 		for _, v := range d.Dates {
 			temp, ok := repo.Data[metric_][v]
 			if ok {
-				tempList = append(tempList, parseFloatValue(temp))
+				tempList = append(tempList, temp)
 			} else {
 				tempList = append(tempList, 0)
 			}
@@ -257,17 +257,19 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string, targ
 		d.Data[name] = tempList
 	}
 
-	d.Rows = 2
+	d.Rows = len(sources_)
 	d.Cols = len(d.Dates)
 	return nil
 }
 
-func (d *BatchDownloadService) Download() error {
-
+func (d *BatchDownloadService) Download(filepath string) error {
+	if err, isDir := pathExists(filepath); err != nil || !isDir {
+		log.Fatal("Path Not Exist or Not a Dir")
+	}
 	data := make([][]string, 0)
 
 	firstRow := make([]string, 0)
-	firstRow = append(firstRow, "仓库名")
+	firstRow = append(firstRow, "RepoName")
 	firstRow = append(firstRow, d.Dates...)
 
 	data = append(data, firstRow)
@@ -276,12 +278,12 @@ func (d *BatchDownloadService) Download() error {
 		tempRow := make([]string, d.Cols+1)
 		tempRow[0] = key
 		for j := 1; j <= d.Cols; j++ {
-			tempRow[j] = strconv.FormatFloat(float64(value[j-1]), 'f', 3, 64)
+			tempRow[j] = fmt.Sprintf("%v", value[j-1])
 		}
 		data = append(data, tempRow)
 	}
 
-	file, err := os.Create(d.Target + "(" + d.Metric + ")" + ".csv")
+	file, err := os.Create(filepath + d.Metric + ".csv")
 	if err != nil {
 		return err
 	}

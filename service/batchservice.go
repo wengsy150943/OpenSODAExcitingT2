@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func DownLoadRepoList(repoList []string, outputfile string) {
+func DownLoadRepoList(repoList []string, outputPath string) {
 	repoInfoList := [MetricNum][]RepoInfo{}
 	downloadList := make([]BatchDownloadService, GoroutinueNum)
 	id := 0
@@ -27,10 +27,13 @@ func DownLoadRepoList(repoList []string, outputfile string) {
 				for _, repo := range repoList {
 					repoInfoList[i] = append(repoInfoList[i], GetRepoInfoOfMetric(repo, Metrics[i]))
 				}
-				if err := downloadList[id].SetData(repoInfoList[i], Metrics[i], outputfile); err != nil {
+				if err := downloadList[id].SetData(repoInfoList[i], Metrics[i]); err != nil {
+					if err.Error() == "unsupported metric" {
+						continue
+					}
 					log.Fatal(err)
 				}
-				if err := downloadList[id].Download(); err != nil {
+				if err := downloadList[id].Download(outputPath); err != nil {
 					log.Fatal(err)
 				}
 			}

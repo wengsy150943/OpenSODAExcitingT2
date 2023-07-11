@@ -22,9 +22,9 @@ var downloadCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取结果
-		if queryPara.metric != "" && queryPara.month != "" {
-			panic("Here is not necessary to download the result: simple return value.")
-		}
+		// if queryPara.metric != "" && queryPara.month != "" {
+		// 	panic("Here is not necessary to download the result: simple return value.")
+		// }
 		repoInfo = getResult(queryPara)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
