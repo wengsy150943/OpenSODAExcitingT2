@@ -20,7 +20,7 @@ func TestParseuser(t *testing.T) {
 	b := utils.Usermetric{}
 	b = utils.Parseuser(a.Data, b)
 	println(b.Developernetwork["nodes"][0].([]interface{})[0].(string))
-	if b.Developernetwork["nodes"][0].([]interface{})[0].(string) != "synk-bot" {
+	if b.Developernetwork["nodes"][0].([]interface{})[0].(string) != "snyk-bot" {
 		t.Errorf("parse error")
 	}
 }
