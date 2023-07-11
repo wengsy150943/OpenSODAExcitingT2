@@ -43,6 +43,7 @@ type CachedUserInfo struct {
 	gorm.Model
 	Uid      int64 `gorm:"column:id;primary_key;AUTO_INCREMENT"`
 	Username string
+	Dates    Datestype
 	Data     Datatype
 }
 
@@ -191,16 +192,46 @@ func Readlog(logs *[]Searchhistory) {
 	println(result.Error)
 }
 
-func InsertUserInfo(username string, data Datatype) error {
+/*
+*
+插入用户信息
+注：这里参数一定要用Datestype和Datatype，直接使用map[]Gorm会因为反射报错。
+*/
+
+func InsertUserInfo(username string, data Datatype, dates Datestype) error {
 	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	tx := db.Create(CachedUserInfo{Username: username, Data: data})
+	tx := db.Create(&CachedUserInfo{Username: username, Data: data, Dates: dates})
 	if tx.Error != nil {
 		println(tx.Error)
 	}
 	return tx.Error
+}
+func ReadSingleUserInfo(userinfo *CachedUserInfo, username string) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	username = strings.ToLower(username)
+
+	result := db.Where("username = ?", username).First(userinfo)
+	return result.Error
+}
+
+func UpdateUserInfoSingleRow(username string, data Datatype, dates Datestype) error {
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	repoinfo := CachedRepoInfo{}
+	res := db.Model(&repoinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data, "dates": dates})
+	return res.Error
 }
