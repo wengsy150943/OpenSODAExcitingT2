@@ -27,9 +27,9 @@ func getResult(QueryPara Query) service.RepoInfo {
 	}
 
 	{ // 特定月份在特定指标上的数据
-		if !isShow {
-			panic("Lack of enough data: Too much parameters. One of metric or month is enough.")
-		}
+		//if !isShow {
+		//	panic("Lack of enough data: Too much parameters. One of metric or month is enough.")
+		//}
 
 		return service.GetCertainRepoInfo(QueryPara.repo, QueryPara.metric, QueryPara.month)
 	}
