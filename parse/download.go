@@ -46,7 +46,15 @@ var downloadCmd = &cobra.Command{
 			if queryPara.month == "" && queryPara.metric == "" {
 				if user == true {
 					//TODO:user数据的打印处理
-
+					downloadService := &service.UserDownloadService{}
+					err := downloadService.SetData(position, queryPara.user)
+					if err != nil {
+						panic("fail to SetData")
+					}
+					err2 := downloadService.Download()
+					if err2 != nil {
+						panic("fail to Download")
+					}
 				} else { //全数据下载
 					downloadService := &service.SingleDownloadService{}
 					err := downloadService.SetData(repoInfo, position)
