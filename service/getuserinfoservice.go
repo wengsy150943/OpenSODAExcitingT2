@@ -71,7 +71,7 @@ func GetContentParal(res map[string](map[string]interface{}), Urls []string, use
 		}
 
 	}
-	dates := make([]string, len(data_list))
+	dates := make([]string, len(data_list[0]))
 	cnt := 0
 	for i := range data_list[0] {
 		dates[cnt] = i
@@ -116,11 +116,13 @@ func GetCertainUser(username string) UserInfo {
 			temp := GetContentParal(res, Urls, username, UserMetric)
 			err := utils.UpdateUserInfoSingleRow(username, temp.Data, temp.Dates)
 			if err != nil {
-				panic("update" + username + " faild")
+				println(err.Error())
+				panic("update " + username + " faild")
 			}
 		}
 		ret := UserInfo{
 			Username: cacheduserinfo.Username,
+			Dates:    cacheduserinfo.Dates,
 			Data:     cacheduserinfo.Data,
 		}
 		return ret

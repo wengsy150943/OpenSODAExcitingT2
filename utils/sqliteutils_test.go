@@ -227,6 +227,7 @@ func TestReadSingleUserInfo(t *testing.T) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		println("Not found")
 	}
+	println(a.Username)
 	println(a.Data["openrank"]["2020-08"].(float64))
 }
 func TestUpdateUserInfoSingleRow(t *testing.T) {

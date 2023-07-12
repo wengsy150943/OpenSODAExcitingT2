@@ -220,7 +220,7 @@ func ReadSingleUserInfo(userinfo *CachedUserInfo, username string) error {
 	}
 	username = strings.ToLower(username)
 
-	result := db.Where("username = ?", username).First(userinfo)
+	result := db.Model(userinfo).Where("username = ?", username).First(userinfo)
 	return result.Error
 }
 
@@ -231,7 +231,7 @@ func UpdateUserInfoSingleRow(username string, data Datatype, dates Datestype) er
 	if err != nil {
 		panic("failed to connect database")
 	}
-	repoinfo := CachedRepoInfo{}
-	res := db.Model(&repoinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data, "dates": dates})
+	userinfo := CachedUserInfo{}
+	res := db.Model(&userinfo).Where("username = ?", username).Updates(map[string]interface{}{"data": data, "dates": dates})
 	return res.Error
 }
