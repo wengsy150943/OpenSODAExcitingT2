@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>数据分析报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+        }
+
+        .chart-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* 添加样式 */
+        .select-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+
+        .custom-select {
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .custom-select:hover {
+            background-color: #e8e8e8;
+        }
+
+        .custom-select:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 并排放置年份和月份按钮 */
+        .select-container-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .select-container-inline select {
+            margin-right: 10px;
+        }
+
+    </style>
+
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+
+    <script src="https://assets.codepen.io/9606223/open_digger_utils.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+</head>
+
+<body>
+<div class="container">
+    <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>用户分析报告</strong></h1>
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>用户信息：</strong></h2>
+        <ul>
+            <li><strong>用户名称:</strong> {{.User}}</li>
+            <li>
+                <strong>用户链接:</strong>
+                <a href="{{.Source}}"
+                >{{.Source}}</a
+                >
+            </li>
+        </ul>
+    </div>
+
+
+    {{ range $key, $value := .Data }}
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}}各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="{{$key}}" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = [{{range $.Dates}}
+                "{{ . }}", {{
+                    end
+                }}];
+                var data1 = [{{range $value}}
+                "{{ . }}", {{
+                    end
+                }}];
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('{{$key}}'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    series: [
+                        {
+                            "name": "{{$.User}}",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    {{ end }}
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>Developernetwork ：</strong></h2>
+        <div id="chart1">
+            <!-- 可视化图表将在这里插入 -->
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="Developernetwork" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                var container = document.getElementById('Developernetwork');
+                var chart = echarts.init(container);
+
+                var baseUrl = 'https://oss.x-lab.info/open_digger/github/';
+                // set to your own repo name or user name
+                var name = getUrlParam('name', {{.User}});
+                var type = getUrlParam('type', 'developer_network');
+
+                $.getJSON(
+                    `${baseUrl}${name}/${type}.json`,
+                    graph => {
+                        chart.setOption({
+                            title: {text: `${type} of ${name}`, left: 'center'},
+                            series: [{
+                                type: 'graph',
+                                layout: 'force',
+                                roam: true,
+                                label: {
+                                    show: true,
+                                },
+                                force: {
+                                    layoutAnimation: false,
+                                    edgeLength: [50, 300],
+                                    repulsion: 400,
+                                },
+                                data: graph.nodes.map(n => {
+                                    return {
+                                        id: n[0],
+                                        name: n[0],
+                                        value: n[1],
+                                        symbolSize: Math.log(n[1] + 1) * 10
+                                    };
+                                }),
+                                links: graph.edges.map(e => {
+                                    return {
+                                        source: e[0],
+                                        target: e[1],
+                                        value: e[2] / 100
+                                    };
+                                }),
+                            }],
+                        });
+                    }
+                );
+            </script>
+        </div>
+
+
+        <div class="section">
+            <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>Reponetwork ：</strong></h2>
+            <div id="chart2">
+                <!-- 可视化图表将在这里插入 -->
+                <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+                <div class="item" id="Reponetwork" style="width:1200px;height:600px;"></div>
+
+
+                <script>
+                    var container2 = document.getElementById('Reponetwork');
+                    var chart2 = echarts.init(container2);
+
+                    var baseUrl2 = 'https://oss.x-lab.info/open_digger/github/';
+                    // set to your own repo name or user name
+                    var name2 = getUrlParam('name', {{.User}});
+                    var type2 = getUrlParam('type', 'repo_network');
+
+                    $.getJSON(
+                        `${baseUrl2}${name2}/${type2}.json`,
+                        graph => {
+                            chart2.setOption({
+                                title: {text: `${type2} of ${name2}`, left: 'center'},
+                                series: [{
+                                    type: 'graph',
+                                    layout: 'force',
+                                    roam: true,
+                                    label: {
+                                        show: true,
+                                    },
+                                    force: {
+                                        layoutAnimation: false,
+                                        edgeLength: [50, 300],
+                                        repulsion: 400,
+                                    },
+                                    data: graph.nodes.map(n => {
+                                        return {
+                                            id: n[0],
+                                            name: n[0],
+                                            value: n[1],
+                                            symbolSize: Math.log(n[1] + 1) * 10
+                                        };
+                                    }),
+                                    links: graph.edges.map(e => {
+                                        return {
+                                            source: e[0],
+                                            target: e[1],
+                                            value: e[2] / 100
+                                        };
+                                    }),
+                                }],
+                            });
+                        }
+                    );
+                </script>
+            </div>
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+</body>
+</html>
+
+
+
+
