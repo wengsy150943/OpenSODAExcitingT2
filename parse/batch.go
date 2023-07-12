@@ -105,8 +105,8 @@ func init() {
 	batchCmd.Flags().StringVarP(&outputFile, "position", "p", "", "Repo output file")
 
 	batchCmd.Flags().StringVarP(&dateRange, "dateRange", "d", "", "TOP's dateRange")
-	batchCmd.Flags().StringVarP(&programLanguage, "pl", "", "", "TOP's program language")
-	batchCmd.Flags().StringVarP(&spokenLanguage, "sl", "", "", "TOP's spoken language")
+	batchCmd.Flags().StringVarP(&programLanguage, "program", "P", "", "TOP's program language")
+	batchCmd.Flags().StringVarP(&spokenLanguage, "spoken", "S", "", "TOP's spoken language")
 
 	batchCmd.MarkFlagFilename("position")
 	batchCmd.MarkFlagRequired("source")
