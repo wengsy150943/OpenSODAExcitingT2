@@ -13,9 +13,6 @@ func TestGetCertainUser(t *testing.T) {
 	if a.Data["openrank"]["2015-02"].(float64) != 0.64 || a.Data["developernetwork"]["nodes"].([]interface{})[0].([]interface{})[0].(string) != "snyk-bot" || a.Data["developernetwork"]["nodes"].([]interface{})[0].([]interface{})[1].(float64) != 10833.52 {
 		t.Errorf("Get userinfo failed")
 	}
-	for _, k := range a.Dates {
-		println(k)
-	}
 }
 
 func TestParseuser(t *testing.T) {

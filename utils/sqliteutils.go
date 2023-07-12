@@ -205,7 +205,7 @@ func InsertUserInfo(username string, data Datatype, dates Datestype) error {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	tx := db.Create(&CachedUserInfo{Username: username, Data: data, Dates: dates})
+	tx := db.Model(&CachedUserInfo{}).Create(&CachedUserInfo{Username: username, Data: data, Dates: dates})
 	if tx.Error != nil {
 		println(tx.Error)
 	}
