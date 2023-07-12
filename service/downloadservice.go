@@ -516,9 +516,6 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string) erro
 		}
 	}
 
-	if SpecialMetricForDownload[metric_] == true {
-		return errors.New("unsupported metric")
-	}
 
 	d.Data = make(map[string]([]interface{}))
 

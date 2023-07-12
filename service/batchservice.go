@@ -28,9 +28,6 @@ func DownLoadRepoList(repoList []string, outputPath string) {
 					repoInfoList[i] = append(repoInfoList[i], GetRepoInfoOfMetric(repo, Metrics[i]))
 				}
 				if err := downloadList[id].SetData(repoInfoList[i], Metrics[i]); err != nil {
-					if err.Error() == "unsupported metric" {
-						continue
-					}
 					log.Fatal(err)
 				}
 				if err := downloadList[id].Download(outputPath); err != nil {
