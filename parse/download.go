@@ -26,7 +26,11 @@ var downloadCmd = &cobra.Command{
 		// if queryPara.metric != "" && queryPara.month != "" {
 		// 	panic("Here is not necessary to download the result: simple return value.")
 		// }
-		repoInfo = getResult(queryPara)
+		if queryPara.user != "" {
+			userInfo = service.GetCertainUser(queryPara.user)
+		} else{
+			repoInfo = getResult(queryPara)
+		}
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 
@@ -44,7 +48,7 @@ var downloadCmd = &cobra.Command{
 		} else {
 
 			if queryPara.month == "" && queryPara.metric == "" {
-				if user == true {
+				if queryPara.user != "" {
 					//TODO:user数据的打印处理
 					downloadService := &service.UserDownloadService{}
 					err := downloadService.SetData(position, queryPara.user)
@@ -120,13 +124,10 @@ var downloadCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(downloadCmd)
+	
 
 	// 下载相关参数
 	downloadCmd.Flags().StringVarP(&position, "position", "p", "", "Download place where data to write to")
-	err := downloadCmd.MarkFlagRequired("position")
-	if err != nil {
-		panic("Fail to MarkFlagRequired")
-	}
-	downloadCmd.Flags().BoolVarP(&user, "user", "u", false, "download user's data")
+	downloadCmd.MarkFlagRequired("position")
+	rootCmd.AddCommand(downloadCmd)
 }
