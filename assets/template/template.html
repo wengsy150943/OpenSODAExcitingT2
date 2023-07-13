@@ -95,17 +95,66 @@
             margin-right: 10px;
         }
 
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+
     </style>
 
     <meta charset="utf-8">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </head>
 
 <body>
 <div class="container">
     <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>数据分析报告</strong></h1>
+
+    <div class="section">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="输入要搜索的 Metric">
+            <button onclick="search()" class="search-button">搜索</button>
+        </div>
+
+        <script type="text/javascript">
+            function search() {
+                var searchInput = document.getElementById("searchInput").value;
+                var element = document.getElementById(searchInput);
+
+                if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                }
+            }
+        </script>
+    </div>
+
 
     <div class="section">
         <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目信息：</strong></h2>
@@ -120,239 +169,109 @@
         </ul>
     </div>
 
-    <div class="section" id="ActiveDates">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>ActiveDatesAndTimes  ：</strong></h2>
+    <div class="section" id="active_dates_and_times">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>active_dates_and_times ：</strong></h2>
         <div id="chartcal">
             <!-- 可视化图表将在这里插入 -->
             <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
-
-
-            <!-- 创建一个并排放置年份和月份按钮的容器 -->
-            <div class="select-container-inline">
-                <!-- 创建一个居中且美化的下拉菜单用于选择年份 -->
-                <div class="select-container">
-                    <select id="yearSelect" class="custom-select">
-                        {{range $value := .Years}}
-                        <option value="{{$value}}">{{$value}}</option>
-                        {{end}}
-                    </select>
-                </div>
-            </div>
-
-
             <div class="item" id="ca" style="width:1200px;height:300px;"></div>
-
             <script type="text/javascript">
-                var myChartActiveDatesAndTimes = echarts.init(document.getElementById('ca'));
+                var container = document.getElementById('ca');
+                var chart = echarts.init(container);
+                var baseUrl = 'https://oss.x-lab.info/open_digger/github/';
+                var repoName = "{{.Title}}";
 
-                function mapRange(value, inMin, inMax, outMin, outMax) {
+                var data0 = {{.ActiveDatesAndTimesData}}
 
-                    if (value==0){
-                        return 0;
-                    }
-                    // 首先将输入值限制在输入范围内
-                    value = Math.max(Math.min(value, inMax), inMin);
-
-                    // 计算输入范围和输出范围的差值
-                    var inRange = inMax - inMin;
-                    var outRange = outMax - outMin;
-
-                    // 根据比例计算映射值
-                    var mappedValue = (value - inMin) / inRange;
-                    mappedValue = mappedValue * outRange + outMin;
-
-                    // 返回映射后的值
-                    return mappedValue;
+                if (data0) {
+                    document.getElementById("active_dates_and_times").style.display = "block";
+                } else {
+                    document.getElementById("active_dates_and_times").style.display = "none";
                 }
 
-                function getData() {
-                    var data0 = {{.ActiveDatesAndTimesData}}
 
-                    if (data0) {
-                        document.getElementById("ActiveDates").style.display = "block";
-                    } else {
-                        document.getElementById("ActiveDates").style.display = "none";
+                $.getJSON(
+                    `${baseUrl}${repoName}/active_dates_and_times.json`,
+                    data => {
+                        const hours = [...Array(24).keys()];
+                        const days = [ 'Sun.', 'Sat.', 'Fri.', 'Thu.', 'Wed.', 'Tue.', 'Mon.' ];
+                        // sum up all the working hour
+                        var values = Object.values(data).reduce((p, c) => {
+                            if (p === null) return c;
+                            return p.map((v, i) => v + c[i]);
+                        }, null);
+
+                        // use log to smooth the data
+                        // comment this line if you want to use linear data
+                        // values = values.map(v => Math.log(v + 1));
+
+                        // normalized to 0 - 10
+                        var max = Math.max(...values);
+                        values = values.map(v => Math.ceil(v * 10 / max));
+
+                        var inputData = [];
+                        for (var d = 0; d < 7; d++) {
+                            for (var h = 0; h < 24; h++) {
+                                inputData.push([h, 6 - d, values[d * 24 + h] || '-']);
+                            }
+                        }
+
+                        option = {
+                            title: {
+                                text: `Active Dates And Times for ${repoName}`,
+                                left: 'center'
+                            },
+                            grid: {
+                                height: '50%',
+                                top: '10%'
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: hours,
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: days,
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            visualMap: {
+                                min: 0,
+                                max: 10,
+                                calculable: true,
+                                orient: 'horizontal',
+                                left: 'center',
+                                bottom: '15%'
+                            },
+                            series: [
+                                {
+                                    type: 'heatmap',
+                                    data: inputData,
+                                    // label: {
+                                    //   show: true
+                                    // },
+                                    emphasis: {
+                                        itemStyle: {
+                                            shadowBlur: 10,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    },
+                                }
+                            ]
+                        };
+                        chart.setOption(option);
                     }
-
-                    var data = [];
-
-
-                    // var data3 = []
-                    // var date = +echarts.number.parseDate(2016 + '-01-01');
-                    // var end = +echarts.number.parseDate((+2023 + 1) + '-01-01');
-                    // var dayTime = 3600 * 24 * 1000;
-                    //
-                    // for (var time = date; time < end; time += dayTime) {
-                    //     data3.push([
-                    //         echarts.format.formatTime('yyyy-MM-dd', time),
-                    //         Math.floor(Math.random() * 10000)
-                    //     ]);
-                    // }
-                    //
-                    // console.log(data3)
-                    //
-                    // {{ range $keya, $valuea := .ActiveDatesAndTimesData }}
-                    // data.push([{{$keya}},{{$valuea}}]);
-                    // {{ end }}
-                    for (var [key, value] of Object.entries(data0)) {
-                        data.push([key, value]);
-                    }
-
-                    //console.log(data)
-                    return data;
-                }
-
-                function changeCalendar() {
-                    var yearSelect = document.getElementById('yearSelect');
-                    var selectedYear = yearSelect.value;
-
-                    var data = getData();
-                    // 根据选择的年份筛选数据
-                    var filteredData = data.filter(function (item) {
-                        var year = item[0].split('-')[0];
-                        return year === selectedYear;
-                    });
-
-                    //console.log(filteredData)
-
-                    var option = {
-                        backgroundColor: '#ffffff',
-
-                        title: {
-                            top: 30,
-                            text: 'active_dates_and_times',
-                            subtext: '活跃日期图',
-                            left: 'center',
-                            textStyle: {
-                                color: '#000000'
-                            }
-                        },
-                        tooltip: {
-                            trigger: 'item'
-                        },
-                        legend: {
-                            top: '30',
-                            left: '100',
-                            data: ['活跃度', 'Top 10'],
-                            textStyle: {
-                                color: '#000000'
-                            }
-                        },
-                        calendar: [{
-                            top: 100,
-                            left: 'center',
-                            range:selectedYear,
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#000',
-                                    width: 4,
-                                    type: 'solid'
-                                }
-                            },
-                            yearLabel: {
-                                formatter: '{start}',
-                                textStyle: {
-                                    color: '#000000'
-                                }
-                            },
-                            itemStyle: {
-                                color: '#323c48',
-                                borderWidth: 1,
-                                borderColor: '#111'
-                            }
-                        },],
-                        series: [
-                            {
-                                name: '活跃度',
-                                type: 'scatter',
-                                coordinateSystem: 'calendar',
-                                data: filteredData,
-                                symbolSize: function (val) {
-
-                                    return mapRange(val[1],5,15,5,15);
-                                },
-                                itemStyle: {
-                                    color: '#ddb926'
-                                }
-                            },
-                            {
-                                name: '活跃度',
-                                type: 'scatter',
-                                coordinateSystem: 'calendar',
-                                calendarIndex: 1,
-                                data: filteredData,
-                                symbolSize: function (val) {
-                                    return mapRange(val[1],5,15,5,15);
-                                    //return val[1] ;
-                                },
-                                itemStyle: {
-                                    color: '#ddb926'
-                                }
-                            },
-                            {
-                                name: 'Top 10',
-                                type: 'effectScatter',
-                                coordinateSystem: 'calendar',
-                                calendarIndex: 1,
-                                data: filteredData.sort(function (a, b) {
-                                    return b[1] - a[1];
-                                }).slice(0, 10),
-                                symbolSize: function (val) {
-                                    return mapRange(val[1],5,15,5,15);
-                                    //return val[1] ;
-                                },
-                                showEffectOn: 'render',
-                                rippleEffect: {
-                                    brushType: 'stroke'
-                                },
-                                hoverAnimation: true,
-                                itemStyle: {
-                                    color: '#f4e925',
-                                    shadowBlur: 10,
-                                    shadowColor: '#333'
-                                },
-                                zlevel: 1
-                            },
-                            {
-                                name: 'Top 10',
-                                type: 'effectScatter',
-                                coordinateSystem: 'calendar',
-                                data: filteredData.sort(function (a, b) {
-                                    return b[1] - a[1];
-                                }).slice(0, 10),
-                                symbolSize: function (val) {
-                                    return mapRange(val[1],5,15,5,15);
-                                    //return val[1] ;
-                                },
-                                showEffectOn: 'render',
-                                rippleEffect: {
-                                    brushType: 'stroke'
-                                },
-                                hoverAnimation: true,
-                                itemStyle: {
-                                    color: '#f4e925',
-                                    shadowBlur: 10,
-                                    shadowColor: '#333'
-                                },
-                                zlevel: 1
-                            }
-                        ]
-                    };
-                    myChartActiveDatesAndTimes.setOption(option);
-                }
-                var yearSelect = document.getElementById('yearSelect');
-                yearSelect.addEventListener('change', changeCalendar);
-
-
-                changeCalendar();
-
+                )
             </script>
         </div>
     </div>
 
 
-    <div class="section" id="ActivityDetails">
+    <div class="section" id="activity_details">
         <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>ActivityDetailsData：</strong></h2>
         <div id="chart1">
             <!-- 可视化图表将在这里插入 -->
@@ -398,13 +317,10 @@
                 }};
 
                 if (yearMonthData1) {
-                    document.getElementById("ActivityDetails").style.display = "block";
+                    document.getElementById("activity_details").style.display = "block";
                 } else {
-                    document.getElementById("ActivityDetails").style.display = "none";
+                    document.getElementById("activity_details").style.display = "none";
                 }
-
-
-
 
                 document.getElementById("yearSelect1").value = {{.InitYear}};
                 document.getElementById("monthSelect1").value = {{.InitMonth}};
@@ -433,6 +349,15 @@
                     var option1 = {
                         series: [{
                             type: 'wordCloud',
+                            animation: true, // 开启动画效果
+                            animationDuration: 2000, // 设置动画持续时间为2秒
+                            tooltip: {
+                                show: true, // 开启 tooltip
+                                formatter: function (params) {
+                                    return 'Value: ' + params.value; // 自定义 tooltip 的内容，显示词的值
+                                }
+                            },
+
                             data: chartData1,
                             rotationRange: [-45, 0, 45, 90],
                             textStyle: {
@@ -483,7 +408,7 @@
         </div>
     </div>
 
-    <div class="section" id="BusFactor">
+    <div class="section" id="bus_factor">
         <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>BusFactorDetail：</strong></h2>
         <div id="chart2">
             <!-- 可视化图表将在这里插入 -->
@@ -529,9 +454,9 @@
                 }};
 
                 if (yearMonthData2) {
-                    document.getElementById("BusFactor").style.display = "block";
+                    document.getElementById("bus_factor").style.display = "block";
                 } else {
-                    document.getElementById("BusFactor").style.display = "none";
+                    document.getElementById("bus_factor").style.display = "none";
                 }
 
 
@@ -611,7 +536,7 @@
     </div>
 
 
-    <div class="section" id="NewContributors">
+    <div class="section" id="new_contributors">
         <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>NewContributorsDetail：</strong></h2>
         <div id="chart3">
             <!-- 可视化图表将在这里插入 -->
@@ -658,9 +583,9 @@
 
 
                 if (yearMonthData3) {
-                    document.getElementById("NewContributors").style.display = "block";
+                    document.getElementById("new_contributors").style.display = "block";
                 } else {
-                    document.getElementById("NewContributors").style.display = "none";
+                    document.getElementById("new_contributors").style.display = "none";
                 }
 
                 document.getElementById("yearSelect3").value = {{.InitYear}};
@@ -742,12 +667,12 @@
     {{ range $key, $value := .Data }}
 
     <div class="section">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}}各月份柱状图 ：</strong></h2>
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="{{$key}}"><strong>{{$key}}各月份柱状图 ：</strong></h2>
         <div id="chart">
             <!-- 可视化图表将在这里插入 -->
             <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
 
-            <div class="item" id="{{$key}}" style="width:1200px;height:600px;"></div>
+            <div class="item" id="{{$key}}1" style="width:1200px;height:600px;"></div>
 
             <script type="text/javascript">
 
@@ -760,7 +685,7 @@
                 ;
 
                 "use strict";
-                var myChart = echarts.init(document.getElementById('{{$key}}'), "white");
+                var myChart = echarts.init(document.getElementById('{{$key}}1'), "white");
                 var option = {
                     title: {},
                     tooltip: {},
@@ -778,6 +703,11 @@
                         "splitArea": {"show": false,},
                         "splitLine": {"show": false,}
                     }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
                     series: [
                         {
                             "name": "{{$.Title}}",
@@ -791,6 +721,19 @@
                     ],
                     color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
                 };
+
+                // Enable data zoom when user click bar.
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
                 myChart.setOption(option);
             </script>
         </div>
@@ -803,14 +746,14 @@
 
     {{ range $key, $value := .QuantileStatsData }}
     <div class="section">
-        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>{{$key}} line race图 ：</strong></h2>
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="{{$key}}"><strong>{{$key}} line race图 ：</strong></h2>
         <div id="chartRace">
             <!-- 可视化图表将在这里插入 -->
             <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
 
-            <div class="item" id="{{$key}}" style="width:1200px;height:600px;"></div>
+            <div class="item" id="{{$key}}1" style="width:1200px;height:600px;"></div>
             <script>
-                var chartContainerRace = document.getElementById('{{$key}}');
+                var chartContainerRace = document.getElementById('{{$key}}1');
                 var chartRace = echarts.init(chartContainerRace);
 
                 var optionRace = {
