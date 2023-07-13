@@ -137,7 +137,7 @@ func (d *UserDownloadService) SetData(target_ string, user_ string) error {
 
 func (d *UserDownloadService) Download() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template_user.html")
+	tmpl, err := template.ParseFiles("./assets/template/template_user.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -509,6 +509,9 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 			if len(metric_) != 0 && metric_ != k {
 				continue
 			}
+			if v[date] == nil {
+				println(v[date])
+			}
 			d.MapDataOne[k] = parseFloatValue(v[date])
 		}
 	}
@@ -520,7 +523,7 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 
 func (d *SingleDownloadService) Download() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template.html")
+	tmpl, err := template.ParseFiles("./assets/template/template.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -545,7 +548,7 @@ func (d *SingleDownloadService) Download() error {
 
 func (d *SingleDownloadService) DownloadMonth() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template_month.html")
+	tmpl, err := template.ParseFiles("./assets/template/template_month.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -727,7 +730,7 @@ func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, t
 
 func (d *CompareDownloadService) Download() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template_compare.html")
+	tmpl, err := template.ParseFiles("./assets/template/template_compare.html")
 	if err != nil {
 		log.Fatal(err)
 	}
