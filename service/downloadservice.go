@@ -70,6 +70,96 @@ type RaceLineData struct {
 	Quantile4 []float64
 }
 
+func parseFloatValue(v interface{}) float32 {
+	switch v.(type) {
+	case float32:
+		return v.(float32)
+	case float64:
+		return float32(v.(float64))
+	case int:
+		return float32(v.(int))
+	}
+	return v.(float32)
+}
+
+type UserDownloadService struct {
+	User   string
+	Source string
+	Target string
+	Dates  []string
+	Data   map[string]([]float32)
+}
+
+func (d *UserDownloadService) SetData(target_ string, user_ string) error {
+	userInfo := GetCertainUser(user_)
+	data := utils.Usermetric{}
+	data = utils.Parseuser(userInfo.Data, data)
+	d.Data = make(map[string]([]float32))
+	d.User = user_
+	d.Source = "https://github.com/" + user_
+	d.Target = target_
+	d.Dates = userInfo.Dates
+
+	//fmt.Println(data.Openrank)
+	//fmt.Println(data.Activity)
+	//fmt.Println(d.Dates)
+
+	tempList1 := make([]float32, 0)
+	for _, v2 := range d.Dates {
+		temp, ok := data.Openrank[v2]
+		if ok {
+			tempList1 = append(tempList1, parseFloatValue(temp))
+		} else {
+			tempList1 = append(tempList1, 0)
+		}
+	}
+
+	d.Data["openrank"] = tempList1
+
+	tempList2 := make([]float32, 0)
+	for _, v2 := range d.Dates {
+		temp, ok := data.Activity[v2]
+		if ok {
+			tempList2 = append(tempList2, parseFloatValue(temp))
+		} else {
+			tempList2 = append(tempList2, 0)
+		}
+	}
+
+	d.Data["activity"] = tempList2
+
+	fmt.Println(len(d.Data["activity"]))
+	fmt.Println(len(d.Data["openrank"]))
+	fmt.Println(len(d.Dates))
+
+	return nil
+}
+
+func (d *UserDownloadService) Download() error {
+
+	tmpl, err := template.ParseFiles("./assets/template/template_user.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 创建输出文件
+	file, err := os.Create(d.Target + ".html")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	page := d
+
+	// 渲染模板并将结果写入文件
+	err = tmpl.Execute(file, page)
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
 type SingleDownloadService struct {
 	Source                    string
 	Target                    string
@@ -89,18 +179,6 @@ type SingleDownloadService struct {
 	MapDataOne map[string]float32
 	Year       int
 	Month      int
-}
-
-func parseFloatValue(v interface{}) float32 {
-	switch v.(type) {
-	case float32:
-		return v.(float32)
-	case float64:
-		return float32(v.(float64))
-	case int:
-		return float32(v.(int))
-	}
-	return v.(float32)
 }
 
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
@@ -186,7 +264,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 				if ok {
 					tempList = append(tempList, parseFloatValue(temp))
 				} else {
-					continue
+					tempList = append(tempList, 0)
 				}
 			}
 			d.Data[k] = tempList
@@ -284,7 +362,7 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 			if ok {
 				tempList = append(tempList, parseFloatValue(temp))
 			} else {
-				continue
+				tempList = append(tempList, 0)
 			}
 		}
 		d.Data[k] = tempList
@@ -431,18 +509,21 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 			if len(metric_) != 0 && metric_ != k {
 				continue
 			}
+			if v[date] == nil {
+				println(v[date])
+			}
 			d.MapDataOne[k] = parseFloatValue(v[date])
 		}
 	}
 
-	fmt.Println(d.MapDataOne)
+	//fmt.Println(d.MapDataOne)
 
 	return nil
 }
 
 func (d *SingleDownloadService) Download() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template.html")
+	tmpl, err := template.ParseFiles("./assets/template/template.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -467,7 +548,7 @@ func (d *SingleDownloadService) Download() error {
 
 func (d *SingleDownloadService) DownloadMonth() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template_month.html")
+	tmpl, err := template.ParseFiles("./assets/template/template_month.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -649,7 +730,7 @@ func (d *CompareDownloadService) SetData(source1_ RepoInfo, source2_ RepoInfo, t
 
 func (d *CompareDownloadService) Download() error {
 
-	tmpl, err := template.ParseFiles("../assets/template/template_compare.html")
+	tmpl, err := template.ParseFiles("./assets/template/template_compare.html")
 	if err != nil {
 		log.Fatal(err)
 	}

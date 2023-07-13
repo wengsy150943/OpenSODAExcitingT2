@@ -6,6 +6,20 @@ import (
 	"testing"
 )
 
+func TestUserDownloadService(t *testing.T) {
+	fmt.Println("TestUserDownloadService：")
+
+	downloadService := &UserDownloadService{}
+	err := downloadService.SetData("testUser", "will-ww")
+	if err != nil {
+		panic("fail to SetData")
+	}
+	err2 := downloadService.Download()
+	if err2 != nil {
+		panic("fail to Download")
+	}
+}
+
 func TestSingleDownloadService(t *testing.T) {
 	fmt.Println("TestSingleDownloadService：")
 	downloadService := &SingleDownloadService{}

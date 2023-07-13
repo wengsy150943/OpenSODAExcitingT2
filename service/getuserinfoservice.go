@@ -60,7 +60,6 @@ func GetContentParal(res map[string](map[string]interface{}), Urls []string, use
 			data_list[1] = res[k]
 			data[k] = data_list[1]
 		} else if k == "reponetwork" {
-			//println(k)
 			data_list[2]["nodes"] = res[k]["nodes"]
 			data_list[2]["edges"] = res[k]["edges"]
 			data[k] = data_list[2]

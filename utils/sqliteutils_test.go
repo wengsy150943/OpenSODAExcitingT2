@@ -230,6 +230,3 @@ func TestReadSingleUserInfo(t *testing.T) {
 	println(a.Username)
 	println(a.Data["openrank"]["2020-08"].(float64))
 }
-func TestUpdateUserInfoSingleRow(t *testing.T) {
-
-}
