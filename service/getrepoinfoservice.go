@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"exciting-opendigger/utils"
+	"fmt"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
@@ -79,6 +80,9 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 		Dates:       dates,
 		SpecialData: initSpecialDataStructure(data),
 	}
+
+	fmt.Println(repoName)
+
 	return ret
 }
 
@@ -123,6 +127,10 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	ret := GetUrlContent(url, repo, metric)
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
+
+	fmt.Println(cachedrepoinfo.Reponame)
+	fmt.Println(repoName)
+
 	return ret
 }
 
