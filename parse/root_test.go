@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"os"
 )
 
 
@@ -42,7 +43,7 @@ func cleanStateRoot() {
 	if err != nil {
 		panic("Fail to MarkFlagRequired")
 	}
-	downloadCmd.Flags().BoolVarP(&user, "user", "u", false, "download user's data")
+	// downloadCmd.Flags().BoolVarP(&user, "user", "u", false, "download user's data")
 
 	rootCmd.AddCommand(downloadCmd)
 	rootCmd.AddCommand(showCmd)
@@ -100,20 +101,43 @@ func TestRootOther(t *testing.T) {
 
 
 
-// func TestRootDownload(t *testing.T) {
+func TestRootDownload(t *testing.T) {
+	home, _ := os.Getwd()
+	os.Chdir(strings.TrimSuffix(home,"/parse"))
+	var basic_case  = []string{" download "}
+	var test_case = []string{
+		" -r X-lab2017/open-digger -M 2023-05  -m openrank -p a",
+		" -r X-lab2017/open-digger -M 2023-05  -p a",
+		" -r X-lab2017/open-digger -m openrank -p a",
+		" -u X-lab2017 -p a",
+		" -r X-lab2017/open-digger  -p a",
+	}
+	for _,bv := range basic_case{
+		for _,v := range test_case {
+			cleanStateRoot()
+			fmt.Println(bv + v)
+			rootCmd.SetArgs(strings.Split(bv + v," "))
+			rootCmd.Execute()
+		}	
+	}
+}
 
-// 	var basic_case  = []string{" download -p a "}
-// 	var test_case = []string{
-// 		" -r X-lab2017/open-digger -M 2023-05  -m openrank",
-// 		" -r X-lab2017/open-digger -M 2023-05 ",
-// 		" -u X-lab2017",
-// 	}
-// 	for _,bv := range basic_case{
-// 		for _,v := range test_case {
-// 			cleanStateRoot()
-// 			fmt.Println(bv + v)
-// 			rootCmd.SetArgs(strings.Split(bv + v," "))
-// 			rootCmd.Execute()
-// 		}	
-// 	}
-// }
+func TestRootDownloadCompare(t *testing.T) {
+	home, _ := os.Getwd()
+	os.Chdir(strings.TrimSuffix(home,"/parse"))
+	var basic_case  = []string{" download compare "}
+	var test_case = []string{
+		" -r X-lab2017/open-digger -M 2023-05 -M 2023-05  -m openrank -p a",
+		" -r X-lab2017/open-digger -r X-lab2017/open-digger -M 2023-05  -p a",
+		" -u X-lab2017 -u X-lab2017 -p a",
+		" -r X-lab2017/open-digger -r X-lab2017/open-digger -p a",
+	}
+	for _,bv := range basic_case{
+		for _,v := range test_case {
+			cleanStateRoot()
+			fmt.Println(bv + v)
+			rootCmd.SetArgs(strings.Split(bv + v," "))
+			rootCmd.Execute()
+		}	
+	}
+}
