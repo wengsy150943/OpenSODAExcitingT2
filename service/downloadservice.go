@@ -185,7 +185,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
-
+	fmt.Println(d.Title)
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
@@ -206,9 +206,12 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 
 	for k, v := range source_.Data {
 		if k == "active_dates_and_times" {
-			activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
-			d.ActiveDatesAndTimesData = activeDatesAndTimes
-			d.Years = getUnionOfTwoLists(d.Years, years)
+			newActiveDatesAndTimes := make(map[string]int)
+			newActiveDatesAndTimes["test"] = 0
+			d.ActiveDatesAndTimesData = newActiveDatesAndTimes
+			//activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
+			//d.ActiveDatesAndTimesData = activeDatesAndTimes
+			//d.Years = getUnionOfTwoLists(d.Years, years)
 			//fmt.Println("active")
 			//fmt.Println(d.ActiveDatesAndTimes)
 			//fmt.Println(d.Years)
@@ -280,7 +283,7 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
-
+	fmt.Println(d.Title)
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
@@ -306,9 +309,12 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 	}
 
 	if k == "active_dates_and_times" {
-		activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
-		d.ActiveDatesAndTimesData = activeDatesAndTimes
-		d.Years = getUnionOfTwoLists(d.Years, years)
+		newActiveDatesAndTimes := make(map[string]int)
+		newActiveDatesAndTimes["test"] = 0
+		d.ActiveDatesAndTimesData = newActiveDatesAndTimes
+		//activeDatesAndTimes, years := getCalendarData(source_.SpecialData.ActiveDatesAndTimes)
+		//d.ActiveDatesAndTimesData = activeDatesAndTimes
+		//d.Years = getUnionOfTwoLists(d.Years, years)
 		//fmt.Println("active")
 		//fmt.Println(d.ActiveDatesAndTimes)
 		//fmt.Println(d.Years)
@@ -379,6 +385,7 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
+	fmt.Println(d.Title)
 	d.Dates = source_.Dates
 	d.MapDataOne = make(map[string]float32)
 	d.Years = []int{year_}
@@ -417,16 +424,14 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 				continue
 			}
 
-			monthActiveDatesAndTimes, err := source_.SpecialData.ActiveDatesAndTimes[date]
+			_, err := source_.SpecialData.ActiveDatesAndTimes[date]
 			if !err {
 				continue
 			}
 
-			newActiveDatesAndTimes := make(map[string][]int)
-			newActiveDatesAndTimes[date] = monthActiveDatesAndTimes
-
-			activeDatesAndTimes, _ := getCalendarData(newActiveDatesAndTimes)
-			d.ActiveDatesAndTimesData = activeDatesAndTimes
+			newActiveDatesAndTimes := make(map[string]int)
+			newActiveDatesAndTimes["test"] = 0
+			d.ActiveDatesAndTimesData = newActiveDatesAndTimes
 
 		} else if k == "new_contributors_detail" {
 			if len(metric_) != 0 && metric_ != k {
@@ -916,7 +921,14 @@ func getRaceLineData(data_ map[string]utils.QuantileStats) RaceLineData {
 	var quantile3 []float64
 	var quantile4 []float64
 
-	for k, v := range data_ {
+	dates := make([]string, 0)
+	for k, _ := range data_ {
+		dates = append(dates, k)
+	}
+	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
+
+	for _, k := range dates {
+		v := data_[k]
 		raceDates = append(raceDates, k)
 		avg = append(avg, v.Avg)
 		quantile0 = append(quantile0, v.Quantile[0])
