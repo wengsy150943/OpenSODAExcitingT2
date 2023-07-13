@@ -209,7 +209,7 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 
 	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
 	repoinfo.Dates = dates
-	return
+	return repoinfo
 }
 
 func GetAllRepoInfo(repo string) (repoinfo RepoInfo) {
@@ -261,5 +261,5 @@ func GetAllRepoInfo(repo string) (repoinfo RepoInfo) {
 
 	sort.Slice(dates, func(i, j int) bool { return dates[i] < dates[j] })
 	repoinfo.Dates = dates
-	return
+	return repoinfo
 }
