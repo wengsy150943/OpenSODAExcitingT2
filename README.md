@@ -22,6 +22,25 @@
 - 子命令支持：Cobra支持创建具有层次结构的命令行应用程序，即主命令下可以有多个子命令。这种结构使得应用程序的命令组织更清晰、更易扩展。
 - 命令行补全：Cobra支持命令行补全功能，用户可以通过按Tab键自动补全命令、子命令、标志和参数，提高了交互性和用户体验
 
+### 1.3 运行准备
+
+本项目采用golang开发，需要运行环境具有golang 1.18 及以上的版本。
+
+1. 通过Github下载原代码编译获得可执行文件。
+
+   ```bash
+   git clone https://github.com/wengsy150943/OpenSODAExcitingT2.git
+   go build
+   ```
+
+2. 执行可执行文件
+
+   ```bash
+   ./exciting-opendigger commands
+   ```
+
+   具体的执行命令见下：
+
 ## 2. Usage
 
 Exciting-Opendigger提供了多样的查询功能。为了更好地满足精细化的查询需求，我们给出了一系列的命令选项，其整体语法如下：
@@ -67,7 +86,7 @@ Exciting-Opendigger提供了多样的查询功能。为了更好地满足精细�
 
 ### 2.3 文件下载
 
-Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考虑到数据下载往往用于详细分析，我们为下载文件进行可视化的数据分析，将结果转化为html输出。我们同样提供`SearchOpt`用于约束查询的内容，由于文件下载具有更强的表达能力，其支持不使用`SearchOpt`，直接输出所有的结果。
+Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考虑到数据下载往往用于详细分析，我们为下载文件进行可视化的数据分析，将结果转化为html输出。我们同样提供`SearchOpt`用于约束查询的内容，由于文件下载具有更强的表达能力，其支持不使用`SearchOpt`，直接输出所有的结果。`DownloadClause`的具体语法如下：
 
 ![DownloadClause.svg](./assets/fig/DownloadClause.svg)
 
@@ -76,15 +95,15 @@ Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考
 
 ### 2.4 批量分析
 
-Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，从而鸟瞰Github社区的整体情况。
+Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，从而鸟瞰Github社区的整体情况。`BatchClause`的具体语法如下：
 
 ![BatchClause.svg](./assets/fig/BatchClause.svg)
 
-当使用`BATCH`命令进行批量分析时，用户可以请求两种不同的数据来源。首先，可以使用`TOP`参数请求查询当前Github最活跃仓库；其次，也可以采用提供文件的方式，重点关注特定的仓库。由于批量分析的数据量往往较多，直接输出到屏幕不利于分析数据。我们提供了文件下载的方式提供查询的结果。
+当使用`BATCH`命令进行批量分析时，用户可以请求两种不同的数据来源。首先，可以使用`TOP`参数请求查询当前Github最活跃仓库；其次，也可以采用提供文件的方式，重点关注特定的仓库。由于批量分析的数据量往往较多，直接输出到屏幕不利于分析数据。我们提供了文件下载的方式提供查询的结果。Exciting-Opendigger支持查询不同语言、编程语言、时间周期中的最活跃仓库。`BatchOpt`的具体语法如下，这部分约束只会在数据来源为最活跃仓库时起效，此时可约束查询的最活跃仓库的范围：
 
 ![BatchOpt.svg](./assets/fig/BatchOpt.svg)
 
-Exciting-Opendigger支持查询不同语言、编程语言、时间周期中的最活跃仓库。
+
 
 > 开发日志：该模块可以复用单点查询的接口完成，为了提高查询效率，可以利用`goroutine`进行并发查询，这部分已经基本开发完成。
 > 后续计划支持对开发者的查询。
