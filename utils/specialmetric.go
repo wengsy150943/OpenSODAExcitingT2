@@ -24,6 +24,7 @@ type SpecialDataStructure struct {
 	ChangeRequestResponseTime       map[string](QuantileStats)
 	ChangeRequestResolutionDuration map[string](QuantileStats)
 	ChangeRequestAge                map[string](QuantileStats)
+	IssueAge                        map[string](QuantileStats)
 }
 
 type parseFunc func(map[string]interface{}, SpecialDataStructure) SpecialDataStructure
@@ -39,6 +40,7 @@ var Parse = map[string]parseFunc{
 	"change_request_response_time":       parseChangeRequestResponseTime,
 	"change_request_resolution_duration": parseChangeRequestResolutionDuration,
 	"change_request_age":                 parseChangeRequestAge,
+	"issue_age":                          parseIssueAge,
 }
 
 func (r *SpecialDataStructure) MergeSpecialData(others SpecialDataStructure) {
@@ -256,6 +258,30 @@ func parseChangeRequestAge(data map[string]interface{}, r SpecialDataStructure) 
 			levels[k] = int(v.(float64))
 		}
 		r.ChangeRequestAge[month] = QuantileStats{
+			Levels:   levels,
+			Quantile: quantile,
+			Avg:      data["avg"].(map[string]interface{})[month].(float64),
+		}
+	}
+	return r
+}
+
+func parseIssueAge(data map[string]interface{}, r SpecialDataStructure) SpecialDataStructure {
+	r.IssueAge = make(map[string]QuantileStats)
+
+	for month, _ := range data["avg"].(map[string]interface{}) {
+
+		quantile := make([]float64, 5)
+		for i := 0; i < 5; i++ {
+			tag := "quantile_" + fmt.Sprint(i)
+			quantile[i] = data[tag].(map[string]interface{})[month].(float64)
+		}
+		dataMap := data["levels"].(map[string](interface{}))
+		levels := make([]int, len(dataMap[month].([]interface{})))
+		for k, v := range dataMap[month].([]interface{}) {
+			levels[k] = int(v.(float64))
+		}
+		r.IssueAge[month] = QuantileStats{
 			Levels:   levels,
 			Quantile: quantile,
 			Avg:      data["avg"].(map[string]interface{})[month].(float64),
