@@ -1,6 +1,7 @@
 package service
 
 var Special_Metric = map[string]bool{
+	"issue_age":                          true,
 	"issue_response_time":                true,
 	"issue_resolution_duration":          true,
 	"change_request_response_time":       true,
