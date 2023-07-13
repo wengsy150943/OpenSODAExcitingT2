@@ -257,6 +257,8 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.ChangeRequestResolutionDuration)
 		} else if k == "change_request_age" {
 			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.ChangeRequestAge)
+		} else if k == "issue_age" {
+			d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueAge)
 		} else {
 			tempList := make([]float32, 0)
 			for _, v2 := range d.Dates {
@@ -355,6 +357,8 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
 	} else if k == "change_request_age" {
 		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueResponseTime)
+	} else if k == "issue_age" {
+		d.QuantileStatsData[k] = getRaceLineData(source_.SpecialData.IssueAge)
 	} else {
 		tempList := make([]float32, 0)
 		for _, v2 := range d.Dates {
@@ -502,6 +506,14 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 				continue
 			}
 			tempDetail := source_.SpecialData.ChangeRequestAge
+			tempDetail2 := make(map[string]utils.QuantileStats)
+			tempDetail2[date] = tempDetail[date]
+			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
+		} else if k == "issue_age" {
+			if len(metric_) != 0 && metric_ != k {
+				continue
+			}
+			tempDetail := source_.SpecialData.IssueAge
 			tempDetail2 := make(map[string]utils.QuantileStats)
 			tempDetail2[date] = tempDetail[date]
 			d.QuantileStatsData[k] = getRaceLineData(tempDetail2)
@@ -855,9 +867,15 @@ func getUnionOfTwoLists(listA_ []int, listB_ []int) []int {
 }
 
 func getCalendarData(data_ map[string]([]int)) (map[string]int, []int) {
+
 	union := make(map[int]bool)
 	res := make(map[string]int)
 	for k, v := range data_ {
+
+		fmt.Println(k)
+		fmt.Println(v)
+		fmt.Println(len(v))
+
 		yearMonth, err := time.Parse("2006-01", k)
 		if err != nil {
 			fmt.Println("Invalid date format:", k)
