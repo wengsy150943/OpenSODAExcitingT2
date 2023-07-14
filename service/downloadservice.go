@@ -194,16 +194,20 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
 
-	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
-	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
-
-	if err1 != nil {
-		fmt.Println(err1)
+	initYear := 0
+	initMonth := 0
+	if source_.Dates != nil {
+		initYear, _ = strconv.Atoi(d.Dates[0][:4])
+		initMonth, _ = strconv.Atoi(d.Dates[0][5:7])
 	}
 
-	if err2 != nil {
-		fmt.Println(err2)
-	}
+	//if err1 != nil {
+	//	fmt.Println(err1)
+	//}
+	//
+	//if err2 != nil {
+	//	fmt.Println(err2)
+	//}
 
 	d.InitYear = initYear
 	d.InitMonth = initMonth
@@ -291,17 +295,20 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
-
-	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
-	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
-
-	if err1 != nil {
-		fmt.Println(err1)
+	initYear := 0
+	initMonth := 0
+	if d.Dates != nil {
+		initYear, _ = strconv.Atoi(d.Dates[0][:4])
+		initMonth, _ = strconv.Atoi(d.Dates[0][5:7])
 	}
 
-	if err2 != nil {
-		fmt.Println(err2)
-	}
+	//if err1 != nil {
+	//	fmt.Println(err1)
+	//}
+	//
+	//if err2 != nil {
+	//	fmt.Println(err2)
+	//}
 
 	d.InitYear = initYear
 	d.InitMonth = initMonth

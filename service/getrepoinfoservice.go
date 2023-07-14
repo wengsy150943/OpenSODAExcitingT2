@@ -35,7 +35,7 @@ func initSpecialDataStructure(data map[string]map[string]interface{}) utils.Spec
 }
 
 func GetUrlContent(url string, repo string, metric string) RepoInfo {
-	repoName := strings.Split(repo, "/")[1]
+	repoName := repo
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -43,16 +43,42 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	defer response.Body.Close()
 
 	// 解析数据
+	println(response.Header)
+
 	body, _ := ioutil.ReadAll(response.Body)
 	repoURL := "https://github.com/" + repo
 
 	var temp map[string]interface{}
 	data_list := map[string]interface{}{}
-	json.Unmarshal([]byte(body), &temp)
-
+	err = json.Unmarshal([]byte(body), &temp)
+	//有些metric会因为没有数据而不返回json
+	if err != nil {
+		retr := RepoInfo{
+			RepoName: repoName,
+			RepoUrl:  repoURL,
+			Month:    "",
+			Data:     nil,
+			Dates:    nil,
+			SpecialData: utils.SpecialDataStructure{
+				ActiveDatesAndTimes:             nil,
+				NewContributorsDetail:           nil,
+				BusFactorDetail:                 nil,
+				ActivityDetails:                 nil,
+				IssueResponseTime:               nil,
+				IssueResolutionDuration:         nil,
+				ChangeRequestResponseTime:       nil,
+				ChangeRequestResolutionDuration: nil,
+				ChangeRequestAge:                nil,
+				IssueAge:                        nil,
+			},
+		}
+		return retr
+	}
 	// 获取日期并排序, 需要针对特殊情况做处理
 	if Special_Metric[metric] {
-		data_list = temp["avg"].(map[string]interface{})
+		if data_list["avg"] != nil {
+			data_list = temp["avg"].(map[string]interface{})
+		}
 	} else {
 		data_list = temp
 	}
@@ -112,7 +138,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 			}
 		}
 		ret := RepoInfo{
-			RepoName:    cachedrepoinfo.Reponame,
+			RepoName:    strings.Split(cachedrepoinfo.Reponame, "/")[1],
 			RepoUrl:     cachedrepoinfo.Repourl,
 			Month:       "",
 			Data:        cachedrepoinfo.Data,
@@ -123,6 +149,7 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	}
 
 	ret := GetUrlContent(url, repo, metric)
+	ret.RepoName = strings.Split(ret.RepoName, "/")[1]
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
 
