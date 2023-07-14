@@ -132,9 +132,9 @@ func (d *UserDownloadService) SetData(target_ string, user_ string) error {
 
 	d.Data["activity"] = tempList2
 
-	fmt.Println(len(d.Data["activity"]))
-	fmt.Println(len(d.Data["openrank"]))
-	fmt.Println(len(d.Dates))
+	//fmt.Println(len(d.Data["activity"]))
+	//fmt.Println(len(d.Data["openrank"]))
+	//fmt.Println(len(d.Dates))
 
 	return nil
 }
@@ -189,7 +189,7 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
-	fmt.Println(d.Title)
+	//fmt.Println(d.Title)
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
@@ -287,7 +287,7 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
-	fmt.Println(d.Title)
+	//fmt.Println(d.Title)
 	d.Dates = source_.Dates
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
@@ -389,7 +389,8 @@ func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
-	fmt.Println(d.Title)
+	//fmt.Println(d.Title)
+
 	d.Dates = source_.Dates
 	d.MapDataOne = make(map[string]float32)
 	d.Years = []int{year_}
@@ -881,9 +882,9 @@ func getCalendarData(data_ map[string]([]int)) (map[string]int, []int) {
 	res := make(map[string]int)
 	for k, v := range data_ {
 
-		fmt.Println(k)
-		fmt.Println(v)
-		fmt.Println(len(v))
+		//fmt.Println(k)
+		//fmt.Println(v)
+		//fmt.Println(len(v))
 
 		yearMonth, err := time.Parse("2006-01", k)
 		if err != nil {
@@ -897,7 +898,7 @@ func getCalendarData(data_ map[string]([]int)) (map[string]int, []int) {
 		_, _, lastDay := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC).Date()
 
 		if lastDay != len(v) {
-			fmt.Println("Invalid month data:", k, " ", lastDay, " ", len(v))
+			//fmt.Println("Invalid month data:", k, " ", lastDay, " ", len(v))
 			continue
 		}
 
