@@ -46,7 +46,7 @@
           height="32"
           class="terminal"
           rx="10"/>
-   <text class="terminal" x="181" y="21">-P</text>
+   <text class="terminal" x="181" y="21">-p</text>
    <rect x="173" y="47" width="96" height="32" rx="10"/>
    <rect x="171"
           y="45"
