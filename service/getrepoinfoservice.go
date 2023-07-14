@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"exciting-opendigger/utils"
-	"fmt"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
@@ -81,7 +80,7 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 		SpecialData: initSpecialDataStructure(data),
 	}
 
-	fmt.Println(repoName)
+	//fmt.Println(repoName)
 
 	return ret
 }
@@ -95,7 +94,8 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		utils.CreateTable(utils.CachedRepoInfo{})
 	}
 	cachedrepoinfo := utils.CachedRepoInfo{}
-	repoName := strings.Split(repo, "/")[1]
+	//repoName := strings.Split(repo, "/")[1]
+	repoName := repo
 	//先去缓存中查询该repo的信息是否被缓存
 	err := utils.ReadQuerySingleMetric(&cachedrepoinfo, repoName, metric)
 	//若缓存在sqlite中，则将缓存的值返回
@@ -128,8 +128,8 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
 
-	fmt.Println(cachedrepoinfo.Reponame)
-	fmt.Println(repoName)
+	//fmt.Println(cachedrepoinfo.Reponame)
+	//fmt.Println(repoName)
 
 	return ret
 }
