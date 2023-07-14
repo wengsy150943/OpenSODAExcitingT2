@@ -26,10 +26,9 @@
 
 本项目采用golang开发，需要运行环境具有golang 1.18 及以上的版本。
 
-1. 通过Github下载原代码编译获得可执行文件。
+1. 编译原代码获得可执行文件。
 
    ```bash
-   git clone https://github.com/wengsy150943/OpenSODAExcitingT2.git
    go build
    ```
 
