@@ -5,6 +5,7 @@ import (
 	"errors"
 	"exciting-opendigger/utils"
 	"fmt"
+	"go/types"
 	"html/template"
 	"log"
 	"math"
@@ -78,8 +79,11 @@ func parseFloatValue(v interface{}) float32 {
 		return float32(v.(float64))
 	case int:
 		return float32(v.(int))
+	case types.Nil:
+		return 0.0
 	}
-	return v.(float32)
+
+	return 0.0
 }
 
 type UserDownloadService struct {

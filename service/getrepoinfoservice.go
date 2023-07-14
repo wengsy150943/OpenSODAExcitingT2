@@ -80,8 +80,6 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 		SpecialData: initSpecialDataStructure(data),
 	}
 
-	//fmt.Println(repoName)
-
 	return ret
 }
 
@@ -94,10 +92,9 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		utils.CreateTable(utils.CachedRepoInfo{})
 	}
 	cachedrepoinfo := utils.CachedRepoInfo{}
-	//repoName := strings.Split(repo, "/")[1]
-	repoName := repo
+	repoName := strings.Split(repo, "/")[1]
 	//先去缓存中查询该repo的信息是否被缓存
-	err := utils.ReadQuerySingleMetric(&cachedrepoinfo, repoName, metric)
+	err := utils.ReadQuerySingleMetric(&cachedrepoinfo, repo, metric)
 	//若缓存在sqlite中，则将缓存的值返回
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		//判断缓存是否最新
@@ -127,9 +124,6 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 	ret := GetUrlContent(url, repo, metric)
 	//查询结果插入缓存
 	utils.InsertSingleQuery(repoName, ret.RepoUrl, metric, "", ret.Dates, ret.Data)
-
-	//fmt.Println(cachedrepoinfo.Reponame)
-	//fmt.Println(repoName)
 
 	return ret
 }
@@ -207,7 +201,7 @@ func GetRepoInfoOfMonth(repo, month string) (repoinfo RepoInfo) {
 		repoinfo.Data[Metrics[i]] = repoinfos[i].Data[Metrics[i]]
 		repoinfo.SpecialData.MergeSpecialData(repoinfos[i].SpecialData)
 	}
-
+	//TODO 修改dates，将dates存储为各个metric的dates的并集
 	dates := make([]string, len(dateMap))
 	cnt := 0
 	for k, _ := range dateMap {

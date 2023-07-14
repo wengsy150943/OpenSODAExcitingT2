@@ -92,7 +92,7 @@ func TestGetRepoInfoOfMonth(t *testing.T) {
 	//var result float32
 	//result = 4.5
 	month := "2023-05"
-	a := GetRepoInfoOfMonth("X-lab2017/open-digger", month)
+	a := GetRepoInfoOfMonth("StanGirard/quivr", month)
 	for _, metrics := range Metrics {
 		if a.Data[metrics][month] == nil {
 			println(metrics)
