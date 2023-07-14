@@ -87,8 +87,6 @@ Exciting-Opendigger提供了多样的查询功能。为了更好地满足精细�
 
 ![1689248800570](./assets/fig/compareCase.png)
 
-> 开发日志：该模块可以复用单点查询的接口完成，已基本完成。
-> 
 
 ### 2.3 文件下载
 
@@ -96,8 +94,14 @@ Exciting-Opendigger支持使用`DOWNLOAD`命令下载基础查询的结果。考
 
 ![DownloadClause.svg](./assets/fig/DownloadClause.svg)
 
-> 开发日志：该模块基于html模板和echart生成可视化报告。这部分已经基本完成。
-> 
+用例：
+
+![1689322132927](./assets/fig/downloadCase.png)
+
+执行结果（部分）
+
+![1689322084150](./assets/fig/downloadReport.png)
+
 
 ### 2.4 批量分析
 
@@ -111,8 +115,13 @@ Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，�
 
 
 
-> 开发日志：该模块可以复用单点查询的接口完成，为了提高查询效率，可以利用`goroutine`进行并发查询，这部分已经基本开发完成。
-> 后续计划支持对开发者的查询。
+用例：
+
+![1689323007993](./assets/fig/batchCase.png)
+
+执行结果如下：
+
+![1689323036671](./assets/fig/batchResult.png)
 
 ### 2.5 日志查询
 
@@ -122,8 +131,6 @@ Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，�
 
 ![1689248846120](./assets/fig/logCase.png)
 
-> 开发日志：Exciting-Opendigger作为非侵入用户系统的工具，通过SQLIite3缓存查询日志，避免依赖于操作系统的缓存设计。因此用户拥有对使用数据的完全管理权限，这部分已基本开发完成。
-> 后续计划增强用户对日志的管理能力，包括对缓存文件的地址管理，和是否缓存日志。
 
 ### 2.6 帮助菜单
 
@@ -133,8 +140,6 @@ Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，�
 
 ![1689249550000](./assets/fig/helpCase.png)
 
-> 开发日志：该部分基于`Cobra`架构生成，已完成。
-> 
 
 ## 3. Demo
 
@@ -144,11 +149,11 @@ Exciting-Opendigger为开源爱好者进一步提供了批量分析的功能，�
 
 html版本报告demo：
 
-输出的报告与用户需求有关，将查询的数据进行格式整理以html格式输出，查询的指标和参数可以灵活设置，并且支持排序和筛选及其他自定义输出。
+输出的报告与用户需求有关，将查询的数据进行格式整理以html格式输出，查询的指标和参数可以灵活设置，并且支持搜索具体指标。
 
 下图的demo展示了X-lab2017/open-digger项目的一个分析报告，这里以openrank指标为例，输出了X-lab2017/open-digger项目近五个月的openrank值，并以柱状图的形式输出了X-lab2017/open-digger项目立项以来openrank的月份变化趋势。
 
-![report_html.jpg](./assets/fig/report_html.jpg)
+![report_html.jpg](./assets/fig/report_pdf.jpg)
 
 ## 4.项目成员和分工
 
