@@ -92,7 +92,8 @@ func GetRepoInfoOfMetric(repo, metric string) RepoInfo {
 		utils.CreateTable(utils.CachedRepoInfo{})
 	}
 	cachedrepoinfo := utils.CachedRepoInfo{}
-	repoName := strings.Split(repo, "/")[1]
+	//repoName := strings.Split(repo, "/")[1]
+	repoName := repo
 	//先去缓存中查询该repo的信息是否被缓存
 	err := utils.ReadQuerySingleMetric(&cachedrepoinfo, repo, metric)
 	//若缓存在sqlite中，则将缓存的值返回
