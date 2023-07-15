@@ -99,7 +99,7 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	data[metric] = temp
 
 	ret := RepoInfo{
-		RepoName:    repoName,
+		RepoName:    repo,
 		RepoUrl:     repoURL,
 		Month:       "",
 		Data:        data,
