@@ -35,7 +35,6 @@ func initSpecialDataStructure(data map[string]map[string]interface{}) utils.Spec
 }
 
 func GetUrlContent(url string, repo string, metric string) RepoInfo {
-	repoName := strings.Split(repo, "/")[1]
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -72,7 +71,7 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	data[metric] = temp
 
 	ret := RepoInfo{
-		RepoName:    repoName,
+		RepoName:    repo,
 		RepoUrl:     repoURL,
 		Month:       "",
 		Data:        data,

@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>数据分析报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+        }
+
+        .chart-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+         
+        .select-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+
+        .custom-select {
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .custom-select:hover {
+            background-color: #e8e8e8;
+        }
+
+        .custom-select:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+         
+        .select-container-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .select-container-inline select {
+            margin-right: 10px;
+        }
+
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <h1 style="color:rgb(0, 0, 0) ; font-size:60px"><strong>数据分析报告</strong></h1>
+
+    <div class="section">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="输入要搜索的 Metric">
+            <button onclick="search()" class="search-button">搜索</button>
+        </div>
+
+        <script type="text/javascript">
+            function search() {
+                var searchInput = document.getElementById("searchInput").value;
+                var element = document.getElementById(searchInput);
+
+                if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                }
+            }
+        </script>
+    </div>
+
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>项目信息：</strong></h2>
+        <ul>
+            <li><strong>项目名称:</strong> X-lab2017/oss101</li>
+            <li>
+                <strong>项目链接:</strong>
+                <a href="https://github.com/X-lab2017/oss101"
+                >https://github.com/X-lab2017/oss101</a
+                >
+            </li>
+        </ul>
+    </div>
+
+    <div class="section" id="active_dates_and_times">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>active_dates_and_times ：</strong></h2>
+        <div id="chartcal">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+            <div class="item" id="ca" style="width:1200px;height:300px;"></div>
+            <script type="text/javascript">
+                var container = document.getElementById('ca');
+                var chart = echarts.init(container);
+                var baseUrl = 'https://oss.x-lab.info/open_digger/github/';
+                var repoName = "X-lab2017\/oss101";
+
+                var data0 = {"test":0}
+
+                if (data0) {
+                    document.getElementById("active_dates_and_times").style.display = "block";
+                } else {
+                    document.getElementById("active_dates_and_times").style.display = "none";
+                }
+
+
+                $.getJSON(
+                    `${baseUrl}${repoName}/active_dates_and_times.json`,
+                    data => {
+                        const hours = [...Array(24).keys()];
+                        const days = [ 'Sun.', 'Sat.', 'Fri.', 'Thu.', 'Wed.', 'Tue.', 'Mon.' ];
+                        
+                        var values = Object.values(data).reduce((p, c) => {
+                            if (p === null) return c;
+                            return p.map((v, i) => v + c[i]);
+                        }, null);
+
+                        
+                        
+                        
+
+                        
+                        var max = Math.max(...values);
+                        values = values.map(v => Math.ceil(v * 10 / max));
+
+                        var inputData = [];
+                        for (var d = 0; d < 7; d++) {
+                            for (var h = 0; h < 24; h++) {
+                                inputData.push([h, 6 - d, values[d * 24 + h] || '-']);
+                            }
+                        }
+
+                        option = {
+                            title: {
+                                text: `Active Dates And Times for ${repoName}`,
+                                left: 'center'
+                            },
+                            grid: {
+                                height: '50%',
+                                top: '10%'
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: hours,
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: days,
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            visualMap: {
+                                min: 0,
+                                max: 10,
+                                calculable: true,
+                                orient: 'horizontal',
+                                left: 'center',
+                                bottom: '15%'
+                            },
+                            series: [
+                                {
+                                    type: 'heatmap',
+                                    data: inputData,
+                                    
+                                    
+                                    
+                                    emphasis: {
+                                        itemStyle: {
+                                            shadowBlur: 10,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    },
+                                }
+                            ]
+                        };
+                        chart.setOption(option);
+                    }
+                )
+            </script>
+        </div>
+    </div>
+
+
+    <div class="section" id="activity_details">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>activity_details (detail)：</strong></h2>
+        <div id="chart1">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            
+            <div class="select-container-inline">
+                
+                <div class="select-container">
+                    <select id="yearSelect1" class="custom-select">
+                        
+                        <option value="2023">2023</option>
+                        
+                    </select>
+                </div>
+
+                
+                <div class="select-container">
+                    <select id="monthSelect1" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud1" style="width:1200px;height:600px;"></div>
+
+
+
+            <script>
+                
+                
+                var yearMonthData1 = [{"Year":2023,"Month":2,"Data":[{"Name":"will-ww","Value":4.9},{"Name":"lukefan","Value":1.73},{"Name":"zhuangbiaowei","Value":1.73},{"Name":"AmbitionCX","Value":1.73},{"Name":"neolee","Value":1.41},{"Name":"stevending1st","Value":1.41},{"Name":"wengsy150943","Value":1},{"Name":"gongchenghua","Value":1},{"Name":"zhangbububu","Value":1},{"Name":"DarkHighness","Value":1},{"Name":"EiJuynah","Value":1},{"Name":"wujwyi","Value":1},{"Name":"AliceCodeZhang","Value":1},{"Name":"zhicheng-ning","Value":1}]},{"Year":2023,"Month":3,"Data":[{"Name":"will-ww","Value":9.43},{"Name":"gongchenghua","Value":4.36},{"Name":"594Surefour","Value":3.46},{"Name":"GiveMeAnApple99","Value":3.16},{"Name":"heroding77","Value":3.16},{"Name":"JinaoLiu","Value":3},{"Name":"zhicheng-ning","Value":3},{"Name":"itsKevin-lgy","Value":2.65},{"Name":"tang-small-flower","Value":2.65},{"Name":"tiertie","Value":2.65},{"Name":"Tamiflu233","Value":2.65},{"Name":"Liuyushiii","Value":2.65},{"Name":"zhangbububu","Value":2.24},{"Name":"Chastelovee","Value":2.24},{"Name":"hzhang4433","Value":2},{"Name":"lroethan","Value":2},{"Name":"springyulu","Value":2},{"Name":"DarkHighness","Value":2},{"Name":"EIPsilly","Value":2},{"Name":"zhouchenyi2000","Value":2},{"Name":"Missjust","Value":2},{"Name":"xwyzsn","Value":2},{"Name":"TengLuoLuo","Value":2},{"Name":"wj23027","Value":2},{"Name":"Jolykkkk","Value":1.73},{"Name":"lhbvvvvv","Value":1.73},{"Name":"JasonZhujp","Value":1.73},{"Name":"Ashura5","Value":1.73},{"Name":"iclovemiku","Value":1.73},{"Name":"wengsy150943","Value":1.73},{"Name":"RainforestC","Value":1.73},{"Name":"Wind-Gone","Value":1.73},{"Name":"1161295395","Value":1.73},{"Name":"tyn1998","Value":1.73},{"Name":"KAlbert2333","Value":1.73},{"Name":"andyhuang18","Value":1.73},{"Name":"wujwyi","Value":1.73},{"Name":"EiJuynah","Value":1.73},{"Name":"LinRS1999","Value":1.73},{"Name":"xunx911","Value":1.73},{"Name":"yz2022","Value":1.73},{"Name":"See-r","Value":1.73},{"Name":"TieWay59","Value":1.73},{"Name":"yfsn666","Value":1.41},{"Name":"HunterHan","Value":1.41},{"Name":"zzyzeyuan","Value":1.41},{"Name":"Jalingpp","Value":1.41},{"Name":"momentNi","Value":1.41},{"Name":"nicole01101101zke","Value":1.41},{"Name":"HaoyangShi","Value":1.41},{"Name":"gqq1210","Value":1.41},{"Name":"qkgoalkeeper","Value":1.41},{"Name":"Zzzzzhuzhiwei","Value":1.41},{"Name":"smell-iron","Value":1.41},{"Name":"stevending1st","Value":1.41},{"Name":"yygs-yyss","Value":1},{"Name":"WuDi329","Value":1},{"Name":"iWYZ-666","Value":1},{"Name":"JinkaiXu","Value":1},{"Name":"Dousir9","Value":1},{"Name":"hyDududu","Value":1},{"Name":"xgdyp","Value":1},{"Name":"Freejww","Value":1},{"Name":"abcdabcd3899","Value":1},{"Name":"pourquoi-1130","Value":1},{"Name":"lh123cha","Value":1},{"Name":"Breaddsmall","Value":1},{"Name":"JackWeiw","Value":1},{"Name":"Bruce-Jay","Value":1},{"Name":"Philosober","Value":1},{"Name":"tennnx","Value":1},{"Name":"OSZhouYe","Value":1},{"Name":"frank-zsy","Value":1},{"Name":"Yukiho1028","Value":1},{"Name":"RTEnzyme","Value":1},{"Name":"tmyisgod","Value":1}]},{"Year":2023,"Month":4,"Data":[{"Name":"TieWay59","Value":9.54},{"Name":"will-ww","Value":9.38},{"Name":"TengLuoLuo","Value":5},{"Name":"iclovemiku","Value":4.24},{"Name":"Liuyushiii","Value":3.87},{"Name":"JinaoLiu","Value":3.87},{"Name":"abcdabcd3899","Value":3.74},{"Name":"gongchenghua","Value":3.74},{"Name":"DarkHighness","Value":3.74},{"Name":"zhicheng-ning","Value":3.61},{"Name":"Tamiflu233","Value":3.61},{"Name":"TW-githubs","Value":3.46},{"Name":"yfsn666","Value":3.46},{"Name":"gqq1210","Value":3.46},{"Name":"Philosober","Value":3.32},{"Name":"springyulu","Value":3.32},{"Name":"Yukiho1028","Value":3.32},{"Name":"itsKevin-lgy","Value":3.32},{"Name":"Zzzzzhuzhiwei","Value":3.16},{"Name":"Hcque","Value":3.16},{"Name":"lroethan","Value":3.16},{"Name":"wypsz","Value":3},{"Name":"hyDududu","Value":3},{"Name":"HaoyangShi","Value":3},{"Name":"xwyzsn","Value":3},{"Name":"HunterHan","Value":2.83},{"Name":"Freejww","Value":2.65},{"Name":"Curious-chen","Value":2.65},{"Name":"GiveMeAnApple99","Value":2.65},{"Name":"EiJuynah","Value":2.65},{"Name":"andyhuang18","Value":2.65},{"Name":"Jalingpp","Value":2.65},{"Name":"nicole01101101zke","Value":2.65},{"Name":"HEHEhe00","Value":2.65},{"Name":"hzhang4433","Value":2.45},{"Name":"tiertie","Value":2.45},{"Name":"Beanm7","Value":2.45},{"Name":"JinkaiXu","Value":2.45},{"Name":"594Surefour","Value":2.45},{"Name":"bensonzxs","Value":2.24},{"Name":"EIPsilly","Value":2.24},{"Name":"Chastelovee","Value":2.24},{"Name":"innocentc","Value":2.24},{"Name":"wengsy150943","Value":2.24},{"Name":"zzyzeyuan","Value":2.24},{"Name":"heroding77","Value":2.24},{"Name":"yz2022","Value":2.24},{"Name":"Ashura5","Value":2.24},{"Name":"Skydzl","Value":2},{"Name":"zhangbububu","Value":2},{"Name":"pourquoi-1130","Value":2},{"Name":"Goinggoinggoing","Value":2},{"Name":"likeChen129","Value":2},{"Name":"WuDi329","Value":2},{"Name":"lhbvvvvv","Value":2},{"Name":"tmyisgod","Value":2},{"Name":"Missjust","Value":1.73},{"Name":"stevending1st","Value":1.73},{"Name":"qkgoalkeeper","Value":1.73},{"Name":"tennnx","Value":1.73},{"Name":"wj23027","Value":1.73},{"Name":"yygs-yyss","Value":1.73},{"Name":"lh123cha","Value":1.73},{"Name":"lxr599","Value":1.73},{"Name":"renrenyouyuyu","Value":1.73},{"Name":"Breaddsmall","Value":1.73},{"Name":"Bruce-Jay","Value":1.41},{"Name":"xunx911","Value":1.41},{"Name":"tang-small-flower","Value":1.41},{"Name":"wujwyi","Value":1.41},{"Name":"OSZhouYe","Value":1.41},{"Name":"yangjie407","Value":1.41},{"Name":"gdbaixuefeng","Value":1.41},{"Name":"xiaofeichong123","Value":1.41},{"Name":"Wxlhhh","Value":1.41},{"Name":"See-r","Value":1.41},{"Name":"tyxtyxtyxtyx","Value":1},{"Name":"gloriaaa0312","Value":1},{"Name":"caiwanli","Value":1},{"Name":"YinZheng-Sun","Value":1},{"Name":"momentNi","Value":1},{"Name":"Kongbaimoon","Value":1},{"Name":"KAlbert2333","Value":1},{"Name":"zhouchenyi2000","Value":1},{"Name":"XuDashuai0827","Value":1},{"Name":"iWYZ-666","Value":1},{"Name":"ifshine","Value":1},{"Name":"tyn1998","Value":1},{"Name":"xiaoyujinghe","Value":1},{"Name":"yyq08042","Value":1},{"Name":"LinRS1999","Value":1},{"Name":"rad9-13","Value":1},{"Name":"Wind-Gone","Value":1},{"Name":"hsy77","Value":1},{"Name":"RTEnzyme","Value":1},{"Name":"HdxL0V3","Value":1}]},{"Year":2023,"Month":5,"Data":[{"Name":"TieWay59","Value":9.64},{"Name":"will-ww","Value":8.77},{"Name":"yz2022","Value":4.24},{"Name":"nicole01101101zke","Value":4.12},{"Name":"PeterXu1209","Value":4},{"Name":"Zzzzzhuzhiwei","Value":4},{"Name":"yygs-yyss","Value":3.87},{"Name":"Tamiflu233","Value":3.74},{"Name":"Liuyushiii","Value":3.74},{"Name":"heroding77","Value":3.61},{"Name":"zhouchenyi2000","Value":3.46},{"Name":"Breesiu","Value":3.46},{"Name":"Miaheeee","Value":3.46},{"Name":"lroethan","Value":3.46},{"Name":"tennnx","Value":3.46},{"Name":"TengLuoLuo","Value":3.32},{"Name":"qqliang","Value":3.32},{"Name":"Zhangxixiang77","Value":3.32},{"Name":"zzyzeyuan","Value":3.32},{"Name":"zhicheng-ning","Value":3.16},{"Name":"GiveMeAnApple99","Value":3.16},{"Name":"hzhang4433","Value":3.16},{"Name":"XDxc-cuber","Value":3.16},{"Name":"yfsn666","Value":3},{"Name":"See-r","Value":3},{"Name":"TW-githubs","Value":3},{"Name":"JinaoLiu","Value":3},{"Name":"Christina327","Value":3},{"Name":"Jalingpp","Value":3},{"Name":"wj23027","Value":3},{"Name":"BhJia","Value":3},{"Name":"Boat2U","Value":3},{"Name":"abcdabcd3899","Value":3},{"Name":"wangyu-ustc","Value":3},{"Name":"Yukiho1028","Value":2.83},{"Name":"looper-sil","Value":2.83},{"Name":"DarkHighness","Value":2.83},{"Name":"Y-jiji","Value":2.65},{"Name":"Ashura5","Value":2.65},{"Name":"blingber","Value":2.65},{"Name":"yuanam","Value":2.65},{"Name":"wengsy150943","Value":2.65},{"Name":"Hcque","Value":2.65},{"Name":"Kongbaimoon","Value":2.65},{"Name":"xxxxxiwu","Value":2.45},{"Name":"lhbvvvvv","Value":2.45},{"Name":"lh123cha","Value":2.45},{"Name":"mattian7","Value":2.45},{"Name":"qkgoalkeeper","Value":2.45},{"Name":"ZhangChunXian","Value":2.45},{"Name":"Chastelovee","Value":2.45},{"Name":"RTEnzyme","Value":2.45},{"Name":"scraneg","Value":2.45},{"Name":"gqq1210","Value":2.45},{"Name":"xuhuahuang813","Value":2.45},{"Name":"Goinggoinggoing","Value":2.24},{"Name":"itsKevin-lgy","Value":2.24},{"Name":"EIPsilly","Value":2.24},{"Name":"10205501431","Value":2.24},{"Name":"xwyzsn","Value":2.24},{"Name":"xiaofeichong123","Value":2.24},{"Name":"LinRS1999","Value":2.24},{"Name":"JinkaiXu","Value":2.24},{"Name":"Freejww","Value":2.24},{"Name":"NoSuger-p","Value":2},{"Name":"andyhuang18","Value":2},{"Name":"pourquoi-1130","Value":2},{"Name":"tyxtyxtyxtyx","Value":2}]},{"Year":2023,"Month":6,"Data":[{"Name":"will-ww","Value":4.47},{"Name":"Skydzl","Value":2.83},{"Name":"lh123cha","Value":2.83},{"Name":"lroethan","Value":2.65},{"Name":"TieWay59","Value":2.45},{"Name":"HunterHan","Value":2.45},{"Name":"LinRS1999","Value":2.45},{"Name":"hsy77","Value":2.24},{"Name":"hzhang4433","Value":2.24},{"Name":"lhbvvvvv","Value":2.24},{"Name":"pourquoi-1130","Value":2.24},{"Name":"zhicheng-ning","Value":2.24},{"Name":"hyDududu","Value":2.24},{"Name":"Zzzzzhuzhiwei","Value":2},{"Name":"zzyzeyuan","Value":2},{"Name":"DarkHighness","Value":1.73},{"Name":"Hcque","Value":1.73},{"Name":"itsKevin-lgy","Value":1.73},{"Name":"yygs-yyss","Value":1.73},{"Name":"nicole01101101zke","Value":1.73},{"Name":"wujwyi","Value":1.41},{"Name":"yz2022","Value":1.41},{"Name":"JinaoLiu","Value":1.41},{"Name":"qkgoalkeeper","Value":1.41},{"Name":"EIPsilly","Value":1.41},{"Name":"Ashura5","Value":1.41},{"Name":"frank-zsy","Value":1.41},{"Name":"heroding77","Value":1},{"Name":"Yukiho1028","Value":1},{"Name":"zhangbububu","Value":1},{"Name":"GiveMeAnApple99","Value":1},{"Name":"TengLuoLuo","Value":1},{"Name":"Philosober","Value":1},{"Name":"Breaddsmall","Value":1},{"Name":"yfsn666","Value":1}]}];
+
+                if (yearMonthData1) {
+                    document.getElementById("activity_details").style.display = "block";
+                } else {
+                    document.getElementById("activity_details").style.display = "none";
+                }
+
+                document.getElementById("yearSelect1").value =  2023 ;
+                document.getElementById("monthSelect1").value =  1 ;
+
+
+                
+                function generateWordCloud1(year, month) {
+                    
+                    var selectedData1 = [];
+                    for (var i = 0; i < yearMonthData1.length; i++) {
+                        if (yearMonthData1[i].Year === year && yearMonthData1[i].Month === month) {
+                            selectedData1 = yearMonthData1[i].Data;
+                            break;
+                        }
+                    }
+
+                    
+                    var chartData1 = selectedData1.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    
+                    var option1 = {
+                        series: [{
+                            type: 'wordCloud',
+                            animation: true, 
+                            animationDuration: 2000, 
+                            tooltip: {
+                                show: true, 
+                                formatter: function (params) {
+                                    return 'Value: ' + params.value; 
+                                }
+                            },
+
+                            data: chartData1,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            
+                            
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    
+                    var chart1 = echarts.init(document.getElementById('wordcloud1'));
+                    chart1.setOption(option1);
+                }
+
+                
+                var yearSelect1 = document.getElementById('yearSelect1');
+                var monthSelect1 = document.getElementById('monthSelect1');
+                yearSelect1.addEventListener('change', updateWordCloud1);
+                monthSelect1.addEventListener('change', updateWordCloud1);
+
+                
+                function updateWordCloud1() {
+                    var selectedYear1 = parseInt(yearSelect1.value);
+                    var selectedMonth1 = parseInt(monthSelect1.value);
+                    generateWordCloud1(selectedYear1, selectedMonth1);
+                }
+
+                
+                var defaultYear1 = parseInt(yearSelect1.value);
+                var defaultMonth1 = parseInt(monthSelect1.value);
+                
+                
+                generateWordCloud1(defaultYear1, defaultMonth1);
+            </script>
+
+        </div>
+    </div>
+
+    <div class="section" id="bus_factor">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>bus_factor (detail)：</strong></h2>
+        <div id="chart2">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            
+            <div class="select-container-inline">
+                
+                <div class="select-container">
+                    <select id="yearSelect2" class="custom-select">
+                        
+                        <option value="2023">2023</option>
+                        
+                    </select>
+                </div>
+
+                
+                <div class="select-container">
+                    <select id="monthSelect2" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud2" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                
+                
+                var yearMonthData2 = [{"Year":2023,"Month":2,"Data":[{"Name":"AmbitionCX","Value":2},{"Name":"will-ww","Value":5},{"Name":"zhuangbiaowei","Value":2},{"Name":"neolee","Value":2},{"Name":"lukefan","Value":2},{"Name":"stevending1st","Value":2}]},{"Year":2023,"Month":3,"Data":[{"Name":"gqq1210","Value":2},{"Name":"GiveMeAnApple99","Value":4},{"Name":"xunx911","Value":2},{"Name":"Chastelovee","Value":3},{"Name":"KAlbert2333","Value":2},{"Name":"LinRS1999","Value":2},{"Name":"yz2022","Value":2},{"Name":"zhangbububu","Value":3},{"Name":"EiJuynah","Value":2},{"Name":"hzhang4433","Value":2},{"Name":"TieWay59","Value":2},{"Name":"Ashura5","Value":2},{"Name":"JinaoLiu","Value":3},{"Name":"heroding77","Value":4},{"Name":"lroethan","Value":2},{"Name":"nicole01101101zke","Value":2},{"Name":"lhbvvvvv","Value":2},{"Name":"stevending1st","Value":2},{"Name":"EIPsilly","Value":2},{"Name":"Wind-Gone","Value":2},{"Name":"springyulu","Value":2},{"Name":"tiertie","Value":3},{"Name":"594Surefour","Value":4},{"Name":"qkgoalkeeper","Value":2},{"Name":"HunterHan","Value":2},{"Name":"momentNi","Value":2},{"Name":"yfsn666","Value":2},{"Name":"HaoyangShi","Value":2},{"Name":"Zzzzzhuzhiwei","Value":2},{"Name":"Jolykkkk","Value":2},{"Name":"See-r","Value":2},{"Name":"Tamiflu233","Value":3},{"Name":"wj23027","Value":2},{"Name":"TengLuoLuo","Value":2},{"Name":"gongchenghua","Value":5},{"Name":"1161295395","Value":2},{"Name":"wujwyi","Value":2},{"Name":"iclovemiku","Value":2},{"Name":"xwyzsn","Value":2},{"Name":"will-ww","Value":10},{"Name":"JasonZhujp","Value":2},{"Name":"DarkHighness","Value":2},{"Name":"zhouchenyi2000","Value":2},{"Name":"smell-iron","Value":2},{"Name":"Missjust","Value":2},{"Name":"zhicheng-ning","Value":3},{"Name":"tyn1998","Value":2},{"Name":"Jalingpp","Value":2},{"Name":"wengsy150943","Value":2},{"Name":"Liuyushiii","Value":3},{"Name":"RainforestC","Value":2},{"Name":"tang-small-flower","Value":3},{"Name":"zzyzeyuan","Value":2},{"Name":"andyhuang18","Value":2},{"Name":"itsKevin-lgy","Value":3}]},{"Year":2023,"Month":4,"Data":[{"Name":"zhicheng-ning","Value":4},{"Name":"TieWay59","Value":10},{"Name":"JinkaiXu","Value":3},{"Name":"Tamiflu233","Value":4},{"Name":"andyhuang18","Value":3},{"Name":"zzyzeyuan","Value":3},{"Name":"594Surefour","Value":3},{"Name":"Beanm7","Value":3},{"Name":"Hcque","Value":4},{"Name":"hyDududu","Value":3},{"Name":"Chastelovee","Value":3},{"Name":"heroding77","Value":3},{"Name":"yfsn666","Value":4},{"Name":"hzhang4433","Value":3},{"Name":"lroethan","Value":4},{"Name":"will-ww","Value":10},{"Name":"Philosober","Value":4},{"Name":"HaoyangShi","Value":3},{"Name":"tiertie","Value":3},{"Name":"JinaoLiu","Value":4},{"Name":"yz2022","Value":3},{"Name":"Ashura5","Value":3},{"Name":"EIPsilly","Value":3},{"Name":"TW-githubs","Value":4},{"Name":"EiJuynah","Value":3},{"Name":"Yukiho1028","Value":4},{"Name":"abcdabcd3899","Value":4},{"Name":"iclovemiku","Value":5},{"Name":"itsKevin-lgy","Value":4},{"Name":"TengLuoLuo","Value":5},{"Name":"HunterHan","Value":3},{"Name":"gqq1210","Value":4},{"Name":"Curious-chen","Value":3},{"Name":"Liuyushiii","Value":4},{"Name":"Freejww","Value":3},{"Name":"springyulu","Value":4},{"Name":"wengsy150943","Value":3},{"Name":"Zzzzzhuzhiwei","Value":4},{"Name":"nicole01101101zke","Value":3},{"Name":"wypsz","Value":3},{"Name":"bensonzxs","Value":3},{"Name":"xwyzsn","Value":3},{"Name":"GiveMeAnApple99","Value":3},{"Name":"HEHEhe00","Value":3},{"Name":"Jalingpp","Value":3},{"Name":"gongchenghua","Value":4},{"Name":"innocentc","Value":3},{"Name":"DarkHighness","Value":4}]},{"Year":2023,"Month":5,"Data":[{"Name":"Breesiu","Value":4},{"Name":"Miaheeee","Value":4},{"Name":"BhJia","Value":3},{"Name":"JinkaiXu","Value":3},{"Name":"JinaoLiu","Value":3},{"Name":"zhicheng-ning","Value":4},{"Name":"10205501431","Value":3},{"Name":"yfsn666","Value":3},{"Name":"qqliang","Value":4},{"Name":"wangyu-ustc","Value":3},{"Name":"Liuyushiii","Value":4},{"Name":"Hcque","Value":3},{"Name":"LinRS1999","Value":3},{"Name":"TieWay59","Value":10},{"Name":"heroding77","Value":4},{"Name":"See-r","Value":3},{"Name":"TW-githubs","Value":3},{"Name":"EIPsilly","Value":3},{"Name":"Kongbaimoon","Value":3},{"Name":"Jalingpp","Value":3},{"Name":"Chastelovee","Value":3},{"Name":"Boat2U","Value":3},{"Name":"zzyzeyuan","Value":4},{"Name":"wengsy150943","Value":3},{"Name":"nicole01101101zke","Value":5},{"Name":"Zhangxixiang77","Value":4},{"Name":"Christina327","Value":3},{"Name":"itsKevin-lgy","Value":3},{"Name":"yuanam","Value":3},{"Name":"Ashura5","Value":3},{"Name":"xuhuahuang813","Value":3},{"Name":"RTEnzyme","Value":3},{"Name":"xiaofeichong123","Value":3},{"Name":"Goinggoinggoing","Value":3},{"Name":"wj23027","Value":3},{"Name":"zhouchenyi2000","Value":4},{"Name":"Y-jiji","Value":3},{"Name":"gqq1210","Value":3},{"Name":"xxxxxiwu","Value":3},{"Name":"Zzzzzhuzhiwei","Value":4},{"Name":"lroethan","Value":4},{"Name":"lh123cha","Value":3},{"Name":"xwyzsn","Value":3},{"Name":"XDxc-cuber","Value":4},{"Name":"PeterXu1209","Value":4},{"Name":"qkgoalkeeper","Value":3},{"Name":"tennnx","Value":4},{"Name":"TengLuoLuo","Value":4},{"Name":"scraneg","Value":3},{"Name":"looper-sil","Value":3},{"Name":"Freejww","Value":3},{"Name":"ZhangChunXian","Value":3},{"Name":"yygs-yyss","Value":4},{"Name":"DarkHighness","Value":3},{"Name":"Yukiho1028","Value":3},{"Name":"abcdabcd3899","Value":3},{"Name":"lhbvvvvv","Value":3},{"Name":"yz2022","Value":5},{"Name":"mattian7","Value":3},{"Name":"blingber","Value":3},{"Name":"will-ww","Value":9},{"Name":"hzhang4433","Value":4},{"Name":"GiveMeAnApple99","Value":4},{"Name":"Tamiflu233","Value":4}]},{"Year":2023,"Month":6,"Data":[{"Name":"LinRS1999","Value":3},{"Name":"lh123cha","Value":3},{"Name":"HunterHan","Value":3},{"Name":"pourquoi-1130","Value":3},{"Name":"Skydzl","Value":3},{"Name":"lroethan","Value":3},{"Name":"will-ww","Value":5},{"Name":"hyDududu","Value":3},{"Name":"hsy77","Value":3},{"Name":"hzhang4433","Value":3},{"Name":"TieWay59","Value":3},{"Name":"zhicheng-ning","Value":3},{"Name":"lhbvvvvv","Value":3}]}];
+
+                if (yearMonthData2) {
+                    document.getElementById("bus_factor").style.display = "block";
+                } else {
+                    document.getElementById("bus_factor").style.display = "none";
+                }
+
+
+                document.getElementById("yearSelect2").value =  2023 ;
+                document.getElementById("monthSelect2").value =  1 ;
+
+                
+                function generateWordCloud2(year, month) {
+                    
+                    var selectedData2 = [];
+                    for (var i = 0; i < yearMonthData2.length; i++) {
+                        if (yearMonthData2[i].Year === year && yearMonthData2[i].Month === month) {
+                            selectedData2 = yearMonthData2[i].Data;
+                            break;
+                        }
+                    }
+
+                    
+                    var chartData2 = selectedData2.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    
+                    var option2 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData2,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            
+                            
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    
+                    var chart2 = echarts.init(document.getElementById('wordcloud2'));
+                    chart2.setOption(option2);
+                }
+
+                
+                var yearSelect2 = document.getElementById('yearSelect2');
+                var monthSelect2 = document.getElementById('monthSelect2');
+                yearSelect2.addEventListener('change', updateWordCloud2);
+                monthSelect2.addEventListener('change', updateWordCloud2);
+
+                
+                function updateWordCloud2() {
+                    var selectedYear2 = parseInt(yearSelect2.value);
+                    var selectedMonth2 = parseInt(monthSelect2.value);
+                    generateWordCloud2(selectedYear2, selectedMonth2);
+                }
+
+                
+                var defaultYear2 = parseInt(yearSelect2.value);
+                var defaultMonth2 = parseInt(monthSelect2.value);
+
+                generateWordCloud2(defaultYear2, defaultMonth2);
+            </script>
+
+        </div>
+    </div>
+
+
+    <div class="section" id="new_contributors">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px"><strong>new_contributors (detail)：</strong></h2>
+        <div id="chart3">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            
+            <div class="select-container-inline">
+                
+                <div class="select-container">
+                    <select id="yearSelect3" class="custom-select">
+                        
+                        <option value="2023">2023</option>
+                        
+                    </select>
+                </div>
+
+                
+                <div class="select-container">
+                    <select id="monthSelect3" class="custom-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="item" id="wordcloud3" style="width:1200px;height:600px;"></div>
+
+
+            <script>
+                
+                
+                var yearMonthData3 = [{"Year":2023,"Month":5,"Data":[{"Name":"Jalingpp","Value":1},{"Name":"tmyisgod","Value":1},{"Name":"dirtyDan0","Value":1},{"Name":"yygs-yyss","Value":1},{"Name":"yz2022","Value":1},{"Name":"XDxc-cuber","Value":1},{"Name":"xiaofeichong123","Value":1},{"Name":"zzyzeyuan","Value":1},{"Name":"tennnx","Value":1},{"Name":"yuanam","Value":1},{"Name":"momentNi","Value":1},{"Name":"lhbvvvvv","Value":1},{"Name":"Y-jiji","Value":1},{"Name":"Miaheeee","Value":1},{"Name":"xuhuahuang813","Value":1},{"Name":"zhouchenyi2000","Value":1},{"Name":"wj23027","Value":1},{"Name":"GiveMeAnApple99","Value":1},{"Name":"scraneg","Value":1},{"Name":"MartinZheng717","Value":1},{"Name":"Christina327","Value":1},{"Name":"Breesiu","Value":1},{"Name":"Goinggoinggoing","Value":1},{"Name":"Zhangxixiang77","Value":1},{"Name":"PeterXu1209","Value":1},{"Name":"ZhangChunXian","Value":1},{"Name":"nicole01101101zke","Value":1},{"Name":"RTEnzyme","Value":1},{"Name":"Linshou99","Value":1},{"Name":"looper-sil","Value":1},{"Name":"xxxxxiwu","Value":1},{"Name":"mattian7","Value":1},{"Name":"qqliang","Value":1},{"Name":"heroding77","Value":1},{"Name":"Boat2U","Value":1},{"Name":"blingber","Value":1},{"Name":"BhJia","Value":1},{"Name":"wangyu-ustc","Value":1},{"Name":"JinkaiXu","Value":1}]},{"Year":2023,"Month":6,"Data":[{"Name":"LinRS1999","Value":1},{"Name":"pourquoi-1130","Value":1},{"Name":"hzhang4433","Value":1},{"Name":"hsy77","Value":1},{"Name":"Ashura5","Value":1},{"Name":"Zzzzzhuzhiwei","Value":1},{"Name":"wujwyi","Value":1},{"Name":"qkgoalkeeper","Value":1}]},{"Year":2023,"Month":2,"Data":[{"Name":"stevending1st","Value":1}]},{"Year":2023,"Month":3,"Data":[{"Name":"zhicheng-ning","Value":1}]},{"Year":2023,"Month":4,"Data":[{"Name":"wypsz","Value":1},{"Name":"Tamiflu233","Value":1},{"Name":"TengLuoLuo","Value":1},{"Name":"DarkHighness","Value":1},{"Name":"itsKevin-lgy","Value":1},{"Name":"HunterHan","Value":1},{"Name":"yfsn666","Value":1},{"Name":"JinaoLiu","Value":1},{"Name":"Liuyushiii","Value":1},{"Name":"xwyzsn","Value":1},{"Name":"andyhuang18","Value":1},{"Name":"Freejww","Value":1},{"Name":"hyDududu","Value":1},{"Name":"Philosober","Value":1},{"Name":"TW-githubs","Value":1},{"Name":"wengsy150943","Value":1},{"Name":"TieWay59","Value":1},{"Name":"iclovemiku","Value":1},{"Name":"gongchenghua","Value":1},{"Name":"gqq1210","Value":1},{"Name":"Hcque","Value":1},{"Name":"lroethan","Value":1},{"Name":"springyulu","Value":1},{"Name":"Yukiho1028","Value":1},{"Name":"HaoyangShi","Value":1},{"Name":"abcdabcd3899","Value":1}]}];
+
+
+                if (yearMonthData3) {
+                    document.getElementById("new_contributors").style.display = "block";
+                } else {
+                    document.getElementById("new_contributors").style.display = "none";
+                }
+
+                document.getElementById("yearSelect3").value =  2023 ;
+                document.getElementById("monthSelect3").value =  1 ;
+
+                
+                function generateWordCloud3(year, month) {
+                    
+                    var selectedData3 = [];
+                    for (var i = 0; i < yearMonthData3.length; i++) {
+                        if (yearMonthData3[i].Year === year && yearMonthData3[i].Month === month) {
+                            selectedData3 = yearMonthData3[i].Data;
+                            break;
+                        }
+                    }
+
+                    
+                    var chartData3 = selectedData3.map(function (item) {
+                        return {
+                            name: item.Name,
+                            value: item.Value
+                        };
+                    });
+
+                    
+                    var option3 = {
+                        series: [{
+                            type: 'wordCloud',
+                            data: chartData3,
+                            rotationRange: [-45, 0, 45, 90],
+                            textStyle: {
+                                normal: {
+                                    color: function() {
+                                        return 'rgb(' +
+                                            Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) +
+                                            ', ' + Math.round(Math.random() * 255) + ')'
+                                    }
+                                }
+                            },
+                            left: 'center',
+                            top: 'center',
+                            
+                            
+                            right: null,
+                            bottom: null,
+                        }]
+                    };
+
+                    
+                    var chart3 = echarts.init(document.getElementById('wordcloud3'));
+                    chart3.setOption(option3);
+                }
+
+                
+                var yearSelect3 = document.getElementById('yearSelect3');
+                var monthSelect3 = document.getElementById('monthSelect3');
+                yearSelect3.addEventListener('change', updateWordCloud3);
+                monthSelect3.addEventListener('change', updateWordCloud3);
+
+                
+                function updateWordCloud3() {
+                    var selectedYear3 = parseInt(yearSelect3.value);
+                    var selectedMonth3 = parseInt(monthSelect3.value);
+                    generateWordCloud3(selectedYear3, selectedMonth3);
+                }
+
+                
+                var defaultYear3 = parseInt(yearSelect3.value);
+                var defaultMonth3 = parseInt(monthSelect3.value);
+
+                generateWordCloud3(defaultYear3, defaultMonth3);
+            </script>
+
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="activity"><strong>activity各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="activity1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "20.92", 
+                "138.16", 
+                "223.32", 
+                "273.35", 
+                "64.1", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('activity1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="attention"><strong>attention各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="attention1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "3", 
+                "38", 
+                "35", 
+                "84", 
+                "165", 
+                "5", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('attention1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="bus_factor"><strong>bus_factor各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="bus_factor1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "6", 
+                "55", 
+                "48", 
+                "64", 
+                "13", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('bus_factor1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_requests"><strong>change_requests各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_requests1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "0", 
+                "1", 
+                "39", 
+                "110", 
+                "9", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('change_requests1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_requests_accepted"><strong>change_requests_accepted各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_requests_accepted1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "1", 
+                "2", 
+                "27", 
+                "53", 
+                "12", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('change_requests_accepted1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_requests_reviews"><strong>change_requests_reviews各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_requests_reviews1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "0", 
+                "0", 
+                "27", 
+                "7", 
+                "0", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('change_requests_reviews1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="code_change_lines_add"><strong>code_change_lines_add各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="code_change_lines_add1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "1", 
+                "58", 
+                "1811", 
+                "1553", 
+                "155", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('code_change_lines_add1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="code_change_lines_remove"><strong>code_change_lines_remove各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="code_change_lines_remove1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "1", 
+                "56", 
+                "1098", 
+                "565", 
+                "9", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('code_change_lines_remove1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="code_change_lines_sum"><strong>code_change_lines_sum各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="code_change_lines_sum1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "0", 
+                "2", 
+                "713", 
+                "988", 
+                "146", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('code_change_lines_sum1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="inactive_contributors"><strong>inactive_contributors各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="inactive_contributors1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "0", 
+                "0", 
+                "0", 
+                "0", 
+                "0", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('inactive_contributors1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issue_comments"><strong>issue_comments各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issue_comments1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "27", 
+                "278", 
+                "362", 
+                "289", 
+                "71", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('issue_comments1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issues_closed"><strong>issues_closed各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issues_closed1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "0", 
+                "1", 
+                "11", 
+                "12", 
+                "2", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('issues_closed1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issues_new"><strong>issues_new各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issues_new1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "8", 
+                "30", 
+                "44", 
+                "38", 
+                "7", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('issues_new1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="new_contributors"><strong>new_contributors各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="new_contributors1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "1", 
+                "1", 
+                "26", 
+                "39", 
+                "8", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('new_contributors1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="openrank"><strong>openrank各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="openrank1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "3.23", 
+                "23.75", 
+                "30.57", 
+                "53.61", 
+                "37.53", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('openrank1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="participants"><strong>participants各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="participants1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "14", 
+                "76", 
+                "96", 
+                "117", 
+                "33", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('participants1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="stars"><strong>stars各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="stars1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "3", 
+                "32", 
+                "31", 
+                "12", 
+                "5", 
+                "3", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('stars1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="technical_fork"><strong>technical_fork各月份柱状图 ：</strong></h2>
+        <div id="chart">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="technical_fork1" style="width:1200px;height:600px;"></div>
+
+            <script type="text/javascript">
+
+                var dates = ["2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                ;
+                var data1 = [
+                "0", 
+                "3", 
+                "2", 
+                "36", 
+                "80", 
+                "1", ]
+                ;
+
+                "use strict";
+                var myChart = echarts.init(document.getElementById('technical_fork1'), "white");
+                var option = {
+                    title: {},
+                    tooltip: {},
+                    legend: {},
+                    xAxis: {
+                        type: 'category',
+                        data: dates,
+                        boundaryGap: true,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: [{
+                        "axisLabel": {"show": true},
+                        "splitArea": {"show": false,},
+                        "splitLine": {"show": false,}
+                    }],
+                    dataZoom: [
+                        {
+                            type: 'inside'
+                        }
+                    ],
+                    series: [
+                        {
+                            "name": "X-lab2017\/oss101",
+                            "type": "bar",
+                            "data": data1,
+                            "label": {"show": false},
+                            "emphasis": {"label": {"show": false},},
+                            "markLine": {"label": {"show": false}},
+                            "markPoint": {"label": {"show": false}},
+                        },
+                    ],
+                    color: ["#c23531", "#2f4554", "#61a0a8", "#d48265", "#91c7ae", "#749f83", "#ca8622", "#bda29a", "#6e7074", "#546570", "#c4ccd3"],
+                };
+
+                
+
+                myChart.on('click', function (params) {
+                    console.log(dates[Math.max(params.dataIndex - 6 / 2, 0)]);
+                    myChart.dispatchAction({
+                        type: 'dataZoom',
+                        startValue: dates[Math.max(params.dataIndex - 6 / 2, 0)],
+                        endValue:
+                            dates[Math.min(params.dataIndex + 6 / 2, data1.length - 1)]
+                    });
+                });
+
+                myChart.setOption(option);
+            </script>
+        </div>
+    </div>
+
+
+    
+
+
+
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_request_age"><strong>change_request_age line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_request_age1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('change_request_age1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-04", "2023-05", "2023-06", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["12.4", "10.3", "41", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["7", "3", "2", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["13", "5", "36", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["14", "7", "38.5", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["14", "10", "53", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["14", "45", "75", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_request_resolution_duration"><strong>change_request_resolution_duration line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_request_resolution_duration1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('change_request_resolution_duration1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["0", "0", "4.82", "5.86", "1.64", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["0", "0", "0", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["0", "0", "0", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["0", "0", "2", "2", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["0", "0", "5", "7", "0.5", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["0", "0", "28", "29", "15", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="change_request_response_time"><strong>change_request_response_time line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="change_request_response_time1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('change_request_response_time1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-03", "2023-04", "2023-05", "2023-06", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["0", "3.82", "6.05", "2.44", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["0", "0", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["0", "0", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["0", "0", "1", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["0", "0", "6", "2", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["0", "75", "54", "12", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issue_age"><strong>issue_age line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issue_age1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('issue_age1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["2", "23.27", "38.45", "53.7", "79.14", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["2", "4", "5", "3", "1", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["2", "17", "18", "25", "55", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["2", "21", "43", "60.5", "79", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["2", "31", "58", "82", "112", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["2", "33", "63", "94", "124", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issue_resolution_duration"><strong>issue_resolution_duration line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issue_resolution_duration1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('issue_resolution_duration1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-03", "2023-04", "2023-05", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["47", "23", "5.67", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["0", "17", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["23.5", "20", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["47", "23", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["70.5", "26", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["94", "29", "43", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 style="color:rgb(0, 0, 0) ; font-size:40px" id="issue_response_time"><strong>issue_response_time line race图 ：</strong></h2>
+        <div id="chartRace">
+            
+            <div class="select" style="margin-right:20px; margin-top:20px; position:fixed; right:20px;"></div>
+
+            <div class="item" id="issue_response_time1" style="width:1200px;height:600px;"></div>
+            <script>
+                var chartContainerRace = document.getElementById('issue_response_time1');
+                var chartRace = echarts.init(chartContainerRace);
+
+                var optionRace = {
+                    title: {
+                        text: 'Line Race 图'
+                    },
+                    tooltip: {
+                        trigger: 'axis', 
+                        axisPointer: {
+                            type: 'cross' 
+                        }
+                    },
+                    legend: {
+                        data: ['avg', 'quantile_0', 'quantile_1','quantile_2','quantile_3','quantile_4']
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: ["2023-02", "2023-03", "2023-04", "2023-05", "2023-06", ]
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'avg',
+                            type: 'line',
+                            data: ["16.38", "22.27", "11.06", "6.33", "4", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_0',
+                            type: 'line',
+                            data: ["0", "0", "0", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_1',
+                            type: 'line',
+                            data: ["0", "1", "1", "0", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_2',
+                            type: 'line',
+                            data: ["1", "2", "1", "1", "0", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_3',
+                            type: 'line',
+                            data: ["2.25", "9.5", "2", "1.25", "1", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        },
+                        {
+                            name: 'quantile_4',
+                            type: 'line',
+                            data: ["124", "122", "91", "55", "26", ],
+                            encode: {
+                                x: 0, 
+                                y: [1] 
+                            }
+                        }
+                    ]
+                };
+
+                chartRace.setOption(optionRace);
+            </script>
+        </div>
+    </div>
+    
+</div>
+
+
+</body>
+</html>
+
+
+
+
