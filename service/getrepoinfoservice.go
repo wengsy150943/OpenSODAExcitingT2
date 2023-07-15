@@ -53,6 +53,7 @@ func GetUrlContent(url string, repo string, metric string) RepoInfo {
 	err = json.Unmarshal([]byte(body), &temp)
 	//有些metric会因为没有数据而不返回json
 	if err != nil {
+		println("xml error page!")
 		retr := RepoInfo{
 			RepoName: repoName,
 			RepoUrl:  repoURL,

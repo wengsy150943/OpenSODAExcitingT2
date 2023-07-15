@@ -186,6 +186,10 @@ type SingleDownloadService struct {
 }
 
 func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error {
+	if source_.Dates[0] == "" || source_.Data == nil {
+		return nil
+	}
+
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
@@ -194,20 +198,16 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 	d.Data = make(map[string]([]float32))
 	d.QuantileStatsData = make(map[string]RaceLineData)
 
-	initYear := 0
-	initMonth := 0
-	if source_.Dates != nil {
-		initYear, _ = strconv.Atoi(d.Dates[0][:4])
-		initMonth, _ = strconv.Atoi(d.Dates[0][5:7])
+	initYear, err1 := strconv.Atoi(d.Dates[0][:4])
+	initMonth, err2 := strconv.Atoi(d.Dates[0][5:7])
+
+	if err1 != nil {
+		fmt.Println(err1)
 	}
 
-	//if err1 != nil {
-	//	fmt.Println(err1)
-	//}
-	//
-	//if err2 != nil {
-	//	fmt.Println(err2)
-	//}
+	if err2 != nil {
+		fmt.Println(err2)
+	}
 
 	d.InitYear = initYear
 	d.InitMonth = initMonth
@@ -288,6 +288,10 @@ func (d *SingleDownloadService) SetData(source_ RepoInfo, target_ string) error 
 }
 
 func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ string, k string) error {
+	//保存在数据库中的空数据是"",从url获得的空数据是nil
+	if source_.Dates[0] == "" || source_.Data == nil {
+		return nil
+	}
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
@@ -393,6 +397,10 @@ func (d *SingleDownloadService) SetDataOneMetric(source_ RepoInfo, target_ strin
 }
 
 func (d *SingleDownloadService) SetDataOneMonth(source_ RepoInfo, target_ string, year_ int, month_ int, metric_ string) error {
+	//保存在数据库中的空数据是"",从url获得的空数据是nil
+	if source_.Dates[0] == "" || source_.Data == nil {
+		return nil
+	}
 	d.Target = target_
 	d.Source = source_.RepoUrl
 	d.Title = source_.RepoName
