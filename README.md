@@ -32,13 +32,22 @@
    go build
    ```
 
-2. 执行可执行文件
+   可以进一步将可执行文件安装进系统中。
+   ```bash
+   go install
+   ```
+
+3. 执行可执行文件
 
    ```bash
    ./exciting-opendigger commands
    ```
-
-   具体的执行命令见下：
+   在将文件安装进系统后，可以在任意位置直接运行该文件
+   ```bash
+   exciting-opendigger commands
+   ```
+   
+   具体的执行命令见下，其中均假定未将文件安装入系统中：
 
 ## 2. Usage
 
