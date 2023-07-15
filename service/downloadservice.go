@@ -10,6 +10,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path"
 	"sort"
 	"strconv"
 	"time"
@@ -680,7 +681,7 @@ func (d *BatchDownloadService) Download(filepath string) error {
 		data = append(data, tempRow)
 	}
 
-	file, err := os.Create(filepath + d.Metric + ".csv")
+	file, err := os.Create(path.Join(filepath, d.Metric+".csv"))
 	if err != nil {
 		return err
 	}
