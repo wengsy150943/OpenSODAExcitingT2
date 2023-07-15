@@ -617,12 +617,18 @@ type BatchDownloadService struct {
 	Dates  []string
 }
 
-func pathExists(path string) (error, bool) {
+func pathExists(path string) error {
 	s, err := os.Stat(path)
 	if err != nil {
-		return err, false
+		if e := os.Mkdir(path, os.ModePerm); e != nil {
+			return e
+		}
+		return nil
 	}
-	return nil, s.IsDir()
+	if !s.IsDir() {
+		return errors.New("the path point to a file, not a dir")
+	}
+	return nil
 }
 
 func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string) error {
@@ -661,8 +667,8 @@ func (d *BatchDownloadService) SetData(sources_ []RepoInfo, metric_ string) erro
 }
 
 func (d *BatchDownloadService) Download(filepath string) error {
-	if err, isDir := pathExists(filepath); err != nil || !isDir {
-		log.Fatal("Path Not Exist or Not a Dir")
+	if err := pathExists(filepath); err != nil {
+		log.Fatal(err)
 	}
 	data := make([][]string, 0)
 
