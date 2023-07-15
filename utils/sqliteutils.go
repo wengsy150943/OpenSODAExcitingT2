@@ -79,7 +79,9 @@ func (a Datestype) Value() (driver.Value, error) {
 创建表
 */
 func CreateTable(structname interface{}) {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -101,7 +103,9 @@ func CreateTable(structname interface{}) {
 数据表是否存在
 */
 func TableExist(tablename string) bool {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -170,7 +174,9 @@ func ReadQuerySingleMetric(repoinfo *CachedRepoInfo, reponame string, metric str
 插入命令行log
 */
 func Insertlog(log string) error {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -184,7 +190,9 @@ func Insertlog(log string) error {
 }
 
 func Readlog(logs *[]Searchhistory) {
-	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("userDB.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
