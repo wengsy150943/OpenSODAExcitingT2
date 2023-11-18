@@ -217,9 +217,58 @@ Untracked files:
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
 
+在service文件夹新建你需要实现功能的文件，并新建该功能的测试文件。
+
 ### Build and test
+
+遵循README中项目构建步骤
+
+```bash
+go build
+go install
+```
+
+之后完成测试。
 
 ### Commit and push
 
+使用下面的命令完成提交。
+
+```bash
+git commit -m "your commit info"
+```
+
+保持本地仓库最新
+
+需要获取仓库最新代码并更新当前分支。
+
+push到远程仓库
+
+```bash
+git push origin new_branch
+```
+
 ### Pull request
+
+点击 new pull request，选择本地分支和目标分支。在 PR 的描述说明中，填写该 PR 所完成的功能。接下来等待 review，如果有需要修改的地方，参照上述步骤更新 origin 中的对应分支即可。
+
+#####　删除分支
+
+在 PR 被 merge 进主仓库后，我们可以在 PR 的页面删除远程仓库的分支。
+
+也可以使用 `git push origin :分支名` 删除远程分支，如：
+
+```
+git push origin :new_branch
+```
+
+##### 删除本地分支
+
+```
+# 切换到 main 分支，否则无法删除当前分支
+git checkout main
+
+# 删除 new_branch 分支
+git branch -D new_branch
+```
 
