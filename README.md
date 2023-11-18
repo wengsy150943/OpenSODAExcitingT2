@@ -177,3 +177,49 @@ html版本报告demo：
 - 梁辉       查询模块
 - 孙印政   查询模块
 
+## 5. How to contribute
+
+### Fork
+
+从项目主页(https://github.com/wengsy150943/OpenSODAExcitingT2)点击`Fork`，将项目fork到自己的代码仓库。
+
+### Clone
+
+将上一步中fork的代码仓库clone到本地
+
+```
+git clone https://github.com/USERNAME/OpenSODAExcitingT2
+cd OpenSODAExcitingT2
+```
+
+### Create local branch
+
+创建自己的本地branch，在新的branch上进行开发
+
+```
+git checkout -b new_branch
+```
+
+### Start development
+
+使用`git status`查看当前仓库分支状态
+
+```bash
+ git status
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+    modified:   README.md
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+    test
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+### Build and test
+
+### Commit and push
+
+### Pull request
+
