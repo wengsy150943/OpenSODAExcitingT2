@@ -26,7 +26,7 @@
 
 ### 1.3 运行准备
 
-本项目采用golang开发，需要运行环境具有golang 1.18 及以上的版本。
+本项目采用golang开发，需要运行环境具有golang 1.18 及以上的版本 / Docker部署。
 
 1. 编译源代码获得可执行文件。
 
@@ -37,6 +37,16 @@
    可以进一步将可执行文件安装进系统中。
    ```bash
    go install
+   ```
+2. Docker部署
+   拉取docker image。
+   ```bash
+   docker pull yinzhengsun/exciting-opendigger:v1.0
+   ```
+
+   进入容器
+   ```bash
+   docker run -it yinzhengsun/exciting-opendigger:v1.0 /bin/bash
    ```
 
 3. 执行可执行文件
@@ -50,6 +60,8 @@
    ```
    
    具体的执行命令见下，其中均假定未将文件安装入系统中：
+   
+
 
 ## 2. Usage
 
